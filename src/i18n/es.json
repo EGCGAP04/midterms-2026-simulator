@@ -1,6 +1,6 @@
 {
   "app.title": "Midterms 2026 Simulator",
-  "app.subtitle": "Simulador de las elecciones legislativas de EE. UU. 2026",
+  "app.subtitle": "Simulador de las elecciones legislativas de EE. UU. 2026",
   "app.loading": "Cargando el pronóstico…",
   "app.loadError": "No se pudo cargar el pronóstico.",
   "lang.label": "Idioma",

@@ -12,14 +12,24 @@ function byLang(options: Intl.NumberFormatOptions): Record<Lang, Intl.NumberForm
   }
 }
 
-const POINTS = byLang({ minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const POINTS: Record<number, Record<Lang, Intl.NumberFormat>> = {
+  0: byLang({ maximumFractionDigits: 0 }),
+  2: byLang({ minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+}
 const PERCENT = byLang({ style: 'percent', maximumFractionDigits: 0 })
 
-/** A margin (a fraction, R − opposition) as "D+8.75", or "EVEN" when it rounds
- * to 0. `ahead` names the party ahead when it is not R or D (an independent). */
-export function formatMargin(lang: Lang, margin: number, ahead?: Party): string {
-  const points = POINTS[lang].format(Math.abs(margin) * 100)
-  if (points === POINTS[lang].format(0)) return translate(lang, 'margin.even')
+export interface MarginOptions {
+  /** The party ahead, when it is not R or D (an independent). */
+  ahead?: Party
+  /** 2 (the default) or 0, for the slider's ends. */
+  decimals?: 0 | 2
+}
+
+/** A margin (a fraction, R − opposition) as "D+8.75", or "EVEN" when it rounds to 0. */
+export function formatMargin(lang: Lang, margin: number, { ahead, decimals = 2 }: MarginOptions = {}): string {
+  const format = POINTS[decimals][lang]
+  const points = format.format(Math.abs(margin) * 100)
+  if (points === format.format(0)) return translate(lang, 'margin.even')
   return `${ahead ?? (margin > 0 ? 'R' : 'D')}+${points}`
 }
 

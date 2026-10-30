@@ -65,7 +65,12 @@ describe('formatMargin', () => {
   })
 
   it('names an independent ahead', () => {
-    expect(formatMargin('en', -0.031, 'I')).toBe('I+3.10')
+    expect(formatMargin('en', -0.031, { ahead: 'I' })).toBe('I+3.10')
+  })
+
+  it('drops the decimals when asked', () => {
+    expect(formatMargin('en', -0.29, { decimals: 0 })).toBe('D+29')
+    expect(formatMargin('es', 0.2, { decimals: 0 })).toBe('R+20')
   })
 })
 
