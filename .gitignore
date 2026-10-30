@@ -1,0 +1,23 @@
+# Node / Vite
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.local
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# IDEs
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code (personal config)
+.claude/settings.local.json
+CLAUDE.local.md

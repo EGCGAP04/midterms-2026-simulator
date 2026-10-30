@@ -1,0 +1,50 @@
+name: "📝 Docs"
+description: Documentation to add or fix
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is missing, wrong or out of date?
+      placeholder: E.g. The README does not explain how to deploy...
+    validations:
+      required: true
+
+  - type: textarea
+    id: subtasks
+    attributes:
+      label: Sub-tasks checklist
+      description: Break the work down into concrete steps (optional, can be adjusted later)
+      value: |
+        - [ ] 
+    validations:
+      required: false
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      description: Which stage of the roadmap does this belong to?
+      # The open milestones, under their exact GitHub titles. The same list is in
+      # every form in this folder: add a milestone to all of them when it is
+      # created, and drop it from all of them when it closes.
+      options:
+        - "M1: Data exporter"
+        - "M2: Forecast model"
+        - "M3: Core UI"
+        - "M4: Maps"
+        - "M5: Race details and lists"
+        - "M6: Polish and launch"
+        - Not defined yet
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Any relevant consideration, reference or open question
+    validations:
+      required: false

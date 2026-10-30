@@ -1,0 +1,51 @@
+name: "🐛 Bug"
+description: Something does not work as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include the URL (it carries the chamber, slider value and language) and the browser or device if relevant.
+      placeholder: |
+        1. Open ?ch=house&env=-5.0&lang=es
+        2. Hover CA-22
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: Milestone
+      description: Which stage of the roadmap does this belong to?
+      # The open milestones, under their exact GitHub titles. The same list is in
+      # every form in this folder: add a milestone to all of them when it is
+      # created, and drop it from all of them when it closes.
+      options:
+        - "M1: Data exporter"
+        - "M2: Forecast model"
+        - "M3: Core UI"
+        - "M4: Maps"
+        - "M5: Race details and lists"
+        - "M6: Polish and launch"
+        - Not defined yet
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional notes
+      description: Screenshots, console errors, or anything else relevant
+    validations:
+      required: false
