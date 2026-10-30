@@ -253,7 +253,7 @@ Errors are correlated across races: if the polls miss the national environment, 
 Use a responsive layout that also works on a phone.
 
 1. **Header:**
-   - Title.
+   - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle.
    - EN/ES toggle.
    - House/Senate switch.
 2. **Slider:**
@@ -287,7 +287,10 @@ Use a responsive layout that also works on a phone.
 ### i18n
 
 - All strings live in `src/i18n/en.json` and `es.json` (Rioplatense Spanish is fine, but keep the UI neutral).
-- Numbers are formatted with `Intl.NumberFormat`: `es-AR` uses a decimal comma.
+  - Flat keys (`"slider.reset"`). English is the reference: a key missing from Spanish falls back to English, and a test checks that both catalogs have the same keys and placeholders (`{value}`).
+- Numbers are formatted with `Intl.NumberFormat` (`en-US`, `es-AR`): `es-AR` uses a decimal comma.
+- **Margins:** the letter of the party ahead and the margin in points, with two decimals: "D+8.75" ("D+8,75" in Spanish), "I+3.10". A margin that rounds to 0 shows as "EVEN" ("Empate" in Spanish).
+- **Probabilities:** whole percentages, shown as ">99%" above 99% and "<1%" below 1%, fixed races included.
 
 ---
 
@@ -318,6 +321,6 @@ Use a responsive layout that also works on a phone.
 /public/races.json
 /src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
 /src/components/{Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
-/src/i18n/{en.json, es.json}
+/src/i18n/{en.json, es.json, i18n.ts, format.ts}
 /README.md   (how to regenerate the data and deploy)
 ```

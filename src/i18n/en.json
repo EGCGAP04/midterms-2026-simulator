@@ -1,0 +1,16 @@
+{
+  "app.title": "Midterms 2026 Simulator",
+  "app.subtitle": "A simulator of the 2026 US House and Senate elections",
+  "app.loading": "Loading the forecast…",
+  "app.loadError": "The forecast could not be loaded.",
+  "lang.label": "Language",
+  "lang.en": "English",
+  "lang.es": "Español",
+  "chamber.label": "Chamber",
+  "chamber.house": "House",
+  "chamber.senate": "Senate",
+  "slider.label": "Estimated National Environment (Generic Congressional Ballot)",
+  "slider.default": "Default: {value}",
+  "slider.reset": "Reset to default ({value})",
+  "margin.even": "EVEN"
+}
