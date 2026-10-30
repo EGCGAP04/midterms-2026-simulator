@@ -62,6 +62,12 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   ├── export_data.py           # Workbook → races.json, with self-checks
 │   └── test_export_data.py
 ├── src/
+│   ├── i18n/                    # UI strings and locale-aware formatting
+│   │   ├── en.json              # English, the reference catalog
+│   │   ├── es.json
+│   │   ├── format.ts            # Margins and probabilities
+│   │   ├── i18n.test.ts
+│   │   └── i18n.ts              # String lookup with English fallback
 │   ├── model/                   # Pure forecast model, unit-tested with Vitest
 │   │   ├── acceptance.test.ts   # SPEC §5 against public/races.json
 │   │   ├── config.ts            # Sigmas, seed, DEFAULT_ENV, thresholds

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Data exporter (`scripts/export_data.py`): reads the forecast workbook, runs the self-checks in SPEC §2.6 (race counts, ratings, flips, seat totals, rating counts, Montana's shares, sheet reference) and writes `public/races.json` with every House and Senate race, its type, candidates, incumbency, baseline margin and 2024 context. Unit tests for its helpers run in CI.
 - Forecast model, first part (`src/model/`): margins and winners under the slider (normal, blend, fixed and Montana's three-way race, with the ±90 cap), ratings, rating counts and seat totals, with unit tests and the SPEC §5 acceptance tests against `races.json`.
 - Correlated Monte Carlo (`src/model/simulate.ts`): 10,000 simulations with a shared national error and per-race errors, drawn once from a seeded generator, giving per-race win probabilities, each party's median seats, 80% interval and seat histogram, and the chance of control. Tests check that every race's probability moves with the slider; `npm run bench` times it locally.
+- English and Spanish UI strings (`src/i18n/`): a lookup with an English fallback, and locale-aware margins ("D+8.75" / "D+8,75", "EVEN" / "Empate") and win probabilities (">99%", "<1%"). A test keeps both catalogs' keys and placeholders in step.
 - `races.json` carries the workbook's own ratings and totals (`workbookRating`, `workbook`), so the acceptance tests compare the TypeScript model with the workbook.
 
 ### Changed

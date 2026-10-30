@@ -1,0 +1,16 @@
+{
+  "app.title": "Midterms 2026 Simulator",
+  "app.subtitle": "Simulador de las elecciones legislativas de EE. UU. 2026",
+  "app.loading": "Cargando el pronóstico…",
+  "app.loadError": "No se pudo cargar el pronóstico.",
+  "lang.label": "Idioma",
+  "lang.en": "English",
+  "lang.es": "Español",
+  "chamber.label": "Cámara",
+  "chamber.house": "Cámara de Representantes",
+  "chamber.senate": "Senado",
+  "slider.label": "Entorno nacional estimado (voto genérico al Congreso)",
+  "slider.default": "Predeterminado: {value}",
+  "slider.reset": "Volver al valor predeterminado ({value})",
+  "margin.even": "Empate"
+}
