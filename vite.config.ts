@@ -7,7 +7,5 @@ export default defineConfig({
   plugins: [react()],
   test: {
     include: ['src/**/*.test.ts'],
-    // No tests yet: the model and its tests arrive in M2 (#3, #4). Remove then.
-    passWithNoTests: true,
   },
 })

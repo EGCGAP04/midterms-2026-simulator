@@ -141,6 +141,7 @@ interface Race {
   fixedWinner?: Party;   // uncontested / DvD / RvR
   intraShares?: [number, number]; // DvD / RvR display only
   pollSource?: string;   // Senate only
+  workbookRating: string; // the workbook's rating (`AF`), e.g. "Tossup (Tilt R)"; for the acceptance tests
   context: Context;      // shown as context only; the model never uses it
 }
 
@@ -157,7 +158,16 @@ interface Dataset {
   sourceFile: string;
   g0: number;
   senateNotUp: { D: number; R: number };
+  workbook: WorkbookTotals; // the workbook's own totals, for the acceptance tests (§5)
   races: Race[];
+}
+
+interface WorkbookTotals {
+  house: {
+    seats: { D: number; R: number };                 // R7 / S7
+    ratings: Record<"Tossup" | "Lean" | "Likely" | "Safe", { D: number; R: number }>; // R8:S11
+  };
+  senate: { seats: { D: number; I: number; R: number } }; // J44 / L44 / N44, seats not up included
 }
 ```
 
@@ -184,10 +194,9 @@ Let `g` be the slider value (fraction, range −0.20 … +0.20, R − D) and `Δ
 - **normal / blend:** `m = m0 + slope × Δ`, then clamp to `[−L, L]`, where `L = max(0.90, |m0|)`. This keeps the loser at 5% or more, and a race that already starts beyond the cap never moves further out.
 - **uncontested / DvD / RvR:** fixed winner; the slider has no effect.
 - **MT3:**
-  - `A' = A + Δ/2`
-  - `O = B + C − Δ/2`
-  - `B' = O·B/(B+C)` and `C' = O·C/(B+C)`
-  - Clamp A' to [0.05, 0.95].
+  - `A' = A + Δ/2`, clamped to [0.05, 0.95].
+  - `O = 1 − A'` (the opposition's total; equal to `B + C − Δ/2` when A' is not clamped, and it keeps the three shares adding up to 1 when it is).
+  - `B' = O·B/(B+C)` and `C' = O·C/(B+C)`.
   - Winner = argmax(A', B', C'). Displayed margin = A' − max(B', C').
 
 ### 3.2 Ratings
@@ -216,7 +225,7 @@ Errors are correlated across races: if the polls miss the national environment, 
   - Median seats.
   - 80% interval.
   - Seat histogram.
-  - P(majority): House needs 218. In the Senate, R controls at 50 or more seats (the VP breaks ties); report D + I separately.
+  - P(majority): House needs 218 (with independent winners, neither party may reach it). In the Senate, R controls at 50 or more seats (the VP breaks ties); the complement is shown as **D + I**, not as D control, because this year's independents have not committed to caucus with the Democrats. D and I seats are reported separately.
 - **Config (`src/model/config.ts`), initial guesses to calibrate later:**
 
 | Constant | Value |
@@ -280,7 +289,7 @@ Use a responsive layout that also works on a phone.
 
 ## 5. Acceptance tests
 
-- **At the baseline (slider = g0)**, which the model tests use directly:
+- **At the baseline (slider = g0)**, which the model tests use directly. The expected values come from `races.json` (`workbookRating` and `workbook`), not from numbers written into the tests, so the tests keep working when the forecast is updated:
   - Every race's margin equals `m0`.
   - Every rating equals the Excel rating.
   - House D 236 / R 199.

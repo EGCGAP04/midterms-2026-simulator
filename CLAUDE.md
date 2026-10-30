@@ -85,6 +85,8 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - TypeScript in strict mode (`"strict": true` is explicit in both `tsconfig.*.json`, though TypeScript 6+ defaults to it). No `any` and no non-null assertions (`!`) unless justified in a comment.
 - The model in `src/model/` is pure (no React, no DOM, no I/O) and fully unit-tested. Components only render and translate events.
 - Margins are always **R − opposition** as fractions (−0.09 = D+9.0). Convert to points only for display.
+- The model takes **Δ = env − g0** (`deltaFrom`), never the slider value itself: `g0` is the workbook baseline, `DEFAULT_ENV` only the page's starting point.
+- Acceptance tests read their expected values from `races.json` (`workbookRating`, `workbook`), never from numbers written into the test, so a forecast update does not break them.
 - Numbers are formatted with `Intl.NumberFormat` for the current locale, never by hand.
 
 ## Roadmap
