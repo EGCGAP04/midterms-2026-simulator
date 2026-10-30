@@ -63,7 +63,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   └── test_export_data.py
 ├── src/
 │   ├── components/              # React components: render and translate events only
-│   │   ├── Header.tsx           # Title, chamber switch, language toggle
+│   │   ├── Header.tsx           # Title, chamber switch, language and theme toggles
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
 │   │   └── Toggle.tsx           # Segmented control
@@ -92,6 +92,8 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── dataset.ts           # Loads races.json and draws the simulations
 │   │   ├── env.test.ts
 │   │   ├── env.ts               # Slider values: rounding and arrow-key steps
+│   │   ├── theme.test.ts
+│   │   ├── theme.ts             # Light/dark theme, remembered in the browser
 │   │   ├── url.test.ts
 │   │   └── url.ts               # Page state in the URL (ch, env, lang)
 │   ├── App.tsx

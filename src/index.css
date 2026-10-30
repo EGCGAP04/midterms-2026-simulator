@@ -87,6 +87,17 @@ button {
   color: light-dark(#fff, #111);
 }
 
+.toggle .icon {
+  display: block;
+  width: 1.25em;
+  height: 1.5em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .toggle button:focus-visible {
   outline: 2px solid var(--color-d);
   outline-offset: -2px;
@@ -220,41 +231,41 @@ button {
   opacity: 0.5;
 }
 
-/* Ratings: four steps per party from Tilt to Safe, and violet for independents
- * (docs/SPEC.md §4.3). Shared with the maps. Each class sets the fill and the
- * text drawn on it. */
+/* Ratings: four steps per party from Tilt (lightest) to Safe (darkest), the
+ * same in both themes, and violet for independents (docs/SPEC.md §4.3).
+ * Shared with the maps. Each class sets the fill and the text drawn on it. */
 
 .rating-d-tilt {
-  --fill: light-dark(#94bbe0, #2c5784);
-  --ink: light-dark(#111, #fff);
+  --fill: #94bbe0;
+  --ink: #111;
 }
 .rating-d-lean {
-  --fill: light-dark(#6a9fd0, #3a74ad);
-  --ink: light-dark(#111, #fff);
+  --fill: #6a9fd0;
+  --ink: #111;
 }
 .rating-d-likely {
-  --fill: light-dark(#4382bf, #5592cf);
+  --fill: #4382bf;
   --ink: #111;
 }
 .rating-d-safe {
-  --fill: light-dark(#2166ac, #82b3e6);
-  --ink: light-dark(#fff, #111);
+  --fill: #2166ac;
+  --ink: #fff;
 }
 .rating-r-tilt {
-  --fill: light-dark(#eb9c8c, #8a2c2c);
-  --ink: light-dark(#111, #fff);
+  --fill: #eb9c8c;
+  --ink: #111;
 }
 .rating-r-lean {
-  --fill: light-dark(#dc7465, #b23b38);
-  --ink: light-dark(#111, #fff);
+  --fill: #dc7465;
+  --ink: #111;
 }
 .rating-r-likely {
-  --fill: light-dark(#c94843, #d6605a);
-  --ink: light-dark(#fff, #111);
+  --fill: #c94843;
+  --ink: #fff;
 }
 .rating-r-safe {
-  --fill: light-dark(#b2182b, #f08f86);
-  --ink: light-dark(#fff, #111);
+  --fill: #b2182b;
+  --ink: #fff;
 }
 .rating-i {
   --fill: var(--color-i);
@@ -265,8 +276,6 @@ button {
 
 .summary {
   --bar: 1.75rem;
-  /* The wider gap that sets the Senate seats not up apart. */
-  --not-up-gap: 0.5rem;
   display: grid;
   gap: 0.5rem;
   margin-top: 1.5rem;
@@ -339,35 +348,51 @@ button {
   height: var(--bar);
 }
 
-/* Blocks are placed by share, so the middle line is exact; each one gives up
- * 1px on either side for the 2px gap between neighbours. */
+/* One continuous bar: only its two ends are rounded. */
+.summary-blocks {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Blocks are placed by share, so the middle line is exact. */
 .summary-block {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(var(--start) * 100% + 1px);
-  width: max(1px, calc(var(--share) * 100% - 2px));
-  border-radius: 4px;
-  background: var(--fill);
+  left: calc(var(--start) * 100%);
+  width: calc(var(--share) * 100%);
+  background-color: var(--fill);
   color: var(--ink);
   container-type: inline-size;
   display: flex;
   align-items: center;
 }
 
+/* Senate seats not up: stripes in the text colour (white on Safe), mirrored on
+ * each side. Not color-mix(): Firefox drops most of the stripes with it. */
+.summary-block-not-up {
+  background-image: repeating-linear-gradient(var(--stripes), rgb(255 255 255 / 45%) 0 2px, transparent 2px 7px);
+}
+
 .summary-block-not-up-d {
-  width: calc(var(--share) * 100% - var(--not-up-gap));
+  --stripes: 45deg;
 }
 
 .summary-block-not-up-r {
-  left: calc(var(--start) * 100% + var(--not-up-gap));
-  width: calc(var(--share) * 100% - var(--not-up-gap));
+  --stripes: -45deg;
+  justify-content: flex-end;
+}
+
+.summary-block-not-up .summary-block-label {
+  margin: 0 0.25rem;
+  border-radius: 2px;
+  background: var(--fill);
 }
 
 .summary-block[data-hovered] {
-  outline: 2px solid var(--color-text);
-  outline-offset: 1px;
-  z-index: 1;
+  box-shadow: inset 0 0 0 2px var(--ink);
 }
 
 .summary-block-label {
@@ -390,11 +415,12 @@ button {
   }
 }
 
+/* The majority line, and in the Senate the ends of the seats not up. */
 .summary-line {
   position: absolute;
   top: -0.375rem;
   bottom: -0.375rem;
-  left: 50%;
+  left: calc(var(--at) * 100%);
   width: 2px;
   translate: -50% 0;
   background: var(--color-text);
@@ -425,16 +451,23 @@ button {
   color: var(--color-muted);
 }
 
-/* A bracket under each end's seats not up. */
+/* A bracket under each end's seats not up, its arms pointing up at the bar. */
 .summary-not-up span {
   position: absolute;
   top: 0;
-  width: calc(var(--share) * 100% - var(--not-up-gap));
-  padding: 0.25rem 0.375rem 0;
-  border: 1px solid var(--color-muted);
-  border-bottom: 0;
-  height: 0.375rem;
+  box-sizing: border-box;
+  width: calc(var(--share) * 100%);
+  padding: 0.5rem 0.375rem 0;
   line-height: 1.2;
+}
+
+.summary-not-up span::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.375rem;
+  border: 1px solid var(--color-muted);
+  border-top: 0;
 }
 
 .summary-not-up-d {

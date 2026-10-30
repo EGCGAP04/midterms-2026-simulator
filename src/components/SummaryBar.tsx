@@ -6,7 +6,6 @@ import { useI18n } from '../i18n/context.ts'
 import { formatCount, formatProbability } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
 import { deltaFrom, outcomeAt } from '../model/margin.ts'
-import { countRatings, ratingOf } from '../model/ratings.ts'
 import { seatTotals, type SeatTotals } from '../model/seats.ts'
 import { simulate, type Simulator } from '../model/simulate.ts'
 import { summaryBlocks, type Block } from '../model/summary.ts'
@@ -21,7 +20,7 @@ interface SummaryBarProps {
 
 const NONE: Partial<SeatTotals> = {}
 
-const blockKey = (block: Block): string => `${block.party}-${block.kind}`
+const blockKey = (block: Block): string => `${block.side}-${block.party}-${block.kind}`
 
 /** The CSS class that colours a block (shared with the maps). */
 function ratingClass(block: Block): string {
@@ -51,17 +50,16 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
   const notUp = chamber === 'senate' ? dataset.senateNotUp : NONE
   const delta = deltaFrom(env, dataset.g0)
 
-  const outcomes = useMemo(
-    () => dataset.races.filter((race) => race.chamber === chamber).map((race) => outcomeAt(race, delta)),
-    [dataset, chamber, delta],
-  )
+  const races = useMemo(() => dataset.races.filter((race) => race.chamber === chamber), [dataset, chamber])
+  const outcomes = useMemo(() => races.map((race) => outcomeAt(race, delta)), [races, delta])
   const forecast = useMemo(() => simulate(simulator, chamber, delta, notUp), [simulator, chamber, delta, notUp])
   const seats = seatTotals(outcomes, notUp)
-  const blocks = summaryBlocks(countRatings(outcomes.map(ratingOf)), notUp)
+  const blocks = summaryBlocks(races, outcomes, notUp)
 
   const blockName = (block: Block): string => {
     if (block.kind === 'notUp') return t('summary.notUpParty', { party: block.party })
-    if (block.kind === 'independent') return t('summary.independent')
+    // An independent is named by the party it runs against.
+    if (block.kind === 'independent') return t('summary.independent', { party: block.side === 'D' ? 'R' : 'D' })
     return t(`rating.${block.kind}`, { party: block.party })
   }
 
@@ -75,6 +73,13 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
   const tip = shown.find((block) => blockKey(block) === hovered)
   // Keep the tooltip inside the bar at either end.
   const tipAt = tip && Math.min(0.9, Math.max(0.1, tip.start + tip.share / 2))
+  // The majority line, and in the Senate where the seats not up end.
+  const lines = [
+    0.5,
+    ...blocks
+      .filter((block) => block.kind === 'notUp')
+      .map((block) => (block.side === 'D' ? block.share : block.start)),
+  ]
 
   return (
     <section className="summary">
@@ -110,27 +115,31 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
             if (event.pointerType === 'mouse') setHovered(undefined)
           }}
         >
-          {shown.map((block) => (
-            <div
-              key={blockKey(block)}
-              className={`summary-block ${ratingClass(block)}${block.kind === 'notUp' ? ` summary-block-not-up-${block.party.toLowerCase()}` : ''}`}
-              style={{ '--start': block.start, '--share': block.share } as CSSProperties}
-              data-hovered={hovered === blockKey(block) || undefined}
-              onPointerEnter={(event) => {
-                if (event.pointerType === 'mouse') setHovered(blockKey(block))
-              }}
-              // A touch ends with a pointerleave, so a tap toggles the tooltip instead.
-              onPointerDown={(event) => {
-                const key = blockKey(block)
-                if (event.pointerType !== 'mouse') setHovered((current) => (current === key ? undefined : key))
-              }}
-            >
-              <span className={`summary-block-label${block.seats >= 100 ? ' summary-block-label-wide' : ''}`}>
-                {formatCount(lang, block.seats)}
-              </span>
-            </div>
+          <div className="summary-blocks">
+            {shown.map((block) => (
+              <div
+                key={blockKey(block)}
+                className={`summary-block ${ratingClass(block)}${block.kind === 'notUp' ? ` summary-block-not-up summary-block-not-up-${block.side.toLowerCase()}` : ''}`}
+                style={{ '--start': block.start, '--share': block.share } as CSSProperties}
+                data-hovered={hovered === blockKey(block) || undefined}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === 'mouse') setHovered(blockKey(block))
+                }}
+                // A touch ends with a pointerleave, so a tap toggles the tooltip instead.
+                onPointerDown={(event) => {
+                  const key = blockKey(block)
+                  if (event.pointerType !== 'mouse') setHovered((current) => (current === key ? undefined : key))
+                }}
+              >
+                <span className={`summary-block-label${block.seats >= 100 ? ' summary-block-label-wide' : ''}`}>
+                  {formatCount(lang, block.seats)}
+                </span>
+              </div>
+            ))}
+          </div>
+          {lines.map((at) => (
+            <div key={at} className="summary-line" style={{ '--at': at } as CSSProperties} />
           ))}
-          <div className="summary-line" />
         </div>
         {tip && (
           <div className="summary-tooltip" style={{ '--at': tipAt } as CSSProperties} aria-hidden="true">

@@ -9,6 +9,7 @@ import { outcomeAt } from './margin.ts'
 import { ratingOf, type Rating } from './ratings.ts'
 import { seatTotals, type SeatTotals } from './seats.ts'
 import { createSimulator, simulate, type ChamberForecast } from './simulate.ts'
+import { summaryBlocks } from './summary.ts'
 import type { Chamber, Dataset, RatingBucketName } from './types.ts'
 
 const dataset = raw as unknown as Dataset
@@ -113,6 +114,37 @@ describe('moving the slider', () => {
         const { margin } = outcomeAt(race, env - dataset.g0)
         const loserShare = (1 - Math.abs(margin)) / 2
         if (Math.abs(race.m0) <= MARGIN_CAP) expect(loserShare, `${race.id} at ${env}`).toBeGreaterThanOrEqual(0.05 - 1e-12)
+      }
+    }
+  })
+})
+
+describe('the summary bar', () => {
+  it('adds up to every party’s seats across the whole slider range', () => {
+    for (let env = ENV_MIN; env <= ENV_MAX + 1e-9; env += 0.005) {
+      for (const [races, notUp] of [
+        [house, {}],
+        [senate, dataset.senateNotUp],
+      ] as const) {
+        const outcomes = races.map((race) => outcomeAt(race, env - dataset.g0))
+        const blocks = summaryBlocks(races, outcomes, notUp)
+        const seats: SeatTotals = { R: 0, D: 0, I: 0 }
+        for (const block of blocks) seats[block.party] += block.seats
+        expect(seats).toEqual(seatTotals(outcomes, notUp))
+      }
+    }
+  })
+
+  it('puts every independent on the side of the party it runs against', () => {
+    for (const env of [ENV_MIN, DEFAULT_ENV, ENV_MAX]) {
+      for (const races of [house, senate]) {
+        const outcomes = races.map((race) => outcomeAt(race, env - dataset.g0))
+        const expected = { D: 0, R: 0 }
+        outcomes.forEach((outcome, k) => {
+          if (outcome.winner === 'I') expected[races[k].rep?.party === 'I' ? 'R' : 'D'] += 1
+        })
+        const blocks = summaryBlocks(races, outcomes).filter((block) => block.party === 'I')
+        expect(Object.fromEntries(blocks.map((block) => [block.side, block.seats]))).toEqual(expected)
       }
     }
   })
