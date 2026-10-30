@@ -219,12 +219,16 @@ Errors are correlated across races: if the polls miss the national environment, 
 
 - **Simulations:** `N = 10,000`. Each one draws a shared national error `ε_n ~ Normal(0, σ_nat)` and one race error per race `ε_r ~ Normal(0, σ_race)`.
 - **Simulated margin:** apply §3.1 with `Δ + ε_n` (times slope) plus `ε_r`. Fixed races don't vary. For MT3, add `ε_n + ε_r` to Δ.
-- **Common random numbers:** draw all errors **once** at startup from a seeded PRNG (e.g. mulberry32) and store them in `Float32Array`s. Moving the slider only re-adds the offset, so results are smooth (no jitter) and fast.
+  - The ±0.90 cap never changes the sign of a margin, so a two-candidate race goes to the REP slot when `m0 + slope·(Δ + ε_n) + ε_r ≥ 0` (an exact 0 included, as in §3.1) and to the opposition otherwise.
+- **Common random numbers:** draw all errors **once** at startup from a seeded PRNG (mulberry32, Box–Muller normals) and store them in `Float32Array`s. Moving the slider only re-adds the offset, so results are smooth (no jitter) and fast.
+  - One stream from `SEED`: the `N` national errors first, then each race's `N` errors in `races.json` order, with the race's chamber sigma. Both chambers share the national errors.
+  - Only the chamber on screen is simulated.
 - **Per-race win probability:** the share of simulations each side wins. Display `>99%` / `<1%` at the extremes.
-- **Chamber outputs:**
-  - Median seats.
-  - 80% interval.
+- **Chamber outputs, for each party (R, D, I):**
+  - Median seats: the smallest seat count reached in at least 50% of the simulations.
+  - 80% interval: the same rule at 10% and 90%.
   - Seat histogram.
+  - The medians are taken party by party, so they need not add up to the chamber size. Nor do they match the seat totals of §3.4, which count the side ahead in each race.
   - P(majority): House needs 218 (with independent winners, neither party may reach it). In the Senate, R controls at 50 or more seats (the VP breaks ties); the complement is shown as **D + I**, not as D control, because this year's independents have not committed to caucus with the Democrats. D and I seats are reported separately.
 - **Config (`src/model/config.ts`), initial guesses to calibrate later:**
 
@@ -309,6 +313,7 @@ Use a responsive layout that also works on a phone.
 ```
 /scripts/export_data.py
 /scripts/test_export_data.py   (unit tests of the pure helpers, stdlib unittest)
+/scripts/bench.ts              (times the simulation: npm run bench, local only)
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
 /src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
