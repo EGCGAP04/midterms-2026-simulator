@@ -44,7 +44,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
 - **Issues** use the forms in `.github/ISSUE_TEMPLATE/` (Feature, Bug, Chore, Docs, Refactor; blank issues are disabled). An Issue created with `gh issue create --body-file` skips the form, so mirror its sections by hand. The milestone dropdown in every form lists the open milestones: update all five forms when a milestone is created or closed.
 - **Every Issue and PR is assigned to Enzo (`EGCGAP04`) and carries labels and a milestone.** A PR carries the same labels and milestone as its Issue, and `Closes #N` in its body:
   ```bash
-  gh pr create --assignee @me --label feature --label model --milestone "M2: Forecast model" --body-file <file>
+  gh pr create --assignee @me --label feature --label ui --milestone "M3: Core UI" --body-file <file>
   ```
 - Labels: type (`feature`, `bug`, `chore`, `documentation`, `refactor`, `dependencies`) and area (`data`, `model`, `ui`).
 - Milestones: one per roadmap stage (see below). Enzo closes them.
@@ -94,7 +94,7 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 
 - [x] M0: Repository setup (Vite + React + TS, CI, Pages, Issue forms, CHANGELOG).
 - [x] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
-- [ ] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
+- [x] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [ ] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
 - [ ] M4: Maps: Senate state map and House hex cartogram.
 - [ ] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
