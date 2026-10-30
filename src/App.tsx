@@ -19,7 +19,7 @@ export default function App() {
   // Browsers throttle frequent URL changes, so wait until the slider stops.
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      window.history.replaceState(window.history.state, '', writeUrlState(state) + window.location.hash)
+      window.history.replaceState(window.history.state, '', writeUrlState(state, navigator.languages) + window.location.hash)
     }, URL_DELAY_MS)
     return () => window.clearTimeout(timer)
   }, [state])

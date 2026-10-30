@@ -1,10 +1,11 @@
-// The national-environment slider (docs/SPEC.md §4.2), in 0.01-point steps.
+// The national-environment slider (docs/SPEC.md §4.2): 0.01-point steps when
+// dragged, 0.1 or 1 point with the arrow keys.
 
 import { useId, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
-import { roundEnv } from '../state/url.ts'
+import { arrowStep, roundEnv, stepEnv } from '../state/env.ts'
 
 interface SliderProps {
   env: number
@@ -47,6 +48,12 @@ export function Slider({ env, onChange }: SliderProps) {
           value={toPoints(env)}
           aria-valuetext={value}
           onChange={(event) => onChange(roundEnv(event.currentTarget.valueAsNumber / 100))}
+          onKeyDown={(event) => {
+            const step = arrowStep(event)
+            if (step === undefined) return
+            event.preventDefault()
+            onChange(stepEnv(env, step))
+          }}
         />
         <span className="slider-default" title={t('slider.default', { value: defaultValue })} />
       </div>
