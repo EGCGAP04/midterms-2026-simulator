@@ -52,6 +52,11 @@ There are 435 districts. Each uses **two rows**: data row `r` = 15, 17, …, 883
 | Rating | `AF{r}` | |
 | Flip | `AH{r}` | "NO", "Yes, REP" or "Yes, DEM". |
 | 2024 holder | `G{r+1} + J{r+1}` | ≥ 0 → R, otherwise D. This matches the Flip formula. |
+| Last House margin | `Q{r}` | Two-party, R − D, on the **old** lines. When there was no R-vs-D race (unopposed, same-party), the workbook puts the presidential result here instead, so `Q = S` exactly: then there is no House margin to show. |
+| Last House year | | 2024, or 2022 when the note in `AU{r}` is `*2022` (AL-03, AL-04, AL-05). |
+| 2024 presidential margin | `S{r}` | Two-party, Trump − Harris, on the old lines. |
+| CPVI new / old | `U{r}` / `V{r}` | `V` is a number when the district was redrawn. The lines changed when `U ≠ V`. |
+| Trump / Harris votes | `K{r+1}` / `N{r+1}` | `N` is stored negative. Summed by state, they give each state's 2024 presidential margin (the old districts partition the state). |
 
 Seat checks: `R7` / `S7` hold the D / R totals. `R8:S11` hold the counts by rating (the row is labelled "Tossups" / Lean / Likely / Safe).
 
@@ -95,6 +100,9 @@ There are 35 races in rows 7–41, one row per race and one race per state.
 | Baseline margin m0 | `AE` |
 | Rating | `AF` |
 | Flip | `AG` |
+| Last election for the same seat: margin / year | `C` / `D` (two-party, R − D) |
+
+The Senate's 2024 presidential margin is the statewide one, from the House votes (§2.2).
 
 Seats not up: `N3` = 34 D, `P3` = 31 R. Checks: `J44` (D), `L44` (I), `N44` (R) = 52 / 0 / 48 currently.
 
@@ -133,6 +141,15 @@ interface Race {
   fixedWinner?: Party;   // uncontested / DvD / RvR
   intraShares?: [number, number]; // DvD / RvR display only
   pollSource?: string;   // Senate only
+  context: Context;      // shown as context only; the model never uses it
+}
+
+interface Context {
+  pres2024: number;      // two-party, Trump − Harris. House: on the 2026 lines, S + 2·(U − V) when redrawn
+                         // (the workbook's own projection, factor in AD2); Senate: statewide
+  last: { margin: number; year: number } | null; // House: last House race (null when Q = S);
+                         // Senate: last election for the same seat
+  redrawn?: boolean;     // House only: lines changed since `last`, so it was run on other lines
 }
 
 interface Dataset {
@@ -245,6 +262,7 @@ Use a responsive layout that also works on a phone.
    - Rating.
    - Win probability.
    - Flip flag.
+   - Context: the 2024 presidential margin and the last House race (with its year, and "old lines" when `redrawn`) or, in the Senate, the last election for that seat. Shown as background only, e.g. "Pres. 2024: R+11.4 · House 2024: R+13.9 (old lines)".
    - Type note (e.g. "Top-two primary blend", "Uncontested", "D vs D").
 6. **Seat histogram** from the simulations, with the majority line.
 7. **Lists:**
