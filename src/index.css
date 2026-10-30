@@ -10,6 +10,7 @@
   /* The same colours as text, lighter on a dark background for contrast. */
   --color-d-text: light-dark(#2166ac, #7fb2e5);
   --color-r-text: light-dark(#b2182b, #f4877d);
+  --color-i-text: light-dark(#775eb2, #a993dc);
 
   --color-text: light-dark(#1a1a1a, #ececec);
   --color-muted: light-dark(#5c5c5c, #a8a8a8);
@@ -217,4 +218,274 @@ button {
 .slider-reset:disabled {
   cursor: default;
   opacity: 0.5;
+}
+
+/* Ratings: four steps per party from Tilt to Safe, and violet for independents
+ * (docs/SPEC.md §4.3). Shared with the maps. Each class sets the fill and the
+ * text drawn on it. */
+
+.rating-d-tilt {
+  --fill: light-dark(#94bbe0, #2c5784);
+  --ink: light-dark(#111, #fff);
+}
+.rating-d-lean {
+  --fill: light-dark(#6a9fd0, #3a74ad);
+  --ink: light-dark(#111, #fff);
+}
+.rating-d-likely {
+  --fill: light-dark(#4382bf, #5592cf);
+  --ink: #111;
+}
+.rating-d-safe {
+  --fill: light-dark(#2166ac, #82b3e6);
+  --ink: light-dark(#fff, #111);
+}
+.rating-r-tilt {
+  --fill: light-dark(#eb9c8c, #8a2c2c);
+  --ink: light-dark(#111, #fff);
+}
+.rating-r-lean {
+  --fill: light-dark(#dc7465, #b23b38);
+  --ink: light-dark(#111, #fff);
+}
+.rating-r-likely {
+  --fill: light-dark(#c94843, #d6605a);
+  --ink: light-dark(#fff, #111);
+}
+.rating-r-safe {
+  --fill: light-dark(#b2182b, #f08f86);
+  --ink: light-dark(#fff, #111);
+}
+.rating-i {
+  --fill: var(--color-i);
+  --ink: #fff;
+}
+
+/* Summary bar */
+
+.summary {
+  --bar: 1.75rem;
+  /* The wider gap that sets the Senate seats not up apart. */
+  --not-up-gap: 0.5rem;
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.summary-totals {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.summary-side-r {
+  text-align: right;
+}
+
+.summary-parties {
+  display: flex;
+  gap: 1.25rem;
+}
+
+.summary-side-r .summary-parties {
+  justify-content: flex-end;
+}
+
+.summary-total {
+  display: grid;
+}
+
+.summary-party {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.summary-seats {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.summary-seats-d {
+  color: var(--color-d-text);
+}
+
+.summary-seats-r {
+  color: var(--color-r-text);
+}
+
+.summary-seats-i {
+  color: var(--color-i-text);
+}
+
+.summary-chance {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+}
+
+.summary-line-label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.summary-chart {
+  position: relative;
+}
+
+.summary-bar {
+  position: relative;
+  height: var(--bar);
+}
+
+/* Blocks are placed by share, so the middle line is exact; each one gives up
+ * 1px on either side for the 2px gap between neighbours. */
+.summary-block {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--start) * 100% + 1px);
+  width: max(1px, calc(var(--share) * 100% - 2px));
+  border-radius: 4px;
+  background: var(--fill);
+  color: var(--ink);
+  container-type: inline-size;
+  display: flex;
+  align-items: center;
+}
+
+.summary-block-not-up-d {
+  width: calc(var(--share) * 100% - var(--not-up-gap));
+}
+
+.summary-block-not-up-r {
+  left: calc(var(--start) * 100% + var(--not-up-gap));
+  width: calc(var(--share) * 100% - var(--not-up-gap));
+}
+
+.summary-block[data-hovered] {
+  outline: 2px solid var(--color-text);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+.summary-block-label {
+  padding: 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A block too narrow for its count prints none; the table has it. */
+@container (width < 1.75rem) {
+  .summary-block-label {
+    display: none;
+  }
+}
+
+@container (width < 2.25rem) {
+  .summary-block-label-wide {
+    display: none;
+  }
+}
+
+.summary-line {
+  position: absolute;
+  top: -0.375rem;
+  bottom: -0.375rem;
+  left: 50%;
+  width: 2px;
+  translate: -50% 0;
+  background: var(--color-text);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.summary-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: calc(var(--at) * 100%);
+  translate: -50% 0;
+  z-index: 3;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background: var(--color-surface);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.summary-not-up {
+  position: relative;
+  min-height: 2.75em;
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+/* A bracket under each end's seats not up. */
+.summary-not-up span {
+  position: absolute;
+  top: 0;
+  width: calc(var(--share) * 100% - var(--not-up-gap));
+  padding: 0.25rem 0.375rem 0;
+  border: 1px solid var(--color-muted);
+  border-bottom: 0;
+  height: 0.375rem;
+  line-height: 1.2;
+}
+
+.summary-not-up-d {
+  left: 0;
+}
+
+.summary-not-up-r {
+  right: 0;
+  text-align: right;
+}
+
+.summary-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.summary-details summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.summary-details table {
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.summary-details th,
+.summary-details td {
+  padding: 0.25rem 0.75rem 0.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-weight: normal;
+}
+
+.summary-details td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.5rem;
+  border-radius: 2px;
+  background: var(--fill);
+  vertical-align: -0.0625rem;
+}
+
+.status {
+  color: var(--color-muted);
 }

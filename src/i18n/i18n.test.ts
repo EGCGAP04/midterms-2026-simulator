@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import en from './en.json'
 import es from './es.json'
-import { formatMargin, formatProbability } from './format.ts'
+import { formatCount, formatMargin, formatProbability } from './format.ts'
 import { CATALOGS, translate, type Catalog, type MessageKey } from './i18n.ts'
 
 const placeholders = (text: string): string[] => [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
@@ -85,5 +85,13 @@ describe('formatProbability', () => {
     ['es', 0, '<1%'],
   ] as const)('%s %f is %s', (lang, probability, text) => {
     expect(formatProbability(lang, probability)).toBe(text)
+  })
+})
+
+describe('formatCount', () => {
+  it('groups thousands by language', () => {
+    expect(formatCount('en', 10_000)).toBe('10,000')
+    expect(formatCount('es', 10_000)).toBe('10.000')
+    expect(formatCount('es', 218)).toBe('218')
   })
 })

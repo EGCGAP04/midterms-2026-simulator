@@ -17,6 +17,7 @@ const POINTS: Record<number, Record<Lang, Intl.NumberFormat>> = {
   2: byLang({ minimumFractionDigits: 2, maximumFractionDigits: 2 }),
 }
 const PERCENT = byLang({ style: 'percent', maximumFractionDigits: 0 })
+const COUNT = byLang({ maximumFractionDigits: 0 })
 
 export interface MarginOptions {
   /** The party ahead, when it is not R or D (an independent). */
@@ -31,6 +32,11 @@ export function formatMargin(lang: Lang, margin: number, { ahead, decimals = 2 }
   const points = format.format(Math.abs(margin) * 100)
   if (points === format.format(0)) return translate(lang, 'margin.even')
   return `${ahead ?? (margin > 0 ? 'R' : 'D')}+${points}`
+}
+
+/** A whole number, with the language's thousands separator ("10,000" / "10.000"). */
+export function formatCount(lang: Lang, count: number): string {
+  return COUNT[lang].format(count)
 }
 
 /** A win probability as a whole percentage, with ">99%" and "<1%" at the extremes. */

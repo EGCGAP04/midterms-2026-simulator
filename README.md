@@ -65,12 +65,13 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   ├── components/              # React components: render and translate events only
 │   │   ├── Header.tsx           # Title, chamber switch, language toggle
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
+│   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
 │   │   └── Toggle.tsx           # Segmented control
 │   ├── i18n/                    # UI strings and locale-aware formatting
 │   │   ├── context.ts           # Page language for components (useI18n)
 │   │   ├── en.json              # English, the reference catalog
 │   │   ├── es.json
-│   │   ├── format.ts            # Margins and probabilities
+│   │   ├── format.ts            # Margins, probabilities and counts
 │   │   ├── i18n.test.ts
 │   │   └── i18n.ts              # String lookup with English fallback
 │   ├── model/                   # Pure forecast model, unit-tested with Vitest
@@ -83,9 +84,12 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── seats.ts
 │   │   ├── simulate.test.ts
 │   │   ├── simulate.ts          # Correlated Monte Carlo
+│   │   ├── summary.test.ts
+│   │   ├── summary.ts           # The summary bar's blocks
 │   │   ├── testRaces.ts         # Hand-made races for the unit tests
 │   │   └── types.ts             # The races.json schema
 │   ├── state/
+│   │   ├── dataset.ts           # Loads races.json and draws the simulations
 │   │   ├── env.test.ts
 │   │   ├── env.ts               # Slider values: rounding and arrow-key steps
 │   │   ├── url.test.ts
