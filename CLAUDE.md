@@ -71,6 +71,7 @@ nvm use                 # Node version from .nvmrc
 npm ci
 npm run dev             # local dev server
 npm test                # Vitest
+npm run bench           # time the simulation (local only, not in CI)
 npm run lint            # oxlint
 npm run build           # type-check (tsc -b) and production build into dist/
 npm run preview         # serve dist/ locally

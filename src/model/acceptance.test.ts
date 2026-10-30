@@ -4,11 +4,12 @@
 
 import { describe, expect, it } from 'vitest'
 import raw from '../../public/races.json'
-import { ENV_MAX, ENV_MIN, MARGIN_CAP } from './config.ts'
+import { DEFAULT_ENV, ENV_MAX, ENV_MIN, MARGIN_CAP } from './config.ts'
 import { outcomeAt } from './margin.ts'
 import { ratingOf, type Rating } from './ratings.ts'
-import { seatTotals } from './seats.ts'
-import type { Dataset, RatingBucketName } from './types.ts'
+import { seatTotals, type SeatTotals } from './seats.ts'
+import { createSimulator, simulate, type ChamberForecast } from './simulate.ts'
+import type { Chamber, Dataset, RatingBucketName } from './types.ts'
 
 const dataset = raw as unknown as Dataset
 const house = dataset.races.filter((race) => race.chamber === 'house')
@@ -114,5 +115,94 @@ describe('moving the slider', () => {
         if (Math.abs(race.m0) <= MARGIN_CAP) expect(loserShare, `${race.id} at ${env}`).toBeGreaterThanOrEqual(0.05 - 1e-12)
       }
     }
+  })
+})
+
+describe('the Monte Carlo', () => {
+  const simulator = createSimulator(dataset.races)
+  const notUp: Record<Chamber, Partial<SeatTotals>> = { house: {}, senate: dataset.senateNotUp }
+  const forecastAt = (chamber: Chamber, env: number): ChamberForecast =>
+    simulate(simulator, chamber, env - dataset.g0, notUp[chamber])
+
+  it.each(['house', 'senate'] as const)('gives probabilities monotonic in the slider for every %s race', (chamber) => {
+    const races = dataset.races.filter((race) => race.chamber === chamber && race.fixedWinner === undefined)
+    let previous = forecastAt(chamber, ENV_MIN)
+    for (let env = ENV_MIN + 0.005; env <= ENV_MAX + 1e-9; env += 0.005) {
+      const forecast = forecastAt(chamber, env)
+      for (const race of races) {
+        // The REP slot's party (R, or I in AZ-03, CA-06, MA-01 and PA-03).
+        const party = race.rep?.party ?? 'R'
+        const before = previous.probabilities.get(race.id)?.[party] ?? NaN
+        expect(forecast.probabilities.get(race.id)?.[party], `${race.id} at ${env}`).toBeGreaterThanOrEqual(before)
+      }
+      expect(forecast.control.R, `R control at ${env}`).toBeGreaterThanOrEqual(previous.control.R)
+      previous = forecast
+    }
+  })
+
+  it('gives every fixed race to its winner in every simulation', () => {
+    for (const env of [ENV_MIN, ENV_MAX]) {
+      for (const chamber of ['house', 'senate'] as const) {
+        const forecast = forecastAt(chamber, env)
+        for (const race of dataset.races.filter((r) => r.chamber === chamber && r.fixedWinner !== undefined)) {
+          expect(forecast.probabilities.get(race.id)?.[race.fixedWinner ?? 'R'], race.id).toBe(1)
+        }
+      }
+    }
+  })
+
+  it('favors the side ahead at the baseline in every race not within a point', () => {
+    for (const chamber of ['house', 'senate'] as const) {
+      const forecast = simulate(simulator, chamber, 0, notUp[chamber])
+      for (const race of dataset.races.filter((r) => r.chamber === chamber)) {
+        const outcome = outcomeAt(race, 0)
+        if (Math.abs(outcome.margin) < 0.01) continue
+        expect(forecast.probabilities.get(race.id)?.[outcome.winner], race.id).toBeGreaterThan(0.5)
+      }
+    }
+  })
+
+  it('adds the expected seats up to the per-race probabilities', () => {
+    for (const chamber of ['house', 'senate'] as const) {
+      const forecast = forecastAt(chamber, DEFAULT_ENV)
+      for (const party of ['R', 'D', 'I'] as const) {
+        const fromRaces =
+          [...forecast.probabilities.values()].reduce((sum, p) => sum + p[party], 0) + (notUp[chamber][party] ?? 0)
+        let seats = 0
+        forecast.seats[party].histogram.forEach((count, s) => (seats += count * s))
+        expect(seats / simulator.n, `${chamber} ${party}`).toBeCloseTo(fromRaces, 9)
+      }
+    }
+  })
+
+  it('reads the median and the 80% interval off the seat histogram', () => {
+    const { median, interval80, histogram } = forecastAt('house', DEFAULT_ENV).seats.D
+    // The smallest seat count reached by at least a share q of the simulations.
+    const atLeast = (q: number): number => {
+      let cumulative = 0
+      return histogram.findIndex((count) => (cumulative += count) >= q * simulator.n)
+    }
+    expect([median, ...interval80]).toEqual([atLeast(0.5), atLeast(0.1), atLeast(0.9)])
+    expect(interval80[0]).toBeLessThan(median)
+    expect(median).toBeLessThan(interval80[1])
+  })
+
+  it('needs 218 House seats for a majority, and 50 Senate seats for R control', () => {
+    const share = (histogram: Uint32Array, from: number): number =>
+      histogram.slice(from).reduce((sum, count) => sum + count, 0) / simulator.n
+    // Near even, so every threshold is crossed in some simulations.
+    const house = forecastAt('house', 0)
+    expect(house.control.R).toBe(share(house.seats.R.histogram, 218))
+    expect(house.control.opposition).toBe(share(house.seats.D.histogram, 218))
+    const senate = forecastAt('senate', 0.02)
+    expect(senate.control.R).toBe(share(senate.seats.R.histogram, 50))
+    expect(share(senate.seats.R.histogram, 50)).not.toBe(share(senate.seats.R.histogram, 51))
+  })
+
+  it('reports Senate control as R or D + I, and House control by majority', () => {
+    const senateForecast = forecastAt('senate', DEFAULT_ENV)
+    expect(senateForecast.control.R + senateForecast.control.opposition).toBe(1)
+    const houseForecast = forecastAt('house', DEFAULT_ENV)
+    expect(houseForecast.control.R + houseForecast.control.opposition).toBeLessThanOrEqual(1)
   })
 })

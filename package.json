@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "bench": "node scripts/bench.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },
