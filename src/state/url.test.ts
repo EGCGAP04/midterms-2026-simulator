@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN } from '../model/config.ts'
-import { browserLang, readUrlState, roundEnv, writeUrlState } from './url.ts'
+import { roundEnv } from './env.ts'
+import { browserLang, readUrlState, writeUrlState } from './url.ts'
 
 describe('readUrlState', () => {
   it('reads every value', () => {
@@ -39,18 +40,29 @@ describe('readUrlState', () => {
 
 describe('writeUrlState', () => {
   it('writes env in points with two decimals', () => {
-    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es' })).toBe('?ch=house&env=-8.75&lang=es')
-    expect(writeUrlState({ chamber: 'senate', env: 0.2, lang: 'en' })).toBe('?ch=senate&env=20.00&lang=en')
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es' }, ['en'])).toBe('?ch=house&env=-8.75&lang=es')
+    expect(writeUrlState({ chamber: 'senate', env: 0.2, lang: 'en' }, ['es'])).toBe('?ch=senate&env=20.00&lang=en')
   })
 
   it('writes an even environment as 0.00, never -0.00', () => {
-    expect(writeUrlState({ chamber: 'house', env: -0.000001, lang: 'en' })).toBe('?ch=house&env=0.00&lang=en')
+    expect(writeUrlState({ chamber: 'house', env: -0.000001, lang: 'en' }, [])).toBe('?ch=house&env=0.00')
+  })
+
+  it('leaves out the language when it matches the browser', () => {
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es' }, ['es-AR'])).toBe('?ch=house&env=-8.75')
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'en' }, [])).toBe('?ch=house&env=-8.75')
+  })
+
+  it('opens a link without a language in the reader’s language', () => {
+    const link = writeUrlState({ chamber: 'house', env: 0, lang: 'es' }, ['es'])
+    expect(readUrlState(link, ['en-US']).lang).toBe('en')
   })
 
   it('reads back every slider step it writes', () => {
     for (let hundredths = ENV_MIN * 10_000; hundredths <= ENV_MAX * 10_000; hundredths += 1) {
       const state = { chamber: 'senate', env: roundEnv(hundredths / 10_000), lang: 'es' } as const
-      expect(readUrlState(writeUrlState(state), [])).toEqual(state)
+      expect(readUrlState(writeUrlState(state, ['en']), ['en'])).toEqual(state)
+      expect(readUrlState(writeUrlState(state, ['es']), ['es'])).toEqual(state)
     }
   })
 })

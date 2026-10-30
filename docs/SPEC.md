@@ -258,6 +258,7 @@ Use a responsive layout that also works on a phone.
    - House/Senate switch.
 2. **Slider:**
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
+   - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0).
    - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
@@ -286,8 +287,9 @@ Use a responsive layout that also works on a phone.
    - `ch` is `house` or `senate`, `house` by default.
    - `env` is a number in the slider range, rounded to 0.01. Without it, the page uses `DEFAULT_ENV`.
    - `lang` is `en` or `es`. Without it, the page follows the browser language: Spanish if it starts with `es`, English otherwise.
+   - The page writes `lang` only when it differs from the browser language, so a shared link opens in the reader's language. A link from someone who switched away from their browser language still carries it.
    - An invalid or out-of-range value is ignored, as if it were missing.
-   - The page keeps the URL in step with all three values (`history.replaceState`, so it adds no history entries). It writes them once the slider stops for a moment, not on every step: browsers throttle frequent URL changes.
+   - The page keeps the URL in step with the state (`history.replaceState`, so it adds no history entries). It writes them once the slider stops for a moment, not on every step: browsers throttle frequent URL changes.
 
 ### i18n
 
@@ -327,6 +329,6 @@ Use a responsive layout that also works on a phone.
 /src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
 /src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
-/src/state/url.ts             (reads and writes the URL state)
+/src/state/{env.ts, url.ts}   (slider rounding and key steps; the URL state)
 /README.md   (how to regenerate the data and deploy)
 ```

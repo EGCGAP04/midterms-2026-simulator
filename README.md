@@ -86,6 +86,8 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── testRaces.ts         # Hand-made races for the unit tests
 │   │   └── types.ts             # The races.json schema
 │   ├── state/
+│   │   ├── env.test.ts
+│   │   ├── env.ts               # Slider values: rounding and arrow-key steps
 │   │   ├── url.test.ts
 │   │   └── url.ts               # Page state in the URL (ch, env, lang)
 │   ├── App.tsx

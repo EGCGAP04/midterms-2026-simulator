@@ -3,6 +3,7 @@
 import type { Lang } from '../i18n/i18n.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN } from '../model/config.ts'
 import type { Chamber } from '../model/types.ts'
+import { roundEnv } from './env.ts'
 
 export interface PageState {
   chamber: Chamber
@@ -14,12 +15,6 @@ export interface PageState {
 /** Spanish if the browser's first language is Spanish, English otherwise. */
 export function browserLang(languages: readonly string[]): Lang {
   return languages[0]?.toLowerCase().startsWith('es') ? 'es' : 'en'
-}
-
-/** Rounds an environment to the slider's 0.01-point step. */
-export function roundEnv(env: number): number {
-  // Rounding in hundredths of a point keeps −8.75 exact (−875 / 10000).
-  return Math.round(env * 10_000) / 10_000
 }
 
 function parseEnv(value: string | null): number | undefined {
@@ -40,8 +35,11 @@ export function readUrlState(search: string, languages: readonly string[]): Page
   }
 }
 
-/** The query string for a state, with `env` in points and two decimals. */
-export function writeUrlState(state: PageState): string {
-  const env = (roundEnv(state.env) * 100).toFixed(2)
-  return `?${new URLSearchParams({ ch: state.chamber, env, lang: state.lang })}`
+/** The query string for a state, with `env` in points and two decimals.
+ * `lang` is left out when it matches the browser language, so a shared link
+ * opens in the reader's language. */
+export function writeUrlState(state: PageState, languages: readonly string[]): string {
+  const params = new URLSearchParams({ ch: state.chamber, env: (roundEnv(state.env) * 100).toFixed(2) })
+  if (state.lang !== browserLang(languages)) params.set('lang', state.lang)
+  return `?${params}`
 }

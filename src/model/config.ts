@@ -16,6 +16,9 @@ export const DEFAULT_ENV = -0.0875
 export const ENV_MIN = -0.29
 export const ENV_MAX = 0.2
 export const ENV_STEP = 0.0001
+/** Keyboard steps: an arrow key moves 0.1 points, Shift+arrow 1 point. */
+export const ENV_KEY_STEP = 0.001
+export const ENV_SHIFT_STEP = 0.01
 
 /** A two-candidate race never shows the loser below 5% (§3.1). */
 export const MARGIN_CAP = 0.9
