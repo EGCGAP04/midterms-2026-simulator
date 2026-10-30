@@ -68,7 +68,7 @@ Seat checks: `R7` / `S7` hold the D / R totals. `R8:S11` hold the counts by rati
 |---|---|---|---|
 | `Incumbent.` | `incumbent` | Holds the seat. | Incumbent / Titular |
 | `Gained Incumbency` | `gainedIncumbency` | Became the incumbent at the last race (e.g. won in 2024, or in a special election). | New incumbent / Titular reciente |
-| `Lost Incumbent` | `lostIncumbent` | Runs for a seat their party holds, whose incumbent is not running. | Open seat (party holds it) / Escaño abierto (de su partido) |
+| `Lost Incumbent` | `lostIncumbent` | Runs where their party's incumbent is not running: usually an open seat their party holds, but after redistricting it can be a seat whose territory came mostly from that incumbent (AL-02's R candidate, while the seat is D). | Open seat / Escaño abierto |
 | `Non-Incumbent` | `nonIncumbent` | Anyone else. | Non-incumbent / No titular |
 
 An unknown status makes the exporter fail.
@@ -133,8 +133,8 @@ interface Race {
   name: string;          // display name
   type: RaceType;
   holder: Party;         // current/2024 party
-  rep: { name: string; label: Incumbency; party: Party } | null; // party: R, or I in the REP slot
-  opp: { name: string; label: Incumbency; party: Party } | null; // party: D, or I
+  rep: { name: string; label: Incumbency; party: Party } | null; // party: R, or I in the REP slot (D in DvD)
+  opp: { name: string; label: Incumbency; party: Party } | null; // party: D, or I (R in RvR)
   m0: number;            // baseline margin, R − opp, fraction
   slope: number;         // 1, or the blend weight
   shares?: { A: number; B: number; C: number; names: [string, string, string] }; // MT3 only
@@ -299,6 +299,8 @@ Use a responsive layout that also works on a phone.
 
 ```
 /scripts/export_data.py
+/scripts/test_export_data.py   (unit tests of the pure helpers, stdlib unittest)
+/requirements.txt              (openpyxl, for the exporter)
 /public/races.json
 /src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
 /src/components/{Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
