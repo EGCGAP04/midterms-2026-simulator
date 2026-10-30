@@ -422,12 +422,29 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     for race in house + senate:
-        del race["_check"]
+        # The workbook's rating goes before the context, for readability.
+        context = race.pop("context")
+        race["workbookRating"] = race.pop("_check")["rating"]
+        race["context"] = context
     dataset = {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "sourceFile": args.xlsx.name,
         "g0": number(hv, "G11"),
         "senateNotUp": {"D": int(number(sv, "N3")), "R": int(number(sv, "P3"))},
+        # The workbook's own totals, so the app's acceptance tests compare the
+        # TypeScript model against the workbook (docs/SPEC.md §5).
+        "workbook": {
+            "house": {
+                "seats": {"D": int(number(hv, "R7")), "R": int(number(hv, "S7"))},
+                "ratings": {
+                    bucket: {"D": int(number(hv, f"R{row}")), "R": int(number(hv, f"S{row}"))}
+                    for bucket, row in RATING_COUNT_ROWS.items()
+                },
+            },
+            "senate": {
+                "seats": {"D": int(number(sv, "J44")), "I": int(number(sv, "L44")), "R": int(number(sv, "N44"))},
+            },
+        },
         "races": house + senate,
     }
     write_dataset(args.out, dataset)
