@@ -2,14 +2,219 @@
   color-scheme: light dark;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
+
+  /* Party colours, shared with the summary bar and the maps. */
+  --color-d: #2166ac;
+  --color-r: #b2182b;
+  --color-i: #775eb2;
+  /* The same colours as text, lighter on a dark background for contrast. */
+  --color-d-text: light-dark(#2166ac, #7fb2e5);
+  --color-r-text: light-dark(#b2182b, #f4877d);
+
+  --color-text: light-dark(#1a1a1a, #ececec);
+  --color-muted: light-dark(#5c5c5c, #a8a8a8);
+  --color-border: light-dark(#d0d0d0, #444);
+  --color-surface: light-dark(#f4f4f4, #262626);
+  --color-even: light-dark(#d9d9d9, #555);
+
+  color: var(--color-text);
 }
 
 body {
   margin: 0;
 }
 
-main {
+main,
+.header {
   max-width: 72rem;
   margin: 0 auto;
   padding: 1rem;
+}
+
+button {
+  font: inherit;
+}
+
+/* Header */
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-bottom: 0;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.header-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toggle {
+  display: inline-flex;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.toggle button {
+  border: 0;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.toggle button + button {
+  border-left: 1px solid var(--color-border);
+}
+
+.toggle button[aria-pressed='true'] {
+  background: var(--color-text);
+  color: light-dark(#fff, #111);
+}
+
+.toggle button:focus-visible {
+  outline: 2px solid var(--color-d);
+  outline-offset: -2px;
+}
+
+/* Slider */
+
+.slider {
+  --thumb: 1.5rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.slider-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 1rem;
+}
+
+.slider-heading label {
+  font-weight: 600;
+}
+
+.slider-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.slider-value-d {
+  color: var(--color-d-text);
+}
+
+.slider-value-r {
+  color: var(--color-r-text);
+}
+
+.slider-track {
+  position: relative;
+}
+
+.slider input {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: var(--thumb);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* The track runs from blue (D) through grey at EVEN to red (R). */
+.slider input::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(to right, var(--color-d), var(--color-even) calc(var(--even) * 100%), var(--color-r));
+}
+
+.slider input::-moz-range-track {
+  height: 0.5rem;
+  border-radius: 0.25rem;
+  background: linear-gradient(to right, var(--color-d), var(--color-even) calc(var(--even) * 100%), var(--color-r));
+}
+
+.slider input::-webkit-slider-thumb {
+  appearance: none;
+  width: var(--thumb);
+  height: var(--thumb);
+  margin-top: calc((0.5rem - var(--thumb)) / 2);
+  border: 2px solid var(--color-text);
+  border-radius: 50%;
+  background: light-dark(#fff, #111);
+}
+
+.slider input::-moz-range-thumb {
+  box-sizing: border-box;
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 2px solid var(--color-text);
+  border-radius: 50%;
+  background: light-dark(#fff, #111);
+}
+
+.slider input:focus-visible {
+  outline: 2px solid var(--color-d);
+  outline-offset: 2px;
+}
+
+/* The thumb's centre travels from thumb/2 to 100% − thumb/2. */
+.slider-default {
+  position: absolute;
+  top: 0;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--default));
+  width: 2px;
+  height: var(--thumb);
+  translate: -50% 0;
+  background: var(--color-text);
+  pointer-events: none;
+}
+
+.slider-scale {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  min-height: 1.5em;
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.slider-default-label {
+  position: absolute;
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--default));
+  translate: -50% 0;
+  white-space: nowrap;
+}
+
+.slider-reset {
+  justify-self: start;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: inherit;
+  cursor: pointer;
+}
+
+.slider-reset:disabled {
+  cursor: default;
+  opacity: 0.5;
 }

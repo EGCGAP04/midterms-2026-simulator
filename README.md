@@ -62,7 +62,12 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   ├── export_data.py           # Workbook → races.json, with self-checks
 │   └── test_export_data.py
 ├── src/
+│   ├── components/              # React components: render and translate events only
+│   │   ├── Header.tsx           # Title, chamber switch, language toggle
+│   │   ├── Slider.tsx           # National environment, D+29 … R+20
+│   │   └── Toggle.tsx           # Segmented control
 │   ├── i18n/                    # UI strings and locale-aware formatting
+│   │   ├── context.ts           # Page language for components (useI18n)
 │   │   ├── en.json              # English, the reference catalog
 │   │   ├── es.json
 │   │   ├── format.ts            # Margins and probabilities
@@ -80,6 +85,9 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── simulate.ts          # Correlated Monte Carlo
 │   │   ├── testRaces.ts         # Hand-made races for the unit tests
 │   │   └── types.ts             # The races.json schema
+│   ├── state/
+│   │   ├── url.test.ts
+│   │   └── url.ts               # Page state in the URL (ch, env, lang)
 │   ├── App.tsx
 │   ├── index.css
 │   └── main.tsx

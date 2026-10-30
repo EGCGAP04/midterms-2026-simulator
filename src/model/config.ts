@@ -13,7 +13,7 @@ export const SEED = 2026
 export const DEFAULT_ENV = -0.0875
 
 /** Slider range and step (§4.2). */
-export const ENV_MIN = -0.2
+export const ENV_MIN = -0.29
 export const ENV_MAX = 0.2
 export const ENV_STEP = 0.0001
 

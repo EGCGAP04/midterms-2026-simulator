@@ -257,7 +257,7 @@ Use a responsive layout that also works on a phone.
    - EN/ES toggle.
    - House/Senate switch.
 2. **Slider:**
-   - "Estimated National Environment (Generic Congressional Ballot)", range D+20 … R+20 in 0.01-point steps.
+   - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0).
    - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
@@ -282,7 +282,12 @@ Use a responsive layout that also works on a phone.
    - Flips (both directions).
    - Closest races.
    - The **tipping-point** race: sort races by margin and find the one that gives the majority.
-8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es` (`env` in points, R − D, up to two decimals), so scenarios can be shared. Without `env`, the page uses `DEFAULT_ENV`.
+8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
+   - `ch` is `house` or `senate`, `house` by default.
+   - `env` is a number in the slider range, rounded to 0.01. Without it, the page uses `DEFAULT_ENV`.
+   - `lang` is `en` or `es`. Without it, the page follows the browser language: Spanish if it starts with `es`, English otherwise.
+   - An invalid or out-of-range value is ignored, as if it were missing.
+   - The page keeps the URL in step with all three values (`history.replaceState`, so it adds no history entries). It writes them once the slider stops for a moment, not on every step: browsers throttle frequent URL changes.
 
 ### i18n
 
@@ -320,7 +325,8 @@ Use a responsive layout that also works on a phone.
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
 /src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
-/src/components/{Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
+/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
+/src/state/url.ts             (reads and writes the URL state)
 /README.md   (how to regenerate the data and deploy)
 ```
