@@ -53,7 +53,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
   gh project item-add 6 --owner EGCGAP04 --url <issue or PR url>
   gh project item-edit 6 --owner EGCGAP04 --url <issue or PR url> --field Status --value "In Progress"
   ```
-  The board has no *Auto-add to project* workflow (it can only be set up in the web UI), so add new Issues and PRs by hand; they land in `Todo`. The API is eventually consistent: `gh project item-list` can miss an item for a few seconds after adding it.
+  The board's *Auto-add to project* workflow adds new Issues and PRs from this repo by itself (in `Todo`), so check with `gh project item-list` instead of adding them; use `item-add` only if one is missing. The API is eventually consistent: an item can take a few seconds to show up.
 - **Merge**: only when Enzo asks for that PR explicitly. Check first that it is `MERGEABLE` and the checks pass, then `gh pr merge <N> --squash --match-head-commit <full SHA>`.
 
 ## Environment
@@ -86,7 +86,7 @@ npm run preview         # serve dist/ locally
 
 ## Roadmap
 
-- [ ] M0: Repository setup (Vite + React + TS, CI, Pages, Issue forms, CHANGELOG).
+- [x] M0: Repository setup (Vite + React + TS, CI, Pages, Issue forms, CHANGELOG).
 - [ ] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
 - [ ] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [ ] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
