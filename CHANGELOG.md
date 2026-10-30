@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Repository setup: Vite + React + TypeScript (strict) app with Vitest and oxlint, CI and GitHub Pages workflows, Dependabot, Issue forms, PR template, security policy and the project specification (`docs/SPEC.md`).
+- Data exporter (`scripts/export_data.py`): reads the forecast workbook, runs the self-checks in SPEC §2.6 (race counts, ratings, flips, seat totals, rating counts, Montana's shares, sheet reference) and writes `public/races.json` with every House and Senate race, its type, candidates, incumbency, baseline margin and 2024 context. Unit tests for its helpers run in CI.
 
 ### Changed
 

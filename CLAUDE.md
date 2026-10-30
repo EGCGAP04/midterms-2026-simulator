@@ -7,7 +7,7 @@ Guide for Claude Code in this repository. Read it in full before proposing chang
 **midterms-2026-simulator** (the app is titled *Midterms 2026 Simulator*): a static web app to explore a 2026 US House and Senate forecast. The user moves a national-environment slider (generic congressional ballot) and every race, rating count, seat total and win probability updates live. The UI is bilingual (English / Spanish).
 
 - `docs/SPEC.md`: the specification. **It is the source of truth** for the data layout, the `races.json` schema, the model and the UI.
-- `scripts/export_data.py`: reads the forecast workbook and writes `public/races.json` (M1).
+- `scripts/export_data.py`: reads the forecast workbook and writes `public/races.json`, failing if any self-check does not hold. Its pure helpers are tested in `scripts/test_export_data.py` (stdlib `unittest`, no openpyxl needed).
 - `src/model/`: pure model functions (margins, ratings, Monte Carlo) with Vitest tests (M2).
 - `src/components/`, `src/i18n/`: the UI (M3–M5).
 
@@ -20,7 +20,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
 - Before large changes (a new module, or more than ~3 files), show a short plan and wait for the OK.
 - Work in small, reviewable steps. After each step, run the lint, tests and build.
 - When done, summarize what changed and briefly explain any non-obvious decision, so the review is easy.
-- Do not commit, push, open PRs or merge unless asked; each request covers that one time only. Commits use Conventional Commits.
+- Claude Code may commit, push and open PRs on its own (Enzo allowed it on 2026-10-30). **Merging** still needs Enzo's explicit request for that PR. Commits use Conventional Commits.
 - Do not add dependencies without asking. Approved: the stack in `docs/SPEC.md` §1 (Vite, React, TypeScript, D3 modules `d3-geo`/`d3-scale`/`d3-shape`, `topojson-client`, `us-atlas`, Vitest, `openpyxl`) plus what the Vite template brings (`@vitejs/plugin-react`, `oxlint`, `@types/node`). Their `@types/*` packages count as approved too.
 - **Any change to the data format or the model goes into `docs/SPEC.md` first**, then into the code.
 
@@ -59,7 +59,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
 ## Environment
 
 - PC: Linux Mint (Ubuntu base). **Node comes from nvm**, not from apt (apt's Node 18 is too old for Vite). The version is in `.nvmrc`: run `nvm use` in the repo. In a non-interactive shell, load nvm first with `. ~/.nvm/nvm.sh;` and a `;`, not `&&`: sourcing it returns exit code 3 when no default Node is set, which silently cuts an `&&` chain. If `node --version` still shows v18 right after switching, run `hash -r` (bash cached `/usr/bin/node`).
-- Python 3 with a local `.venv` for the exporter (ignored by Git).
+- Python 3 with a local `.venv` for the exporter (ignored by Git): `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`. The system Python has no openpyxl.
 - **The workbook `2026_US_Elections.xlsx` lives in the repo root but is never committed**: it is excluded through `.git/info/exclude` (local only), not `.gitignore`. Only the generated `public/races.json` is versioned. CI never sees the workbook, so it cannot regenerate the data.
 - Sheet names change with each forecast update (`29-10 Senate`, `Senate House`, ...): they are exporter arguments, never hard-coded.
 - Temporary files, drafts and analyses go in `~/Documents/Claude/midterms-2026-simulator/`, never inside the repo.
@@ -74,6 +74,9 @@ npm test                # Vitest
 npm run lint            # oxlint
 npm run build           # type-check (tsc -b) and production build into dist/
 npm run preview         # serve dist/ locally
+python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
+.venv/bin/python scripts/export_data.py 2026_US_Elections.xlsx \
+  --house-sheet "Senate House" --senate-sheet "29-10 Senate" --out public/races.json
 ```
 
 ## Conventions
@@ -87,7 +90,7 @@ npm run preview         # serve dist/ locally
 ## Roadmap
 
 - [x] M0: Repository setup (Vite + React + TS, CI, Pages, Issue forms, CHANGELOG).
-- [ ] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
+- [x] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
 - [ ] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [ ] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
 - [ ] M4: Maps: Senate state map and House hex cartogram.

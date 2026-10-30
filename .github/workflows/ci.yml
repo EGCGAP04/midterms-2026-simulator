@@ -30,5 +30,7 @@ jobs:
       # Build first: it type-checks the whole project (tsc -b).
       - run: npm run build
       - run: npm test
+      # The exporter's pure helpers; needs neither openpyxl nor the workbook.
+      - run: python3 -m unittest discover -s scripts
       # Lint runs last, so a style issue never hides the build and test results.
       - run: npm run lint
