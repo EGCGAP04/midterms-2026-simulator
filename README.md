@@ -70,11 +70,12 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── Header.tsx           # Title, chamber switch, language and theme toggles
 │   │   ├── HouseDistrictMap.tsx # Districts by rating, with their real 2026 shapes
 │   │   ├── HouseHexMap.tsx      # Districts by rating, a hexagon each, grouped by state
-│   │   ├── MapParts.tsx         # The maps' hatch, tooltip and legend
+│   │   ├── MapParts.tsx         # The maps' hatch, tooltip, zoom buttons and legend
 │   │   ├── SenateMap.tsx        # States by rating, with a tooltip and selection
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
 │   │   ├── Toggle.tsx           # Segmented control
+│   │   ├── useMapZoom.ts        # Zoom and pan for the House maps (d3-zoom)
 │   │   └── useRaceMap.ts        # The maps' race descriptions, hover and selection
 │   ├── i18n/                    # UI strings and locale-aware formatting
 │   │   ├── context.ts           # Page language for components (useI18n)

@@ -21,7 +21,7 @@ Out of scope unless asked: a backend, other election years, editing the forecast
 - Work in small, reviewable steps. After each step, run the lint, tests and build.
 - When done, summarize what changed and briefly explain any non-obvious decision, so the review is easy.
 - Claude Code may commit, push and open PRs on its own (Enzo allowed it on 2026-10-30). **Merging** still needs Enzo's explicit request for that PR. Commits use Conventional Commits.
-- Do not add dependencies without asking. Approved: the stack in `docs/SPEC.md` §1 (Vite, React, TypeScript, D3 modules `d3-geo`/`d3-scale`/`d3-shape`, `topojson-client`, `us-atlas`, Vitest, `openpyxl`) plus what the Vite template brings (`@vitejs/plugin-react`, `oxlint`, `@types/node`). Their `@types/*` packages count as approved too.
+- Do not add dependencies without asking. Approved: the stack in `docs/SPEC.md` §1 (Vite, React, TypeScript, D3 modules `d3-geo`/`d3-scale`/`d3-shape`/`d3-zoom`/`d3-selection`, `topojson-client`, `us-atlas`, Vitest, `openpyxl`) plus what the Vite template brings (`@vitejs/plugin-react`, `oxlint`, `@types/node`). Their `@types/*` packages count as approved too.
 - **Any change to the data format or the model goes into `docs/SPEC.md` first**, then into the code.
 
 ## Git and GitHub
@@ -99,7 +99,7 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - [x] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
 - [x] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [x] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
-- [ ] M4: Maps: Senate state map, House district map and hex cartogram, zoom and pan.
+- [x] M4: Maps: Senate state map, House district map and hex cartogram, zoom and pan.
 - [ ] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
 - [ ] M6: Polish and launch: responsive layout, the < 50 ms performance budget, first release.
 

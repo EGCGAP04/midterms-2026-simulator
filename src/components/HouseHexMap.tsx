@@ -6,7 +6,8 @@ import { useId, useMemo } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import { HEX_SIZE, houseLayout } from '../state/houseLayout.ts'
-import { HatchPattern, MapLegend, MapTooltip } from './MapParts.tsx'
+import { HatchPattern, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
+import { useMapZoom } from './useMapZoom.ts'
 import { ratingClass, useRaceMap } from './useRaceMap.ts'
 
 interface HouseHexMapProps {
@@ -15,6 +16,10 @@ interface HouseHexMapProps {
   selected: string | undefined
   onSelect: (id: string | undefined) => void
 }
+
+/** Every hexagon has the same size: at 360 px wide, they are about 8 px across
+ * and 50 px at this zoom. */
+const MAX_ZOOM = 6
 
 // The layout is fixed: build it once.
 const LAYOUT = houseLayout()
@@ -25,58 +30,75 @@ export function HouseHexMap({ view, selected, onSelect }: HouseHexMapProps) {
   const { races } = view
   const { describe, raceProps, mapProps, tip, ringed } = useRaceMap(view, selected, onSelect)
   const { width, height, hexes, borders, labels } = LAYOUT
+  const zoom = useMapZoom(width, height, MAX_ZOOM)
 
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.id, k])), [races])
   const hexOf = (id: string) => hexes.find((hex) => hex.id === id)
   const hasFixed = races.some((race) => race.fixedWinner !== undefined)
   const tipHex = tip && hexOf(tip.race.id)
+  // It points at the hexagon's top.
+  const tipAt = tipHex && zoom.place([tipHex.centre[0], tipHex.centre[1] - HEX_SIZE / 2])
 
   return (
     <section className="map">
       <div className="map-frame" style={{ aspectRatio: `${width} / ${height}` }}>
-        <svg className="map-svg" viewBox={`0 0 ${width} ${height}`} role="group" aria-label={t('map.house')} {...mapProps}>
+        <svg
+          ref={zoom.ref}
+          className={`map-svg map-zoomable${zoom.zoomed ? ' map-zoomed' : ''}`}
+          viewBox={`0 0 ${width} ${height}`}
+          role="group"
+          aria-label={t('map.house')}
+          style={zoom.style}
+          // Zoomed in, Tab brings each district into view.
+          onFocus={(event) => {
+            const at = hexOf(event.target.getAttribute('data-race') ?? '')?.centre
+            if (at) zoom.follow(at)
+          }}
+          {...mapProps}
+        >
           <defs>
             <HatchPattern id={hatch} />
           </defs>
 
-          {hexes.map((hex) => {
-            const k = raceIndex.get(hex.id)
-            // Every district has a race (checked in houseLayout.test.ts).
-            if (k === undefined) return null
-            const details = describe(k)
-            return (
-              <g key={hex.id}>
-                <path className={`map-state map-race ${ratingClass(details.rating)}`} d={hex.d} {...raceProps(details)} />
-                {details.race.fixedWinner !== undefined && (
-                  <path className="map-hatch" d={hex.d} fill={`url(#${hatch})`} aria-hidden="true" />
-                )}
+          <g transform={zoom.transform.toString()}>
+            {hexes.map((hex) => {
+              const k = raceIndex.get(hex.id)
+              // Every district has a race (checked in houseLayout.test.ts).
+              if (k === undefined) return null
+              const details = describe(k)
+              return (
+                <g key={hex.id}>
+                  <path className={`map-state map-race ${ratingClass(details.rating)}`} d={hex.d} {...raceProps(details)} />
+                  {details.race.fixedWinner !== undefined && (
+                    <path className="map-hatch" d={hex.d} fill={`url(#${hatch})`} aria-hidden="true" />
+                  )}
+                </g>
+              )
+            })}
+
+            <path className="map-borders" d={borders} aria-hidden="true" />
+            {labels.map(({ postal, at }) => (
+              <text key={postal} className="map-label" x={at[0]} y={at[1]} aria-hidden="true">
+                {postal}
+              </text>
+            ))}
+
+            {/* Drawn last, so no neighbour covers the outline. */}
+            {ringed.map((id) => (
+              <g key={id} className="map-ring" aria-hidden="true">
+                <path d={hexOf(id)?.d} />
               </g>
-            )
-          })}
-
-          <path className="map-borders" d={borders} aria-hidden="true" />
-          {labels.map(({ postal, at }) => (
-            <text key={postal} className="map-label" x={at[0]} y={at[1]} aria-hidden="true">
-              {postal}
-            </text>
-          ))}
-
-          {/* Drawn last, so no neighbour covers the outline. */}
-          {ringed.map((id) => (
-            <g key={id} className="map-ring" aria-hidden="true">
-              <path d={hexOf(id)?.d} />
-            </g>
-          ))}
+            ))}
+          </g>
         </svg>
 
-        {tip && tipHex && (
-          // It points at the hexagon's top.
-          <MapTooltip tip={tip} at={[tipHex.centre[0], tipHex.centre[1] - HEX_SIZE / 2]} width={width} height={height} />
-        )}
+        <MapZoomControls zoom={zoom} />
+        {tip && tipAt && <MapTooltip tip={tip} at={tipAt} width={width} height={height} />}
       </div>
 
       <MapLegend hasFixed={hasFixed}>
         <p className="map-hint">{t('map.hint.house')}</p>
+        <p className="map-hint">{t('map.zoom.hint')}</p>
         <p className="map-hint">{t('map.layout.house')}</p>
       </MapLegend>
     </section>
