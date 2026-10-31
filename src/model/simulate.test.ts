@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { createSimulator, fillNormal, mulberry32, simulate, type SeatDistribution } from './simulate.ts'
+import raw from '../../public/races.json'
+import { SIGMA_NAT, SIGMA_RACE_HOUSE, SIGMA_RACE_SENATE, SIGMA_RACE_SENATE_NOPOLL } from './config.ts'
+import { createSimulator, fillNormal, mulberry32, raceSigma, simulate, type SeatDistribution } from './simulate.ts'
 import { candidate, makeRace } from './testRaces.ts'
+import type { Dataset } from './types.ts'
 
 function mean(values: Float32Array): number {
   return values.reduce((sum, value) => sum + value, 0) / values.length
@@ -47,8 +50,33 @@ describe('fillNormal', () => {
   })
 })
 
+describe('raceSigma', () => {
+  it('uses the House sigma for every House race', () => {
+    expect(raceSigma(makeRace())).toBe(SIGMA_RACE_HOUSE)
+  })
+
+  it('widens the error of a Senate race with few polls or none', () => {
+    const senate = (pollSource?: string) => makeRace({ chamber: 'senate', pollSource })
+    expect(raceSigma(senate('Avg'))).toBe(SIGMA_RACE_SENATE)
+    expect(raceSigma(senate('CtM'))).toBe(SIGMA_RACE_SENATE)
+    expect(raceSigma(senate('Few'))).toBe(SIGMA_RACE_SENATE_NOPOLL)
+    expect(raceSigma(senate())).toBe(SIGMA_RACE_SENATE_NOPOLL)
+    expect(raceSigma(senate('Other'))).toBe(SIGMA_RACE_SENATE_NOPOLL)
+  })
+
+  it('splits the real Senate races 19 polled, 16 not', () => {
+    const senate = (raw as unknown as Dataset).races.filter((race) => race.chamber === 'senate')
+    const polled = senate.filter((race) => raceSigma(race) === SIGMA_RACE_SENATE)
+    expect([polled.length, senate.length - polled.length]).toEqual([19, 16])
+  })
+})
+
 describe('createSimulator', () => {
-  const races = [makeRace({ id: 'XX-01' }), makeRace({ id: 'YY-SEN', chamber: 'senate' })]
+  const races = [
+    makeRace({ id: 'XX-01' }),
+    makeRace({ id: 'YY-SEN', chamber: 'senate', pollSource: 'Avg' }),
+    makeRace({ id: 'ZZ-SEN', chamber: 'senate', pollSource: 'Few' }),
+  ]
 
   it('draws the same errors for the same seed, and others for another seed', () => {
     const a = createSimulator(races, 1000, 2026)
@@ -56,11 +84,13 @@ describe('createSimulator', () => {
     expect(createSimulator(races, 1000, 2027).national).not.toEqual(a.national)
   })
 
-  it('scales the errors by the chamber sigmas', () => {
-    const { national, raceErrors } = createSimulator(races, 100_000)
-    expect(sd(national)).toBeCloseTo(0.03, 3)
-    expect(sd(raceErrors.subarray(0, 100_000))).toBeCloseTo(0.05, 3)
-    expect(sd(raceErrors.subarray(100_000))).toBeCloseTo(0.045, 3)
+  it('scales the errors by the sigma of each race', () => {
+    const n = 100_000
+    const { national, raceErrors } = createSimulator(races, n)
+    expect(sd(national)).toBeCloseTo(SIGMA_NAT, 3)
+    expect(sd(raceErrors.subarray(0, n))).toBeCloseTo(SIGMA_RACE_HOUSE, 3)
+    expect(sd(raceErrors.subarray(n, 2 * n))).toBeCloseTo(SIGMA_RACE_SENATE, 3)
+    expect(sd(raceErrors.subarray(2 * n))).toBeCloseTo(SIGMA_RACE_SENATE_NOPOLL, 3)
   })
 })
 

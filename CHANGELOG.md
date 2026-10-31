@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- The simulation's error sigmas are calibrated (SPEC §3.3): national 2.5 points (was 3.0), House races 5.5 (was 5.0), Senate races 4.5 with polls and 6.5 with few polls or none (was 4.5 for all). At D+8.75 the chance of an R House majority drops from about 2% to under 1%, and of R Senate control from 34% to 31%.
 - Issue forms list only the open milestones (M5 and M6), and the roadmap marks M2, M3 and M4 as done.
 - Specification: the page opens at D+8.75 (`DEFAULT_ENV`), separate from the workbook baseline; the slider runs from D+29 to R+20 in 0.01-point steps; candidate labels keep only the incumbency status; independents can run in the REP slot; Montana's third candidate is named; each race carries its 2024 presidential margin and its last election as context. Also documents workbook details the exporter must handle.
 - The Senate map's description, hover, selection, tooltip and legend moved to `useRaceMap` and `MapParts`, shared with the House maps.

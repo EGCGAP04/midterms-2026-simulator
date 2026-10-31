@@ -5,9 +5,11 @@ import {
   N_SIMS,
   SEED,
   SENATE_R_CONTROL,
+  POLLED_SOURCES,
   SIGMA_NAT,
   SIGMA_RACE_HOUSE,
   SIGMA_RACE_SENATE,
+  SIGMA_RACE_SENATE_NOPOLL,
 } from './config.ts'
 import { outcomeAt } from './margin.ts'
 import type { SeatTotals } from './seats.ts'
@@ -50,6 +52,15 @@ export interface Simulator {
   raceErrors: Float32Array
 }
 
+/** A race's own error (§3.3): by chamber, and in the Senate by its polling.
+ * A `pollSource` other than "Avg" or "CtM" gets the wider sigma. */
+export function raceSigma(race: Race): number {
+  if (race.chamber === 'house') return SIGMA_RACE_HOUSE
+  return race.pollSource !== undefined && POLLED_SOURCES.includes(race.pollSource)
+    ? SIGMA_RACE_SENATE
+    : SIGMA_RACE_SENATE_NOPOLL
+}
+
 /** Draws every error for `races` from one seeded stream: the national errors
  * first, then each race's in order. Both chambers share the national errors. */
 export function createSimulator(races: readonly Race[], n = N_SIMS, seed = SEED): Simulator {
@@ -58,8 +69,7 @@ export function createSimulator(races: readonly Race[], n = N_SIMS, seed = SEED)
   fillNormal(national, SIGMA_NAT, random)
   const raceErrors = new Float32Array(races.length * n)
   races.forEach((race, k) => {
-    const sigma = race.chamber === 'house' ? SIGMA_RACE_HOUSE : SIGMA_RACE_SENATE
-    fillNormal(raceErrors.subarray(k * n, (k + 1) * n), sigma, random)
+    fillNormal(raceErrors.subarray(k * n, (k + 1) * n), raceSigma(race), random)
   })
   return { races, n, national, raceErrors }
 }
