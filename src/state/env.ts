@@ -28,6 +28,19 @@ export function arrowStep(event: ArrowKey): number | undefined {
   return sign * (event.shiftKey ? ENV_SHIFT_STEP : ENV_KEY_STEP)
 }
 
+/** How far an arrow key pressed anywhere on the page moves the slider
+ * (docs/SPEC.md §4.2): only left and right, so up and down keep scrolling the
+ * page, and only if nothing else handled the key (the slider itself, when it
+ * has the focus, already did). */
+export function pageArrowStep(event: ArrowKey & Pick<KeyboardEvent, 'defaultPrevented'>): number | undefined {
+  if (event.defaultPrevented || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) return undefined
+  return arrowStep(event)
+}
+
+/** Where the arrow keys already move something: text fields and other form
+ * controls. */
+export const ARROW_CONTROLS = 'input, textarea, select, [contenteditable]:not([contenteditable="false"])'
+
 /** Moves an environment by a step, rounded and kept within the slider range. */
 export function stepEnv(env: number, step: number): number {
   return Math.min(ENV_MAX, Math.max(ENV_MIN, roundEnv(env + step)))

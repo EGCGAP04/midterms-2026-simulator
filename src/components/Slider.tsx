@@ -1,15 +1,19 @@
 // The national-environment slider (docs/SPEC.md §4.2): 0.01-point steps when
-// dragged, 0.1 or 1 point with the arrow keys.
+// dragged, 0.1 or 1 point with the arrow keys (left and right from anywhere on
+// the page).
 
-import { useId, type CSSProperties } from 'react'
+import { useEffect, useId, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
-import { arrowStep, roundEnv, stepEnv, tintAt, trackStops } from '../state/env.ts'
+import { ARROW_CONTROLS, arrowStep, pageArrowStep, roundEnv, tintAt, trackStops } from '../state/env.ts'
 
 interface SliderProps {
   env: number
   onChange: (env: number) => void
+  /** Moves the slider by a step from its latest value (keys can repeat
+   * faster than the page renders). */
+  onStep: (step: number) => void
 }
 
 /** A fraction in points, exact for the slider's steps (−0.0875 → −8.75). */
@@ -25,7 +29,7 @@ function position(value: number): number {
 /** The track: each rating's colour at its margin, mixed in OKLCH between. */
 const TRACK = `linear-gradient(in oklch to right, ${trackStops().join(', ')})`
 
-export function Slider({ env, onChange }: SliderProps) {
+export function Slider({ env, onChange, onStep }: SliderProps) {
   const { lang, t } = useI18n()
   const id = useId()
   const value = formatMargin(lang, env)
@@ -34,6 +38,20 @@ export function Slider({ env, onChange }: SliderProps) {
   // The value takes the track's colour at the same point.
   const { lo, hi, mix } = tintAt(env)
   const tint = { '--lo': `var(${lo})`, '--hi': `var(${hi})`, '--mix': mix } as CSSProperties
+
+  // Left and right move the slider from anywhere on the page. On the window,
+  // so the slider's own handler (and any other) runs first.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const step = pageArrowStep(event)
+      if (step === undefined) return
+      if (event.target instanceof Element && event.target.closest(ARROW_CONTROLS)) return
+      event.preventDefault()
+      onStep(step)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onStep])
 
   return (
     <section className="slider">
@@ -57,7 +75,7 @@ export function Slider({ env, onChange }: SliderProps) {
             const step = arrowStep(event)
             if (step === undefined) return
             event.preventDefault()
-            onChange(stepEnv(env, step))
+            onStep(step)
           }}
         />
         <span className="slider-default" title={t('slider.default', { value: defaultValue })} />

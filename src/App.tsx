@@ -1,6 +1,6 @@
 // The page: header, slider, summary bar and map.
 
-import { useDeferredValue, useEffect, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { Header } from './components/Header.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
@@ -11,6 +11,7 @@ import { translate } from './i18n/i18n.ts'
 import type { Simulator } from './model/simulate.ts'
 import type { Chamber, Dataset } from './model/types.ts'
 import { useDataset } from './state/dataset.ts'
+import { stepEnv } from './state/env.ts'
 import { useChamberView } from './state/forecast.ts'
 import { useTheme } from './state/theme.ts'
 import { readUrlState, writeUrlState, type PageState } from './state/url.ts'
@@ -48,6 +49,8 @@ export default function App() {
   const [theme, setTheme] = useTheme()
   // The slider stays responsive while the forecast catches up.
   const env = useDeferredValue(state.env)
+  // Stable, so the slider's page-wide key listener is added once.
+  const stepSlider = useCallback((step: number) => setState((s) => ({ ...s, env: stepEnv(s.env, step) })), [])
 
   useEffect(() => {
     document.documentElement.lang = state.lang
@@ -71,7 +74,7 @@ export default function App() {
         onThemeChange={setTheme}
       />
       <main>
-        <Slider env={state.env} onChange={(env) => setState((s) => ({ ...s, env }))} />
+        <Slider env={state.env} onChange={(env) => setState((s) => ({ ...s, env }))} onStep={stepSlider} />
         {data.status === 'ready' ? (
           <Forecast chamber={state.chamber} env={env} dataset={data.dataset} simulator={data.simulator} />
         ) : (
