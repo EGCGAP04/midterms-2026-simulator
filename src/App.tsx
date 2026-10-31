@@ -1,9 +1,13 @@
-// The page: header and slider (M3). The summary bar arrives with #7.
+// The page: header, slider and summary bar (M3).
 
-import { useEffect, useState } from 'react'
+import { useDeferredValue, useEffect, useState } from 'react'
 import { Header } from './components/Header.tsx'
 import { Slider } from './components/Slider.tsx'
+import { SummaryBar } from './components/SummaryBar.tsx'
 import { LangContext } from './i18n/context.ts'
+import { translate } from './i18n/i18n.ts'
+import { useDataset } from './state/dataset.ts'
+import { useTheme } from './state/theme.ts'
 import { readUrlState, writeUrlState, type PageState } from './state/url.ts'
 
 /** How long the state must stay still before the URL is updated. */
@@ -11,6 +15,10 @@ const URL_DELAY_MS = 300
 
 export default function App() {
   const [state, setState] = useState<PageState>(() => readUrlState(window.location.search, navigator.languages))
+  const data = useDataset()
+  const [theme, setTheme] = useTheme()
+  // The slider stays responsive while the forecast catches up.
+  const env = useDeferredValue(state.env)
 
   useEffect(() => {
     document.documentElement.lang = state.lang
@@ -28,11 +36,20 @@ export default function App() {
     <LangContext value={state.lang}>
       <Header
         chamber={state.chamber}
+        theme={theme}
         onChamberChange={(chamber) => setState((s) => ({ ...s, chamber }))}
         onLangChange={(lang) => setState((s) => ({ ...s, lang }))}
+        onThemeChange={setTheme}
       />
       <main>
         <Slider env={state.env} onChange={(env) => setState((s) => ({ ...s, env }))} />
+        {data.status === 'ready' ? (
+          <SummaryBar chamber={state.chamber} env={env} dataset={data.dataset} simulator={data.simulator} />
+        ) : (
+          <p className="status" role={data.status === 'error' ? 'alert' : 'status'}>
+            {translate(state.lang, data.status === 'error' ? 'app.loadError' : 'app.loading')}
+          </p>
+        )}
       </main>
     </LangContext>
   )

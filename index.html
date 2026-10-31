@@ -5,6 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Midterms 2026 Simulator</title>
+    <script>
+      // Apply a stored theme before the first paint (src/state/theme.ts).
+      try {
+        const theme = localStorage.getItem('theme')
+        if (theme === 'light' || theme === 'dark') document.documentElement.style.colorScheme = theme
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

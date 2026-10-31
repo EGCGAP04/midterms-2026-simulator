@@ -95,7 +95,7 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - [x] M0: Repository setup (Vite + React + TS, CI, Pages, Issue forms, CHANGELOG).
 - [x] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
 - [x] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
-- [ ] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
+- [x] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
 - [ ] M4: Maps: Senate state map and House hex cartogram.
 - [ ] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
 - [ ] M6: Polish and launch: responsive layout, the < 50 ms performance budget, first release.

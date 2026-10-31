@@ -256,15 +256,28 @@ Use a responsive layout that also works on a phone.
    - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle.
    - EN/ES toggle.
    - House/Senate switch.
+   - Light/dark theme toggle. The page follows the browser's theme until the reader picks one; the choice is remembered in that browser (`localStorage`), not put in the URL.
 2. **Slider:**
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
-   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0).
+   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in the track's colour at that point, darkened (light theme) or lightened (dark theme) just enough to read.
+   - The track uses the rating colours (§4.3), the same in both themes: light grey (`#E4E4E4`) at EVEN, Tilt at 2 points, Lean at 4, Likely at 8 and Safe from 16 on, each side in its party's colours, mixed in OKLCH between stops.
    - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
 3. **Summary bar:**
-   - Stacked horizontal bar by rating, from Safe D to Safe R (plus I in the Senate), with a majority line (218 / 50).
-   - Seat totals and P(control) for each party.
+   - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
+     - Left to right: Safe D, Likely D, Lean D, Tilt D, then the violet blocks for races an independent leads, then Tilt R, Lean R, Likely R, Safe R.
+     - Independents sit on the side of the party they run against: one in the opposition slot (against R, e.g. Osborn in Nebraska) next to D, as in the Senate's "D + I"; one in the REP slot (against D, e.g. Kiley in CA-06) next to R.
+     - **Senate:** the seats not up for election (D 34, R 31) sit at the two ends, in the same solid colour as Safe (not a lighter one, which would read as competitive), with diagonal stripes in the block's text colour (45° for D, 135° for R). A vertical line like the majority line marks where they end, and a bracket under each one says "Not up for grabs in 2026".
+     - One continuous bar, without gaps between blocks; only its two ends are rounded.
+     - Blocks are sized by seats and placed exactly, so the majority line sits in the middle: 218 in the House, where a party crossing it has a majority. In the Senate R controls with 50 (the Vice President breaks ties) and D + I need 51.
+   - Above the bar, each side's seat total and P(control) (§3.3):
+     - Seat totals are the deterministic count at the slider (§3.4), not a simulation median. A note says so: the medians and the 80% interval come with the histogram (§4.6).
+     - **House:** D and R with their chance of a majority. I is shown only when an independent leads a race, next to the party whose side of the bar its races are on (both sides if there are some on each).
+     - **Senate:** D and I with the chance of D + I control, and R with its chance of control.
+     - Each total's number is centred under its party name; the counts inside the blocks are centred too.
+   - Hovering a block shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
+   - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
    - **Senate:** US states map (`us-atlas`). States without a race are drawn in neutral grey.
    - **House:** a **hex cartogram**, one hexagon per district, grouped by state. Use an openly licensed hex layout if one exists with the right number of districts per state (check the licence). Otherwise generate the layout algorithmically, as compact state blocks placed on a US-shaped grid.
@@ -297,6 +310,7 @@ Use a responsive layout that also works on a phone.
   - Flat keys (`"slider.reset"`). English is the reference: a key missing from Spanish falls back to English, and a test checks that both catalogs have the same keys and placeholders (`{value}`).
 - Numbers are formatted with `Intl.NumberFormat` (`en-US`, `es-AR`): `es-AR` uses a decimal comma.
 - **Margins:** the letter of the party ahead and the margin in points, with two decimals: "D+8.75" ("D+8,75" in Spanish), "I+3.10". A margin that rounds to 0 shows as "EVEN" ("Empate" in Spanish).
+- **Ratings:** Safe, Likely, Lean and Tilt, followed by the party letter ("Lean D"). In Spanish the party letter goes first: Seguro, Probable, Favorito and Ajustado ("D favorito"). Seats are "escaños" in Spanish.
 - **Probabilities:** whole percentages, shown as ">99%" above 99% and "<1%" below 1%, fixed races included.
 
 ---
@@ -326,9 +340,9 @@ Use a responsive layout that also works on a phone.
 /scripts/bench.ts              (times the simulation: npm run bench, local only)
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
-/src/model/{margin.ts, ratings.ts, simulate.ts, config.ts}
+/src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
 /src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
-/src/state/{env.ts, url.ts}   (slider rounding and key steps; the URL state)
+/src/state/{env.ts, url.ts, dataset.ts, theme.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme)
 /README.md   (how to regenerate the data and deploy)
 ```

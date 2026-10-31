@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN } from '../model/config.ts'
-import { arrowStep, roundEnv, stepEnv } from './env.ts'
+import { arrowStep, roundEnv, stepEnv, tintAt, trackStops } from './env.ts'
 
 const key = (key: string, modifiers: Partial<KeyboardEvent> = {}) => ({
   key,
@@ -58,5 +58,48 @@ describe('stepEnv', () => {
   it('stops at the ends of the range', () => {
     expect(stepEnv(ENV_MAX - 0.0005, 0.01)).toBe(ENV_MAX)
     expect(stepEnv(ENV_MIN, -0.001)).toBe(ENV_MIN)
+  })
+})
+
+describe('tintAt', () => {
+  it.each([
+    [0, '--color-even', '--r-tilt', 0],
+    [-0.01, '--color-even', '--d-tilt', 0.5],
+    [-0.02, '--color-even', '--d-tilt', 1],
+    [0.03, '--r-tilt', '--r-lean', 0.5],
+    [-0.0875, '--d-likely', '--d-safe', 0.09375],
+    [0.16, '--r-likely', '--r-safe', 1],
+    [-0.29, '--d-safe', '--d-safe', 1],
+  ])('%f mixes %s into %s by %f', (env, lo, hi, mix) => {
+    const tint = tintAt(env)
+    expect(tint).toMatchObject({ lo, hi })
+    expect(tint.mix).toBeCloseTo(mix, 9)
+  })
+
+  it('only grows toward each end', () => {
+    let previous = -1
+    for (let points = 0; points <= 20; points += 0.01) {
+      const { lo, hi, mix } = tintAt(points / 100)
+      const step = ['--color-even', '--r-tilt', '--r-lean', '--r-likely', '--r-safe'].indexOf(lo) + (hi === lo ? 0 : mix)
+      expect(step).toBeGreaterThanOrEqual(previous)
+      previous = step
+    }
+  })
+})
+
+describe('trackStops', () => {
+  it('places each rating colour at its margin, from Safe D to Safe R', () => {
+    const at = (env: number) => `${(((env - ENV_MIN) / (ENV_MAX - ENV_MIN)) * 100).toFixed(2)}%`
+    expect(trackStops()).toEqual([
+      `var(--d-safe) ${at(-0.16)}`,
+      `var(--d-likely) ${at(-0.08)}`,
+      `var(--d-lean) ${at(-0.04)}`,
+      `var(--d-tilt) ${at(-0.02)}`,
+      `var(--color-even) ${at(0)}`,
+      `var(--r-tilt) ${at(0.02)}`,
+      `var(--r-lean) ${at(0.04)}`,
+      `var(--r-likely) ${at(0.08)}`,
+      `var(--r-safe) ${at(0.16)}`,
+    ])
   })
 })

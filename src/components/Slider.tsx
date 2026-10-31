@@ -5,7 +5,7 @@ import { useId, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
-import { arrowStep, roundEnv, stepEnv } from '../state/env.ts'
+import { arrowStep, roundEnv, stepEnv, tintAt, trackStops } from '../state/env.ts'
 
 interface SliderProps {
   env: number
@@ -22,19 +22,24 @@ function position(value: number): number {
   return (value - ENV_MIN) / (ENV_MAX - ENV_MIN)
 }
 
+/** The track: each rating's colour at its margin, mixed in OKLCH between. */
+const TRACK = `linear-gradient(in oklch to right, ${trackStops().join(', ')})`
+
 export function Slider({ env, onChange }: SliderProps) {
   const { lang, t } = useI18n()
   const id = useId()
   const value = formatMargin(lang, env)
   const defaultValue = formatMargin(lang, DEFAULT_ENV)
-  const side = roundEnv(env) === 0 ? 'even' : env < 0 ? 'd' : 'r'
-  const track = { '--default': position(DEFAULT_ENV), '--even': position(0) } as CSSProperties
+  const track = { '--default': position(DEFAULT_ENV), '--track': TRACK } as CSSProperties
+  // The value takes the track's colour at the same point.
+  const { lo, hi, mix } = tintAt(env)
+  const tint = { '--lo': `var(${lo})`, '--hi': `var(${hi})`, '--mix': mix } as CSSProperties
 
   return (
     <section className="slider">
       <div className="slider-heading">
         <label htmlFor={id}>{t('slider.label')}</label>
-        <output htmlFor={id} className={`slider-value slider-value-${side}`}>
+        <output htmlFor={id} className="slider-value" style={tint}>
           {value}
         </output>
       </div>
