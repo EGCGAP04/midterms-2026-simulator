@@ -1,9 +1,10 @@
-// The page: header, slider, summary bar, map and race panel.
+// The page: header, slider, summary bar, map, race panel and lists.
 
 import { useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { Header } from './components/Header.tsx'
 import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
+import { RaceLists } from './components/RaceLists.tsx'
 import { RacePanel } from './components/RacePanel.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
@@ -35,8 +36,9 @@ interface ForecastProps {
 function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator }: ForecastProps) {
   const { t } = useI18n()
   const view = useChamberView(dataset, simulator, chamber, env)
-  // The selected race (§4.4), shown by the race panel (§4.5). It belongs to
-  // its chamber: switching chambers clears it.
+  // The selected race (§4.4), shown by the race panel (§4.5) and picked on
+  // the map or in the lists (§4.7). It belongs to its chamber: switching
+  // chambers clears it.
   const [selection, setSelection] = useState<{ chamber: Chamber; id: string }>()
   const selected = selection?.chamber === chamber ? selection.id : undefined
   const onSelect = (id: string | undefined) => setSelection(id === undefined ? undefined : { chamber, id })
@@ -69,6 +71,7 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
           )}
         </div>
         <RacePanel view={view} selected={selected} />
+        <RaceLists view={view} selected={selected} onSelect={onSelect} />
       </div>
     </>
   )

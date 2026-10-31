@@ -316,7 +316,7 @@ Use a responsive layout that also works on a phone.
      - The selection belongs to its chamber: switching chambers clears it, and switching back does not restore it.
      - On a touch screen there is no hover: a tap selects.
 5. **Race panel:** the selected race (§4.4) in full. Hovering keeps the short tooltip; the panel is what a click, a tap or Enter opens.
-   - Beside the map on wide screens (from 64rem, the map then a little narrower), under it on narrower ones. Without a selection it says how to pick a race. Screen readers hear it change (`aria-live="polite"`).
+   - Beside the map and the lists (§4.7) on wide screens (from 64rem, the map then a little narrower), and it stays in view while the page scrolls past them; under the map, before the lists, on narrower ones. Without a selection it says how to pick a race. Screen readers hear it change (`aria-live="polite"`).
    - **Heading:** the race's name, its rating at the slider in the map's colour, and the margin (none for a fixed race, as in the tooltip).
    - **Flip flag:** when the side ahead is not the party that holds the seat (`holder`), "Flip: R → D" (an independent too: "R → I"); otherwise "Hold: R".
    - **Candidates**, the REP slot first, each with the party letter (I included), the incumbency status (§2.2) and the chance of winning (§3.3):
@@ -331,10 +331,11 @@ Use a responsive layout that also works on a phone.
      - `MT3`: a three-way race; Alme's share moves by half the environment's shift and Bodnar and Bankhead split the rest in proportion.
      - **Independent** (not in `MT3`, where all three parties run): there is no candidate of the party whose slot the independent takes, and they move with that side of the environment.
 6. **Seat histogram** from the simulations, with the majority line.
-7. **Lists:**
-   - Flips (both directions).
-   - Closest races.
-   - The **tipping-point** race: sort races by margin and find the one that gives the majority.
+7. **Lists** ("Key races"), under the map, at the slider's environment. Every race in them is a button that selects it (§4.4), so the race panel shows it and the map outlines it; the selected one is marked in the lists too. Each shows its name and its margin (its rating for a fixed race), with a square in its rating's colour.
+   - **Flips:** the races whose side ahead is not the party that holds the seat (§4.5), in one column per party that loses them: "R loses" and "D loses", each with its count ("None" when empty). An independent's gain goes in the column of the party that held the seat (Osborn in Nebraska: "R loses"). Fixed races count: a same-party race in a seat the other party held is a flip at any environment. Within a column, the clearest flips first (the largest margin), fixed races at the top.
+   - **Closest races:** the 10 with the smallest margin, either side, fixed races left out.
+   - **Tipping point:** sort the races by margin (R − opposition, so an independent sits on the side of the party it runs against, as in the summary bar) and take the one that gives control: in the House the 218th from the most R end, which is also the 218th from the most D end (435 races). In the Senate, with the seats not up (R 31, D 34), the 19th most R race, which is also the 17th most D: R needs 50 seats, D + I 51. The side that wins it has control, so its margin shows how close control is. With independents in the House this is only approximate: an independent ahead counts as a seat on its side, not as a seat of that party.
+   - Wide screens: the lists go under the map, in the map's column, so the race panel stays beside them. Narrow screens: map, race panel, then the lists.
 8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
    - `ch` is `house` or `senate`, `house` by default.
    - `map` is `hex` for the House hex map. Without it, the House shows the district map, so the page writes it only for `hex` (whatever the chamber, so the choice survives a trip to the Senate).
