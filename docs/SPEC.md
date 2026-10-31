@@ -280,10 +280,18 @@ Use a responsive layout that also works on a phone.
    - Hovering a block shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
    - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
-   - **Senate:** US states map (`us-atlas`). States without a race are drawn in neutral grey.
+   - **Senate:** US states map (`us-atlas`, the pre-projected `states-albers-10m.json`, fetched on its own so the main bundle stays small). States without a race are drawn in neutral grey.
+     - No state has two races in 2026: Florida and Ohio hold special elections, and their other seats are not up.
+     - The small North-East states (VT, NH, MA, RI, CT, NJ, DE, MD) also get a square with their postal code beside the coast, filled like the state, so they can be seen and tapped.
    - **House:** a **hex cartogram**, one hexagon per district, grouped by state. Use an openly licensed hex layout if one exists with the right number of districts per state (check the licence). Otherwise generate the layout algorithmically, as compact state blocks placed on a US-shaped grid.
      - Use hexes rather than real district shapes: many states redrew their maps for 2026, and public 2026 geometries are not readily available.
    - **Fill:** a diverging scale by margin, matching the rating buckets. Fixed races get a hatch pattern; independents are violet (`#775EB2`).
+     - The colours are the summary bar's (§4.3), by each race's rating at the slider. The hatch is white stripes over the fill.
+     - A legend under the map explains the grey and, when the chamber has fixed races, the hatch.
+   - **Hover, focus and selection:**
+     - Hovering a race, or focusing it with the keyboard (every race is in the Tab order), shows a tooltip with its name, rating, margin and the leader's chance of winning, and outlines it in the text colour.
+     - A click, a tap, Enter or Space selects the race: it keeps the outline and the tooltip until another race is selected, it is clicked again, the map's background is clicked or Escape is pressed. The side panel (§4.5) will show the selected race.
+     - On a touch screen there is no hover: a tap selects.
 5. **Tooltip / side panel (hover or tap):**
    - Candidates and their incumbency status (§2.2), with the party, I included.
    - Margin.
@@ -344,6 +352,7 @@ Use a responsive layout that also works on a phone.
 /src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
 /src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
-/src/state/{env.ts, url.ts, dataset.ts, theme.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme)
+/src/model/states.ts           (postal codes by FIPS code)
+/src/state/{env.ts, url.ts, dataset.ts, theme.ts, forecast.ts, atlas.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme; a chamber's outcomes and chances; loading the map)
 /README.md   (how to regenerate the data and deploy)
 ```

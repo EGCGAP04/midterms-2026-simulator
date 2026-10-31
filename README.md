@@ -64,6 +64,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 ├── src/
 │   ├── components/              # React components: render and translate events only
 │   │   ├── Header.tsx           # Title, chamber switch, language and theme toggles
+│   │   ├── SenateMap.tsx        # States by rating, with a tooltip and selection
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
 │   │   └── Toggle.tsx           # Segmented control
@@ -82,6 +83,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── ratings.test.ts
 │   │   ├── ratings.ts
 │   │   ├── seats.ts
+│   │   ├── states.ts            # Postal codes by FIPS code
 │   │   ├── simulate.test.ts
 │   │   ├── simulate.ts          # Correlated Monte Carlo
 │   │   ├── summary.test.ts
@@ -89,9 +91,12 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── testRaces.ts         # Hand-made races for the unit tests
 │   │   └── types.ts             # The races.json schema
 │   ├── state/
+│   │   ├── atlas.test.ts
+│   │   ├── atlas.ts             # Loads the states map
 │   │   ├── dataset.ts           # Loads races.json and draws the simulations
 │   │   ├── env.test.ts
 │   │   ├── env.ts               # Slider values: rounding and arrow-key steps
+│   │   ├── forecast.ts          # A chamber's outcomes and chances at the slider
 │   │   ├── theme.test.ts
 │   │   ├── theme.ts             # Light/dark theme, remembered in the browser
 │   │   ├── url.test.ts

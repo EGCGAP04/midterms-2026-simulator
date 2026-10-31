@@ -1,7 +1,7 @@
 // Locale-aware numbers (docs/SPEC.md §4, i18n). Never format by hand.
 
-import type { Party } from '../model/types.ts'
-import { translate, type Lang } from './i18n.ts'
+import type { Party, Race } from '../model/types.ts'
+import { translate, type Lang, type MessageKey } from './i18n.ts'
 
 export const LOCALES: Record<Lang, string> = { en: 'en-US', es: 'es-AR' }
 
@@ -44,4 +44,22 @@ export function formatProbability(lang: Lang, probability: number): string {
   if (probability > 0.99) return `>${PERCENT[lang].format(0.99)}`
   if (probability < 0.01) return `<${PERCENT[lang].format(0.01)}`
   return PERCENT[lang].format(probability)
+}
+
+/** A state's name from its postal code ("NC" → "North Carolina" / "Carolina del Norte"). */
+export function stateName(lang: Lang, postal: string): string {
+  // Every postal code in races.json has a name (checked in i18n.test.ts).
+  return translate(lang, `state.${postal}` as MessageKey)
+}
+
+/** A race's name: the state in the Senate, with "(special)" for a special
+ * election; the state and district in the House ("Alabama 01", "Alaska at-large"). */
+export function raceName(lang: Lang, race: Race): string {
+  const state = stateName(lang, race.state)
+  if (race.chamber === 'senate') {
+    // The exporter keeps the workbook's names, which mark special elections.
+    return race.name.endsWith(' (special)') ? translate(lang, 'race.special', { state }) : state
+  }
+  const district = race.id.slice(race.id.indexOf('-') + 1)
+  return district === 'AL' ? translate(lang, 'race.atLarge', { state }) : translate(lang, 'race.district', { state, district })
 }
