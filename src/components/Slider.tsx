@@ -29,12 +29,15 @@ export function Slider({ env, onChange }: SliderProps) {
   const defaultValue = formatMargin(lang, DEFAULT_ENV)
   const side = roundEnv(env) === 0 ? 'even' : env < 0 ? 'd' : 'r'
   const track = { '--default': position(DEFAULT_ENV), '--even': position(0) } as CSSProperties
+  // How far toward its end of the track the value is, from 0 (EVEN) to 1, so
+  // its colour follows the track's gradient.
+  const lean = { '--lean': env < 0 ? env / ENV_MIN : env / ENV_MAX } as CSSProperties
 
   return (
     <section className="slider">
       <div className="slider-heading">
         <label htmlFor={id}>{t('slider.label')}</label>
-        <output htmlFor={id} className={`slider-value slider-value-${side}`}>
+        <output htmlFor={id} className={`slider-value slider-value-${side}`} style={lean}>
           {value}
         </output>
       </div>

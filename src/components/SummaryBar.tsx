@@ -64,7 +64,11 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
   }
 
   const senate = chamber === 'senate'
-  const showI = senate || seats.I > 0
+  // Independents are totalled on the side of the bar their races are on.
+  const independents = (side: Block['side']): number =>
+    blocks.reduce((sum, block) => (block.party === 'I' && block.side === side ? sum + block.seats : sum), 0)
+  const leftI = independents('D')
+  const rightI = independents('R')
   const line = senate
     ? t('summary.line.senate', { r: SENATE_R_CONTROL, di: SENATE_R_CONTROL + 1 })
     : t('summary.line.house', { seats: HOUSE_MAJORITY })
@@ -87,7 +91,7 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
         <div className="summary-side">
           <div className="summary-parties">
             <Total party="D" seats={seats.D} />
-            {showI && <Total party="I" seats={seats.I} />}
+            {(senate || leftI > 0) && <Total party="I" seats={leftI} />}
           </div>
           <p className="summary-chance">
             {t(senate ? 'summary.controlDI' : 'summary.majority')}:{' '}
@@ -96,6 +100,7 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
         </div>
         <div className="summary-side summary-side-r">
           <div className="summary-parties">
+            {rightI > 0 && <Total party="I" seats={rightI} />}
             <Total party="R" seats={seats.R} />
           </div>
           <p className="summary-chance">

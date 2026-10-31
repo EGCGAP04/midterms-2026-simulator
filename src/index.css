@@ -123,18 +123,25 @@ button {
   font-weight: 600;
 }
 
+/* Text shades of the track's gradient: grey at EVEN, the party's colour at
+ * its end of the track. */
 .slider-value {
   font-size: 1.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  color: color-mix(in oklab, var(--side) calc(var(--lean) * 100%), var(--color-muted));
 }
 
 .slider-value-d {
-  color: var(--color-d-text);
+  --side: var(--color-d-text);
 }
 
 .slider-value-r {
-  color: var(--color-r-text);
+  --side: var(--color-r-text);
+}
+
+.slider-value-even {
+  --side: var(--color-muted);
 }
 
 .slider-track {
@@ -302,6 +309,7 @@ button {
 
 .summary-total {
   display: grid;
+  justify-items: center;
 }
 
 .summary-party {
@@ -368,6 +376,7 @@ button {
   container-type: inline-size;
   display: flex;
   align-items: center;
+  justify-content: center;
 }
 
 /* Senate seats not up: stripes in the text colour (white on Safe), mirrored on
@@ -382,13 +391,11 @@ button {
 
 .summary-block-not-up-r {
   --stripes: -45deg;
-  justify-content: flex-end;
 }
 
+/* A halo in the fill colour keeps the count readable over the stripes. */
 .summary-block-not-up .summary-block-label {
-  margin: 0 0.25rem;
-  border-radius: 2px;
-  background: var(--fill);
+  text-shadow: 0 0 2px var(--fill), 0 0 2px var(--fill);
 }
 
 .summary-block[data-hovered] {
