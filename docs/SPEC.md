@@ -10,7 +10,8 @@ All code, comments, commit messages and docs are in **English**. The UI is bilin
 
 - Vite + React + TypeScript (strict mode).
 - D3 (`d3-geo`, `d3-scale`, `d3-shape`) for the map and charts, rendered as SVG.
-- `topojson-client` + `us-atlas` (states) for the Senate map.
+- `topojson-client` + `us-atlas` (states) for the Senate map and the hex map's layout.
+- The House district map: the Census Bureau's 2026 district boundaries, as TopoJSON in `public/us-house-districts-2026.json` (§4.4). `scripts/build_districts_map.sh` rebuilds it with [mapshaper](https://github.com/mbloch/mapshaper) 0.6.102, installed globally (`npm i -g mapshaper@0.6.102`), not as a project dependency: only that script uses it, and never in CI.
 - Browsers: Chrome and Edge 123+, Firefox 128+, Safari 18+. The CSS uses `light-dark()`, relative colours (`oklch(from …)`) and OKLCH gradients. The build's `cssTarget` is set to these versions: with older targets the minifier replaces `light-dark()` with a fallback that follows only the system theme and breaks the theme toggle.
 - No backend. The app ships one static `races.json`. Deploy target: GitHub Pages (add a workflow) or Vercel.
 - Data exporter: Python 3 + `openpyxl` (`scripts/export_data.py`).
@@ -283,8 +284,16 @@ Use a responsive layout that also works on a phone.
    - **Senate:** US states map (`us-atlas`, the pre-projected `states-albers-10m.json`, fetched on its own so the main bundle stays small). States without a race are drawn in neutral grey.
      - No state has two races in 2026: Florida and Ohio hold special elections, and their other seats are not up.
      - The small North-East states (VT, NH, MA, RI, CT, NJ, DE, MD) also get a square with their postal code beside the coast, filled like the state, so they can be seen and tapped.
-   - **House:** a **hex cartogram**, one hexagon per district, grouped by state. Use an openly licensed hex layout if one exists with the right number of districts per state (check the licence). Otherwise generate the layout algorithmically, as compact state blocks placed on a US-shaped grid.
-     - Use hexes rather than real district shapes: many states redrew their maps for 2026, and public 2026 geometries are not readily available.
+   - **House:** two maps, with a "Districts / Hexagons" switch above them (only for the House). The district map is the default; the choice goes in the URL (§4.8).
+   - **House district map:** every district with its real 2026 shape, and the state borders over them.
+     - Source: U.S. Census Bureau TIGER/Line, 120th Congress districts (the lines as of 1 January 2026, published in October 2026). They include the nine states that redrew for 2026 (AL, CA, FL, LA, NC, OH, TN, TX and UT), the same ones `races.json` marks as `redrawn`. Missouri uses the 2024 file (119th Congress): the Supreme Court did not allow its new map for 2026, but the 2026 files carry it. Public domain; the legend credits "U.S. Census Bureau TIGER/Line".
+     - `public/us-house-districts-2026.json` (TopoJSON, about 1.1 MB, 0.3 MB compressed; `.json` so that GitHub Pages serves it as JSON and compresses it). `objects.districts` has the 435 districts, with `id` in the same format as `races.json` (`CA-22`, `AK-AL`), `state` (postal code), `STATEFP` and `plan` (`"120"`, or `"119"` for Missouri). `objects.states` has the 50 states, dissolved from the districts. Coordinates are longitude and latitude.
+     - `scripts/build_districts_map.sh` (with `scripts/fips.cjs`) rebuilds it from the Census files: it clips the districts to the 1:500k shoreline (the TIGER districts reach into the Great Lakes and the sea) and simplifies them to 6% (weighted, keeping every shape). Run again, it gives an identical file.
+     - It is fetched on its own, when the district map is first shown, and projected in the browser with Albers USA at the `us-atlas` scale (975 × 610, `geoAlbersUsa().scale(1300).translate([487.5, 305])`), so it lines up with the Senate map.
+     - Thin lines in the page background separate the districts; the state borders are thicker.
+     - At full width the smallest districts (New York City, Los Angeles, Chicago, Houston) are 1–2 px²: zoom and pan (#32) will make them reachable with the mouse or by touch. Every district is in the Tab order.
+   - **House hex map:** a **hex cartogram**, one hexagon per district, grouped by state. Use an openly licensed hex layout if one exists with the right number of districts per state (check the licence). Otherwise generate the layout algorithmically, as compact state blocks placed on a US-shaped grid.
+     - Every district gets the same area, so the small urban districts can be seen without zooming.
      - No open layout fits (checked in October 2026): Daily Kos Elections' 2022 hexmap uses five hexagons per district and asks for attribution, its earlier versions were CC BY-SA 4.0, and the one-hexagon versions predate the 2022 apportionment. So `scripts/house_hexes.ts` generates it into `src/state/houseHexes.json` (each district's `[column, row]`, pointy-top hexagons with the odd rows shifted half a hexagon right), committed and checked by tests. Run it again when the number of districts per state changes.
      - The generator starts each state at its `us-atlas` centroid as a circle with its hexagons' area, pushes the circles apart (a Dorling cartogram, pulled back toward the centroids and lightly toward the middle of the map), then grows the states one at a time from their centres, so each stays in one piece. A few North-East states start slightly moved so the coast keeps its order. Holes boxed in by states move out of the map.
      - Within a state the districts go in reading order (left to right, top to bottom): their positions do not follow the real districts. A note under the map says so.
@@ -309,8 +318,9 @@ Use a responsive layout that also works on a phone.
    - Flips (both directions).
    - Closest races.
    - The **tipping-point** race: sort races by margin and find the one that gives the majority.
-8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
+8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
    - `ch` is `house` or `senate`, `house` by default.
+   - `map` is `hex` for the House hex map. Without it, the House shows the district map, so the page writes it only for `hex` (whatever the chamber, so the choice survives a trip to the Senate).
    - `env` is a number in the slider range, rounded to 0.01. Without it, the page uses `DEFAULT_ENV`.
    - `lang` is `en` or `es`. Without it, the page follows the browser language: Spanish if it starts with `es`, English otherwise.
    - The page writes `lang` only when it differs from the browser language, so a shared link opens in the reader's language. A link from someone who switched away from their browser language still carries it.
@@ -352,14 +362,17 @@ Use a responsive layout that also works on a phone.
 /scripts/test_export_data.py   (unit tests of the pure helpers, stdlib unittest)
 /scripts/bench.ts              (times the simulation: npm run bench, local only)
 /scripts/house_hexes.ts        (generates the House map's layout: npm run house-hexes)
+/scripts/build_districts_map.sh (rebuilds the district map from the Census files: npm run districts-map; needs mapshaper)
+/scripts/fips.cjs              (postal codes by FIPS code, for mapshaper)
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
+/public/us-house-districts-2026.json   (the House district map, TopoJSON)
 /src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
-/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists}.tsx
-/src/components/useRaceMap.ts  (what both maps share: race descriptions, hover, focus and selection)
+/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseDistrictMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists}.tsx
+/src/components/useRaceMap.ts  (what the maps share: race descriptions, hover, focus and selection)
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
 /src/model/states.ts           (postal codes by FIPS code)
-/src/state/{env.ts, url.ts, dataset.ts, theme.ts, forecast.ts, atlas.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme; a chamber's outcomes and chances; loading the map)
+/src/state/{env.ts, url.ts, dataset.ts, theme.ts, forecast.ts, atlas.ts, districts.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme; a chamber's outcomes and chances; loading the states map; loading the district map)
 /src/state/{hexGrid.ts, houseHexes.json, houseLayout.ts}   (the hexagon grid; the generated House layout; its hexagons, borders and labels)
 /README.md   (how to regenerate the data and deploy)
 ```

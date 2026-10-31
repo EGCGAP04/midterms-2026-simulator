@@ -5,16 +5,18 @@ import { browserLang, readUrlState, writeUrlState } from './url.ts'
 
 describe('readUrlState', () => {
   it('reads every value', () => {
-    expect(readUrlState('?ch=senate&env=-5.25&lang=es', ['en-US'])).toEqual({
+    expect(readUrlState('?ch=senate&env=-5.25&lang=es&map=hex', ['en-US'])).toEqual({
       chamber: 'senate',
       env: -0.0525,
       lang: 'es',
+      houseMap: 'hex',
     })
   })
 
-  it('defaults to the House, DEFAULT_ENV and the browser language', () => {
-    expect(readUrlState('', ['es-AR', 'en'])).toEqual({ chamber: 'house', env: DEFAULT_ENV, lang: 'es' })
-    expect(readUrlState('', [])).toEqual({ chamber: 'house', env: DEFAULT_ENV, lang: 'en' })
+  it('defaults to the House, DEFAULT_ENV, the browser language and the district map', () => {
+    const defaults = { chamber: 'house', env: DEFAULT_ENV, houseMap: 'districts' }
+    expect(readUrlState('', ['es-AR', 'en'])).toEqual({ ...defaults, lang: 'es' })
+    expect(readUrlState('', [])).toEqual({ ...defaults, lang: 'en' })
   })
 
   it.each(['abc', '', '1e2', '--3', '5%', 'NaN', 'Infinity', '-29.01', '20.5'])('ignores env=%s', (env) => {
@@ -33,34 +35,44 @@ describe('readUrlState', () => {
     expect(readUrlState(`?env=${encodeURIComponent(env)}`, []).env).toBe(value)
   })
 
-  it('ignores an unknown chamber or language', () => {
-    expect(readUrlState('?ch=assembly&lang=fr', ['es'])).toMatchObject({ chamber: 'house', lang: 'es' })
+  it('ignores an unknown chamber, language or map', () => {
+    expect(readUrlState('?ch=assembly&lang=fr&map=dots', ['es'])).toMatchObject({
+      chamber: 'house',
+      lang: 'es',
+      houseMap: 'districts',
+    })
   })
 })
 
 describe('writeUrlState', () => {
   it('writes env in points with two decimals', () => {
-    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es' }, ['en'])).toBe('?ch=house&env=-8.75&lang=es')
-    expect(writeUrlState({ chamber: 'senate', env: 0.2, lang: 'en' }, ['es'])).toBe('?ch=senate&env=20.00&lang=en')
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es', houseMap: 'districts' }, ['en'])).toBe('?ch=house&env=-8.75&lang=es')
+    expect(writeUrlState({ chamber: 'senate', env: 0.2, lang: 'en', houseMap: 'districts' }, ['es'])).toBe('?ch=senate&env=20.00&lang=en')
   })
 
   it('writes an even environment as 0.00, never -0.00', () => {
-    expect(writeUrlState({ chamber: 'house', env: -0.000001, lang: 'en' }, [])).toBe('?ch=house&env=0.00')
+    expect(writeUrlState({ chamber: 'house', env: -0.000001, lang: 'en', houseMap: 'districts' }, [])).toBe('?ch=house&env=0.00')
   })
 
   it('leaves out the language when it matches the browser', () => {
-    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es' }, ['es-AR'])).toBe('?ch=house&env=-8.75')
-    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'en' }, [])).toBe('?ch=house&env=-8.75')
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'es', houseMap: 'districts' }, ['es-AR'])).toBe('?ch=house&env=-8.75')
+    expect(writeUrlState({ chamber: 'house', env: -0.0875, lang: 'en', houseMap: 'districts' }, [])).toBe('?ch=house&env=-8.75')
+  })
+
+  it('writes the map only when it is the hex map', () => {
+    const state = { chamber: 'house', env: -0.0875, lang: 'en', houseMap: 'hex' } as const
+    expect(writeUrlState(state, ['en'])).toBe('?ch=house&env=-8.75&map=hex')
+    expect(writeUrlState({ ...state, chamber: 'senate' }, ['en'])).toBe('?ch=senate&env=-8.75&map=hex')
   })
 
   it('opens a link without a language in the reader’s language', () => {
-    const link = writeUrlState({ chamber: 'house', env: 0, lang: 'es' }, ['es'])
+    const link = writeUrlState({ chamber: 'house', env: 0, lang: 'es', houseMap: 'districts' }, ['es'])
     expect(readUrlState(link, ['en-US']).lang).toBe('en')
   })
 
   it('reads back every slider step it writes', () => {
     for (let hundredths = ENV_MIN * 10_000; hundredths <= ENV_MAX * 10_000; hundredths += 1) {
-      const state = { chamber: 'senate', env: roundEnv(hundredths / 10_000), lang: 'es' } as const
+      const state = { chamber: 'senate', env: roundEnv(hundredths / 10_000), lang: 'es', houseMap: 'hex' } as const
       expect(readUrlState(writeUrlState(state, ['en']), ['en'])).toEqual(state)
       expect(readUrlState(writeUrlState(state, ['es']), ['es'])).toEqual(state)
     }
