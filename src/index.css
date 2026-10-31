@@ -593,6 +593,28 @@ button {
   pointer-events: none;
 }
 
+/* The House map: wider gaps between states than between districts. */
+.map-borders {
+  fill: none;
+  stroke: Canvas;
+  stroke-width: 4;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.map-label {
+  fill: var(--color-text);
+  stroke: Canvas;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  paint-order: stroke;
+  font-size: 11px;
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
 /* The same ring as the summary bar's blocks: the text colour, set apart from
  * the fills by the page background. */
 .map-ring {
