@@ -16,7 +16,9 @@
   --color-muted: light-dark(#5c5c5c, #a8a8a8);
   --color-border: light-dark(#d0d0d0, #444);
   --color-surface: light-dark(#f4f4f4, #262626);
-  --color-even: light-dark(#dcdcdc, #6e6e6e);
+  /* The slider's centre. One light grey in both themes: the rating colours
+   * around it are the same in both, so the track only lightens toward EVEN. */
+  --color-even: #e4e4e4;
 
   /* Ratings: four steps per party from Tilt (lightest) to Safe (darkest), the
    * same in both themes (docs/SPEC.md §4.3). The slider's track uses them too. */
