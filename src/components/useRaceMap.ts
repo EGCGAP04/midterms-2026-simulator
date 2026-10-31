@@ -4,6 +4,8 @@
 import { useState, type FocusEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin, raceName } from '../i18n/format.ts'
+import { translate, type Lang } from '../i18n/i18n.ts'
+import type { Outcome } from '../model/margin.ts'
 import { ratingOf, type Rating } from '../model/ratings.ts'
 import { independentSide } from '../model/summary.ts'
 import type { Race } from '../model/types.ts'
@@ -16,37 +18,44 @@ export function ratingClass(rating: Rating): string {
 
 export interface RaceDetails {
   race: Race
+  outcome: Outcome
   rating: Rating
   name: string
   ratingText: string
-  margin: string
+  /** Undefined for a fixed race, whose ±100 is no real margin. */
+  margin: string | undefined
   /** The leader's chance of winning. */
   chance: number
 }
 
-export function useRaceMap(view: ChamberView, selected: string | undefined, onSelect: (id: string | undefined) => void) {
-  const { lang, t } = useI18n()
-  const [hovered, setHovered] = useState<string>()
-  const { races, outcomes, forecast } = view
-
-  const describe = (k: number): RaceDetails => {
-    const race = races[k]
-    const outcome = outcomes[k]
-    const rating = ratingOf(outcome)
-    // An independent is named by the party it runs against.
-    const ratingText =
-      rating.party === 'I'
-        ? t('summary.independent', { party: independentSide(race) === 'D' ? 'R' : 'D' })
-        : t(`rating.${rating.bucket}`, { party: rating.party })
-    return {
-      race,
-      rating,
-      name: raceName(lang, race),
-      ratingText,
-      margin: formatMargin(lang, outcome.margin, { ahead: outcome.winner }),
-      chance: forecast.probabilities.get(race.id)?.[outcome.winner] ?? 0,
-    }
+/** The `k`-th race of a chamber at the slider, ready to show (the maps'
+ * tooltip and the race panel). */
+export function raceDetails(lang: Lang, view: ChamberView, k: number): RaceDetails {
+  const race = view.races[k]
+  const outcome = view.outcomes[k]
+  const rating = ratingOf(outcome)
+  // An independent is named by the party it runs against.
+  const ratingText =
+    rating.party === 'I'
+      ? translate(lang, 'summary.independent', { party: independentSide(race) === 'D' ? 'R' : 'D' })
+      : translate(lang, `rating.${rating.bucket}`, { party: rating.party })
+  return {
+    race,
+    outcome,
+    rating,
+    name: raceName(lang, race),
+    ratingText,
+    margin: race.fixedWinner === undefined ? formatMargin(lang, outcome.margin, { ahead: outcome.winner }) : undefined,
+    chance: view.forecast.probabilities.get(race.id)?.[outcome.winner] ?? 0,
   }
+}
+
+export function useRaceMap(view: ChamberView, selected: string | undefined, onSelect: (id: string | undefined) => void) {
+  const { lang } = useI18n()
+  const [hovered, setHovered] = useState<string>()
+  const { races } = view
+
+  const describe = (k: number): RaceDetails => raceDetails(lang, view, k)
 
   const toggle = (id: string) => onSelect(selected === id ? undefined : id)
 
@@ -74,7 +83,7 @@ export function useRaceMap(view: ChamberView, selected: string | undefined, onSe
       // Which race a focus event on the map came from.
       'data-race': id,
       'aria-pressed': selected === id,
-      'aria-label': `${details.name}: ${details.ratingText}, ${details.margin}`,
+      'aria-label': [`${details.name}: ${details.ratingText}`, details.margin].filter(Boolean).join(', '),
       ...pointer(id),
       onFocus: (event: FocusEvent<Element>) => {
         // A click focuses the race too: only the keyboard counts as hovering.

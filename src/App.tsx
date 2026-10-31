@@ -1,9 +1,10 @@
-// The page: header, slider, summary bar and map.
+// The page: header, slider, summary bar, map and race panel.
 
 import { useCallback, useDeferredValue, useEffect, useState } from 'react'
 import { Header } from './components/Header.tsx'
 import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
+import { RacePanel } from './components/RacePanel.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
 import { SummaryBar } from './components/SummaryBar.tsx'
@@ -34,33 +35,41 @@ interface ForecastProps {
 function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator }: ForecastProps) {
   const { t } = useI18n()
   const view = useChamberView(dataset, simulator, chamber, env)
-  // The selected race (§4.4); the side panel (M5) will show it.
-  const [selected, setSelected] = useState<string>()
+  // The selected race (§4.4), shown by the race panel (§4.5). It belongs to
+  // its chamber: switching chambers clears it.
+  const [selection, setSelection] = useState<{ chamber: Chamber; id: string }>()
+  const selected = selection?.chamber === chamber ? selection.id : undefined
+  const onSelect = (id: string | undefined) => setSelection(id === undefined ? undefined : { chamber, id })
   return (
     <>
       <SummaryBar view={view} />
-      {chamber === 'house' ? (
-        <>
-          <div className="map-switch">
-            <Toggle
-              label={t('map.view.label')}
-              options={[
-                { value: 'districts', label: t('map.view.districts') },
-                { value: 'hex', label: t('map.view.hex') },
-              ]}
-              value={houseMap}
-              onChange={onHouseMapChange}
-            />
-          </div>
-          {houseMap === 'districts' ? (
-            <HouseDistrictMap view={view} selected={selected} onSelect={setSelected} />
+      <div className="forecast-body">
+        <div className="forecast-map">
+          {chamber === 'house' ? (
+            <>
+              <div className="map-switch">
+                <Toggle
+                  label={t('map.view.label')}
+                  options={[
+                    { value: 'districts', label: t('map.view.districts') },
+                    { value: 'hex', label: t('map.view.hex') },
+                  ]}
+                  value={houseMap}
+                  onChange={onHouseMapChange}
+                />
+              </div>
+              {houseMap === 'districts' ? (
+                <HouseDistrictMap view={view} selected={selected} onSelect={onSelect} />
+              ) : (
+                <HouseHexMap view={view} selected={selected} onSelect={onSelect} />
+              )}
+            </>
           ) : (
-            <HouseHexMap view={view} selected={selected} onSelect={setSelected} />
+            <SenateMap view={view} selected={selected} onSelect={onSelect} />
           )}
-        </>
-      ) : (
-        <SenateMap view={view} selected={selected} onSelect={setSelected} />
-      )}
+        </div>
+        <RacePanel view={view} selected={selected} />
+      </div>
     </>
   )
 }

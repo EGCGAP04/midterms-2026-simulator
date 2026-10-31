@@ -311,17 +311,25 @@ Use a responsive layout that also works on a phone.
      - The colours are the summary bar's (§4.3), by each race's rating at the slider. The hatch is white stripes over the fill.
      - A legend under the map explains the grey and, when the chamber has fixed races, the hatch.
    - **Hover, focus and selection:**
-     - Hovering a race, or focusing it with the keyboard (every race is in the Tab order), shows a tooltip with its name, rating, margin and the leader's chance of winning, and outlines it in the text colour.
-     - A click, a tap, Enter or Space selects the race: it keeps the outline and the tooltip until another race is selected, it is clicked again, the map's background is clicked or Escape is pressed. The side panel (§4.5) will show the selected race.
+     - Hovering a race, or focusing it with the keyboard (every race is in the Tab order), shows a tooltip with its name, rating, margin and the leader's chance of winning, and outlines it in the text colour. A fixed race shows no margin: its ±100 is not a real one.
+     - A click, a tap, Enter or Space selects the race: it keeps the outline and the tooltip until another race is selected, it is clicked again, the map's background is clicked or Escape is pressed. The race panel (§4.5) shows the selected race.
+     - The selection belongs to its chamber: switching chambers clears it, and switching back does not restore it.
      - On a touch screen there is no hover: a tap selects.
-5. **Tooltip / side panel (hover or tap):**
-   - Candidates and their incumbency status (§2.2), with the party, I included.
-   - Margin.
-   - Rating.
-   - Win probability.
-   - Flip flag.
-   - Context: the 2024 presidential margin and the last House race (with its year, and "old lines" when `redrawn`) or, in the Senate, the last election for that seat. Shown as background only, e.g. "Pres. 2024: R+11.4 · House 2024: R+13.9 (old lines)".
-   - Type note (e.g. "Top-two primary blend", "Uncontested", "D vs D").
+5. **Race panel:** the selected race (§4.4) in full. Hovering keeps the short tooltip; the panel is what a click, a tap or Enter opens.
+   - Beside the map on wide screens (from 64rem, the map then a little narrower), under it on narrower ones. Without a selection it says how to pick a race. Screen readers hear it change (`aria-live="polite"`).
+   - **Heading:** the race's name, its rating at the slider in the map's colour, and the margin (none for a fixed race, as in the tooltip).
+   - **Flip flag:** when the side ahead is not the party that holds the seat (`holder`), "Flip: R → D" (an independent too: "R → I"); otherwise "Hold: R".
+   - **Candidates**, the REP slot first, each with the party letter (I included), the incumbency status (§2.2) and the chance of winning (§3.3):
+     - **MT3:** the three candidates with their shares at the slider (§3.1) as well. The workbook gives no status for Bankhead, so none is shown.
+     - **DvD / RvR:** both candidates with their within-party shares (`intraShares`) instead of a chance: the seat is decided, and the model does not say which of the two wins.
+     - **Uncontested:** the only candidate.
+   - **Context**, as background only: the 2024 presidential margin and the last House race (with its year, and "old lines" when `redrawn`) or, in the Senate, the last election for that seat. One decimal, e.g. "Pres. 2024: R+11.4 · House 2024: R+13.9 (old lines)". A House race whose last election was not R vs D (`last` is null) shows only the presidential margin.
+   - **Type notes**, one line each (a race can have two, e.g. a blend with an independent):
+     - `blend`: "Top-two primary blend" ("top-four" in Alaska), and how much it moves with the environment (the slope, as a percentage).
+     - `uncontested`: only one candidate is running.
+     - `DvD` / `RvR`: two candidates of the same party, so the seat stays with that party whatever the environment.
+     - `MT3`: a three-way race; Alme's share moves by half the environment's shift and Bodnar and Bankhead split the rest in proportion.
+     - **Independent** (not in `MT3`, where all three parties run): there is no candidate of the party whose slot the independent takes, and they move with that side of the environment.
 6. **Seat histogram** from the simulations, with the majority line.
 7. **Lists:**
    - Flips (both directions).

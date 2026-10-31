@@ -34,7 +34,8 @@ export function MapTooltip({ tip, at, width, height }: MapTooltipProps) {
     >
       <strong>{tip.name}</strong>
       <span>
-        {tip.ratingText} · {tip.margin}
+        {tip.ratingText}
+        {tip.margin && ` · ${tip.margin}`}
       </span>
       <span>{t('map.chance', { party: tip.rating.party, chance: formatProbability(lang, tip.chance) })}</span>
     </div>
