@@ -1,24 +1,18 @@
 // The summary bar (docs/SPEC.md §4.3): the chamber's seats by rating at the
 // slider's environment, each side's seat total and its chance of control.
 
-import { useMemo, useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatCount, formatProbability } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
-import { deltaFrom, outcomeAt } from '../model/margin.ts'
-import { seatTotals, type SeatTotals } from '../model/seats.ts'
-import { simulate, type Simulator } from '../model/simulate.ts'
+import { seatTotals } from '../model/seats.ts'
 import { summaryBlocks, type Block } from '../model/summary.ts'
-import type { Chamber, Dataset, Party } from '../model/types.ts'
+import type { Party } from '../model/types.ts'
+import type { ChamberView } from '../state/forecast.ts'
 
 interface SummaryBarProps {
-  chamber: Chamber
-  env: number
-  dataset: Dataset
-  simulator: Simulator
+  view: ChamberView
 }
-
-const NONE: Partial<SeatTotals> = {}
 
 const blockKey = (block: Block): string => `${block.side}-${block.party}-${block.kind}`
 
@@ -44,15 +38,10 @@ function Total({ party, seats }: TotalProps) {
   )
 }
 
-export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps) {
+export function SummaryBar({ view }: SummaryBarProps) {
   const { lang, t } = useI18n()
   const [hovered, setHovered] = useState<string>()
-  const notUp = chamber === 'senate' ? dataset.senateNotUp : NONE
-  const delta = deltaFrom(env, dataset.g0)
-
-  const races = useMemo(() => dataset.races.filter((race) => race.chamber === chamber), [dataset, chamber])
-  const outcomes = useMemo(() => races.map((race) => outcomeAt(race, delta)), [races, delta])
-  const forecast = useMemo(() => simulate(simulator, chamber, delta, notUp), [simulator, chamber, delta, notUp])
+  const { chamber, races, outcomes, forecast, notUp } = view
   const seats = seatTotals(outcomes, notUp)
   const blocks = summaryBlocks(races, outcomes, notUp)
 
@@ -168,7 +157,7 @@ export function SummaryBar({ chamber, env, dataset, simulator }: SummaryBarProps
         )}
       </div>
 
-      <p className="summary-note">{t('summary.note', { sims: formatCount(lang, simulator.n) })}</p>
+      <p className="summary-note">{t('summary.note', { sims: formatCount(lang, view.sims) })}</p>
 
       <details className="summary-details">
         <summary>{t('summary.table')}</summary>
