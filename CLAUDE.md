@@ -11,7 +11,7 @@ Guide for Claude Code in this repository. Read it in full before proposing chang
 - `src/model/`: pure model functions (margins, ratings, Monte Carlo) with Vitest tests (M2).
 - `src/components/`, `src/i18n/`: the UI (M3–M5).
 
-Out of scope unless asked: a backend, other election years, real district shapes, editing the forecast in the app.
+Out of scope unless asked: a backend, other election years, editing the forecast in the app.
 
 ## How we work
 
@@ -21,7 +21,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
 - Work in small, reviewable steps. After each step, run the lint, tests and build.
 - When done, summarize what changed and briefly explain any non-obvious decision, so the review is easy.
 - Claude Code may commit, push and open PRs on its own (Enzo allowed it on 2026-10-30). **Merging** still needs Enzo's explicit request for that PR. Commits use Conventional Commits.
-- Do not add dependencies without asking. Approved: the stack in `docs/SPEC.md` §1 (Vite, React, TypeScript, D3 modules `d3-geo`/`d3-scale`/`d3-shape`, `topojson-client`, `us-atlas`, Vitest, `openpyxl`) plus what the Vite template brings (`@vitejs/plugin-react`, `oxlint`, `@types/node`). Their `@types/*` packages count as approved too.
+- Do not add dependencies without asking. Approved: the stack in `docs/SPEC.md` §1 (Vite, React, TypeScript, D3 modules `d3-geo`/`d3-scale`/`d3-shape`/`d3-zoom`/`d3-selection`, `topojson-client`, `us-atlas`, Vitest, `openpyxl`) plus what the Vite template brings (`@vitejs/plugin-react`, `oxlint`, `@types/node`). Their `@types/*` packages count as approved too.
 - **Any change to the data format or the model goes into `docs/SPEC.md` first**, then into the code.
 
 ## Git and GitHub
@@ -59,6 +59,7 @@ Out of scope unless asked: a backend, other election years, real district shapes
 ## Environment
 
 - PC: Linux Mint (Ubuntu base). **Node comes from nvm**, not from apt (apt's Node 18 is too old for Vite). The version is in `.nvmrc`: run `nvm use` in the repo. In a non-interactive shell, load nvm first with `. ~/.nvm/nvm.sh;` and a `;`, not `&&`: sourcing it returns exit code 3 when no default Node is set, which silently cuts an `&&` chain. If `node --version` still shows v18 right after switching, run `hash -r` (bash cached `/usr/bin/node`).
+- `mapshaper` 0.6.102 is installed globally (`npm i -g mapshaper@0.6.102`), not as a project dependency: only `scripts/build_districts_map.sh` uses it, never CI.
 - Python 3 with a local `.venv` for the exporter (ignored by Git): `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`. The system Python has no openpyxl.
 - **The workbook `2026_US_Elections.xlsx` lives in the repo root but is never committed**: it is excluded through `.git/info/exclude` (local only), not `.gitignore`. Only the generated `public/races.json` is versioned. CI never sees the workbook, so it cannot regenerate the data.
 - Sheet names change with each forecast update (`29-10 Senate`, `Senate House`, ...): they are exporter arguments, never hard-coded.
@@ -73,6 +74,7 @@ npm run dev             # local dev server
 npm test                # Vitest
 npm run bench           # time the simulation (local only, not in CI)
 npm run house-hexes     # regenerate the House map's layout (when districts per state change)
+npm run districts-map   # rebuild public/us-house-districts-2026.json from the Census files (needs mapshaper)
 npm run lint            # oxlint
 npm run build           # type-check (tsc -b) and production build into dist/
 npm run preview         # serve dist/ locally
@@ -97,7 +99,7 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - [x] M1: Data exporter: `scripts/export_data.py` with every self-check in SPEC §2.6, and `public/races.json`.
 - [x] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [x] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
-- [x] M4: Maps: Senate state map and House hex cartogram.
+- [x] M4: Maps: Senate state map, House district map and hex cartogram, zoom and pan.
 - [ ] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
 - [ ] M6: Polish and launch: responsive layout, the < 50 ms performance budget, first release.
 

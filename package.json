@@ -10,11 +10,14 @@
     "test:watch": "vitest",
     "bench": "node scripts/bench.ts",
     "house-hexes": "node scripts/house_hexes.ts",
+    "districts-map": "bash scripts/build_districts_map.sh",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
     "d3-geo": "^3.1.1",
+    "d3-selection": "^3.0.0",
+    "d3-zoom": "^3.0.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "topojson-client": "^3.1.0",
@@ -22,6 +25,8 @@
   },
   "devDependencies": {
     "@types/d3-geo": "^3.1.1",
+    "@types/d3-selection": "^3.0.12",
+    "@types/d3-zoom": "^3.0.9",
     "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

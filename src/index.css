@@ -543,6 +543,17 @@ button {
   margin-top: 2rem;
 }
 
+/* The House's "Districts / Hexagons" switch, just above its map. */
+.map-switch {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.map-switch + .map {
+  margin-top: 0.75rem;
+}
+
 .map-frame {
   position: relative;
   aspect-ratio: 975 / 610;
@@ -593,7 +604,21 @@ button {
   pointer-events: none;
 }
 
-/* The House map: wider gaps between states than between districts. */
+/* The district map: thin lines between districts, thicker between states. */
+.map-districts .map-state {
+  stroke-width: 0.3;
+}
+
+.map-state-borders {
+  fill: none;
+  stroke: Canvas;
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+/* The hex map: wider gaps between states than between districts. */
 .map-borders {
   fill: none;
   stroke: Canvas;
@@ -613,6 +638,86 @@ button {
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
+}
+
+/* Zoom and pan (the House maps): lines keep their width and labels their
+ * size at any zoom. One finger scrolls the page until the map is zoomed in;
+ * a pinch is always the map's. */
+.map-zoomable {
+  touch-action: pan-x pan-y;
+}
+
+.map-zoomable .map-state,
+.map-zoomable .map-borders,
+.map-zoomable .map-state-borders,
+.map-zoomable .map-ring > *,
+.map-zoomable .map-label {
+  vector-effect: non-scaling-stroke;
+}
+
+.map-zoomable .map-label {
+  font-size: calc(11px / var(--k, 1));
+}
+
+/* Zoomed in, the map stays inside its frame and one finger moves it. */
+.map-zoomed {
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+
+.map-zoomed:active {
+  cursor: grabbing;
+}
+
+.map-zoom {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.map-zoom button {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.map-zoom button + button {
+  border-top: 1px solid var(--color-border);
+}
+
+.map-zoom button:disabled {
+  color: var(--color-muted);
+  cursor: default;
+  opacity: 0.5;
+}
+
+.map-zoom button:focus-visible {
+  outline: 2px solid var(--color-d);
+  outline-offset: -2px;
+}
+
+.map-zoom .icon {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* The same ring as the summary bar's blocks: the text colour, set apart from
