@@ -22,7 +22,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Issue forms list only the open milestones (M3–M6), and the roadmap marks M2 as done.
+- Issue forms list only the open milestones (M4–M6), and the roadmap marks M2 and M3 as done.
 - Specification: the page opens at D+8.75 (`DEFAULT_ENV`), separate from the workbook baseline; the slider runs from D+29 to R+20 in 0.01-point steps; candidate labels keep only the incumbency status; independents can run in the REP slot; Montana's third candidate is named; each race carries its 2024 presidential margin and its last election as context. Also documents workbook details the exporter must handle.
+- The spec lists the supported browsers: Chrome and Edge 123+, Firefox 128+, Safari 18+.
+
+### Fixed
+
+- On the deployed site, the light theme showed the dark theme's text colours when the system preferred dark (and the reverse). The production build replaced `light-dark()` with a fallback that follows only the system theme; the CSS build target now keeps `light-dark()` as written.
 
 [Unreleased]: https://github.com/EGCGAP04/midterms-2026-simulator/commits/main

@@ -11,6 +11,7 @@ All code, comments, commit messages and docs are in **English**. The UI is bilin
 - Vite + React + TypeScript (strict mode).
 - D3 (`d3-geo`, `d3-scale`, `d3-shape`) for the map and charts, rendered as SVG.
 - `topojson-client` + `us-atlas` (states) for the Senate map.
+- Browsers: Chrome and Edge 123+, Firefox 128+, Safari 18+. The CSS uses `light-dark()`, relative colours (`oklch(from …)`) and OKLCH gradients. The build's `cssTarget` is set to these versions: with older targets the minifier replaces `light-dark()` with a fallback that follows only the system theme and breaks the theme toggle.
 - No backend. The app ships one static `races.json`. Deploy target: GitHub Pages (add a workflow) or Vercel.
 - Data exporter: Python 3 + `openpyxl` (`scripts/export_data.py`).
 - Unit tests: Vitest for the model logic (`src/model/`).
