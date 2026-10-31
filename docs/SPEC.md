@@ -262,6 +262,7 @@ Use a responsive layout that also works on a phone.
 2. **Slider:**
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
+   - Left and right also move it from anywhere on the page, without focusing it first, with the same steps. Not while the focus is in a text field or another form control (where the arrows already mean something), or when something else on the page has handled the key. Up and down keep scrolling the page: they move the slider only when it has the focus.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in the track's colour at that point, darkened (light theme) or lightened (dark theme) just enough to read.
    - The track uses the rating colours (§4.3), the same in both themes: light grey (`#E4E4E4`) at EVEN, Tilt at 2 points, Lean at 4, Likely at 8 and Safe from 16 on, each side in its party's colours, mixed in OKLCH between stops.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN } from '../model/config.ts'
-import { arrowStep, roundEnv, stepEnv, tintAt, trackStops } from './env.ts'
+import { arrowStep, pageArrowStep, roundEnv, stepEnv, tintAt, trackStops } from './env.ts'
 
 const key = (key: string, modifiers: Partial<KeyboardEvent> = {}) => ({
   key,
@@ -39,6 +39,28 @@ describe('arrowStep', () => {
 
   it.each(['altKey', 'ctrlKey', 'metaKey'])('leaves an arrow with %s to the browser', (modifier) => {
     expect(arrowStep(key('ArrowLeft', { [modifier]: true }))).toBeUndefined()
+  })
+})
+
+describe('pageArrowStep', () => {
+  const pageKey = (name: string, modifiers: Partial<KeyboardEvent> = {}) => ({ ...key(name), defaultPrevented: false, ...modifiers })
+
+  it('moves the slider with left and right, by 1 point with Shift', () => {
+    expect(pageArrowStep(pageKey('ArrowRight'))).toBe(0.001)
+    expect(pageArrowStep(pageKey('ArrowLeft'))).toBe(-0.001)
+    expect(pageArrowStep(pageKey('ArrowLeft', { shiftKey: true }))).toBe(-0.01)
+  })
+
+  it.each(['ArrowUp', 'ArrowDown', 'PageUp', 'Home', 'a'])('leaves %s to the page', (name) => {
+    expect(pageArrowStep(pageKey(name))).toBeUndefined()
+  })
+
+  it('leaves a key that something else handled', () => {
+    expect(pageArrowStep(pageKey('ArrowRight', { defaultPrevented: true }))).toBeUndefined()
+  })
+
+  it.each(['altKey', 'ctrlKey', 'metaKey'])('leaves an arrow with %s to the browser', (modifier) => {
+    expect(pageArrowStep(pageKey('ArrowRight', { [modifier]: true }))).toBeUndefined()
   })
 })
 
