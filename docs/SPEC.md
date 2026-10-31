@@ -261,7 +261,8 @@ Use a responsive layout that also works on a phone.
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
-   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in a colour that follows the track: from the D text colour at D+29 through grey at EVEN to the R text colour at R+20 (text shades, so it stays readable).
+   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in a colour that follows the track: from the D text colour at D+29 through the page's text colour at EVEN to the R text colour at R+20 (text shades, so it stays readable).
+   - The track runs from D blue through grey at EVEN to R red. Each party's colour fades out only near EVEN (half faded three quarters of the way to it), so small margins already show colour, and the value's colour follows the same curve.
    - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
 3. **Summary bar:**
    - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
@@ -275,7 +276,7 @@ Use a responsive layout that also works on a phone.
      - **House:** D and R with their chance of a majority. I is shown only when an independent leads a race, next to the party whose side of the bar its races are on (both sides if there are some on each).
      - **Senate:** D and I with the chance of D + I control, and R with its chance of control.
      - Each total's number is centred under its party name; the counts inside the blocks are centred too.
-   - Hovering a block shows its rating and seats. A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
+   - Hovering a block shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
    - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
    - **Senate:** US states map (`us-atlas`). States without a race are drawn in neutral grey.

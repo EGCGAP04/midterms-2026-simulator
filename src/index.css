@@ -16,7 +16,7 @@
   --color-muted: light-dark(#5c5c5c, #a8a8a8);
   --color-border: light-dark(#d0d0d0, #444);
   --color-surface: light-dark(#f4f4f4, #262626);
-  --color-even: light-dark(#d9d9d9, #555);
+  --color-even: light-dark(#a6a6a6, #5c5c5c);
 
   color: var(--color-text);
 }
@@ -123,13 +123,13 @@ button {
   font-weight: 600;
 }
 
-/* Text shades of the track's gradient: grey at EVEN, the party's colour at
- * its end of the track. */
+/* Text shades of the track's gradient: the text colour at EVEN, the party's
+ * colour at its end of the track. */
 .slider-value {
   font-size: 1.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: color-mix(in oklab, var(--side) calc(var(--lean) * 100%), var(--color-muted));
+  color: color-mix(in oklab, var(--side) calc(var(--tint) * 100%), var(--color-text));
 }
 
 .slider-value-d {
@@ -141,7 +141,7 @@ button {
 }
 
 .slider-value-even {
-  --side: var(--color-muted);
+  --side: var(--color-text);
 }
 
 .slider-track {
@@ -158,17 +158,30 @@ button {
   cursor: pointer;
 }
 
-/* The track runs from blue (D) through grey at EVEN to red (R). */
+/* The track runs from blue (D) through grey at EVEN to red (R). The colour
+ * hints keep each party's colour until near EVEN (Slider.tsx, TINT_HINT).
+ * Declared where --even and --hint are set. */
+.slider-track {
+  --track: linear-gradient(
+    to right,
+    var(--color-d),
+    calc(var(--even) * var(--hint) * 100%),
+    var(--color-even) calc(var(--even) * 100%),
+    calc((var(--even) + (1 - var(--even)) * (1 - var(--hint))) * 100%),
+    var(--color-r)
+  );
+}
+
 .slider input::-webkit-slider-runnable-track {
   height: 0.5rem;
   border-radius: 0.25rem;
-  background: linear-gradient(to right, var(--color-d), var(--color-even) calc(var(--even) * 100%), var(--color-r));
+  background: var(--track);
 }
 
 .slider input::-moz-range-track {
   height: 0.5rem;
   border-radius: 0.25rem;
-  background: linear-gradient(to right, var(--color-d), var(--color-even) calc(var(--even) * 100%), var(--color-r));
+  background: var(--track);
 }
 
 .slider input::-webkit-slider-thumb {
@@ -398,8 +411,12 @@ button {
   text-shadow: 0 0 2px var(--fill), 0 0 2px var(--fill);
 }
 
+/* The same ring on every block: the text colour, with a ring of the page
+ * background inside it so it shows on light and dark fills alike. */
 .summary-block[data-hovered] {
-  box-shadow: inset 0 0 0 2px var(--ink);
+  box-shadow:
+    inset 0 0 0 2px var(--color-text),
+    inset 0 0 0 3px Canvas;
 }
 
 .summary-block-label {
