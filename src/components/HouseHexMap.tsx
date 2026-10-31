@@ -30,10 +30,10 @@ export function HouseHexMap({ view, selected, onSelect }: HouseHexMapProps) {
   const { races } = view
   const { describe, raceProps, mapProps, tip, ringed } = useRaceMap(view, selected, onSelect)
   const { width, height, hexes, borders, labels } = LAYOUT
-  const zoom = useMapZoom(width, height, MAX_ZOOM)
+  const hexOf = (id: string) => hexes.find((hex) => hex.id === id)
+  const zoom = useMapZoom(width, height, MAX_ZOOM, selected === undefined ? undefined : hexOf(selected)?.centre)
 
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.id, k])), [races])
-  const hexOf = (id: string) => hexes.find((hex) => hex.id === id)
   const hasFixed = races.some((race) => race.fixedWinner !== undefined)
   const tipHex = tip && hexOf(tip.race.id)
   // It points at the hexagon's top.

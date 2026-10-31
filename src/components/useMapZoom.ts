@@ -21,8 +21,16 @@ function startsZoom(this: Element, event: Event): boolean {
   return true
 }
 
-/** `maxZoom`: how far in the map zooms. */
-export function useMapZoom(width: number, height: number, maxZoom: number) {
+/** Whether a point, in map units, is drawn inside the frame at `transform`. */
+function inView(transform: ZoomTransform, at: readonly [number, number], width: number, height: number): boolean {
+  const [x, y] = transform.apply([at[0], at[1]])
+  return x >= 0 && x <= width && y >= 0 && y <= height
+}
+
+/** `maxZoom`: how far in the map zooms. `selectedAt`: where the selected race
+ * is, in map units; when it changes to a point out of view (a race picked in
+ * the lists while zoomed in), the map moves to it. */
+export function useMapZoom(width: number, height: number, maxZoom: number, selectedAt?: readonly [number, number]) {
   // A callback ref: the district map's <svg> appears only once it has loaded.
   const [svg, ref] = useState<SVGSVGElement | null>(null)
   const [transform, setTransform] = useState<ZoomTransform>(zoomIdentity)
@@ -59,6 +67,16 @@ export function useMapZoom(width: number, height: number, maxZoom: number) {
     }
   }, [svg, behaviour])
 
+  // Only when the selected point changes: the map stays where the reader
+  // moved it afterwards.
+  const [selectedX, selectedY] = selectedAt ?? []
+  useEffect(() => {
+    if (!svg || selectedX === undefined || selectedY === undefined) return
+    if (!inView(zoomTransform(svg), [selectedX, selectedY], width, height)) {
+      select(svg).call(behaviour.translateTo, selectedX, selectedY)
+    }
+  }, [svg, behaviour, selectedX, selectedY, width, height])
+
   const zoomBy = (factor: number) => {
     if (svg) select(svg).call(behaviour.scaleBy, factor)
   }
@@ -73,14 +91,11 @@ export function useMapZoom(width: number, height: number, maxZoom: number) {
     style: { '--k': transform.k } as CSSProperties,
     /** A point on the map, in map units, where it is now drawn; undefined
      * when it is out of view. */
-    place: (at: readonly [number, number]): [number, number] | undefined => {
-      const [x, y] = transform.apply([at[0], at[1]])
-      return x >= 0 && x <= width && y >= 0 && y <= height ? [x, y] : undefined
-    },
+    place: (at: readonly [number, number]): [number, number] | undefined =>
+      inView(transform, at, width, height) ? transform.apply([at[0], at[1]]) : undefined,
     /** Brings a point into view (centred), if it is out of view. */
     follow: (at: readonly [number, number]) => {
-      const [x, y] = transform.apply([at[0], at[1]])
-      if (svg && (x < 0 || x > width || y < 0 || y > height)) select(svg).call(behaviour.translateTo, at[0], at[1])
+      if (svg && !inView(transform, at, width, height)) select(svg).call(behaviour.translateTo, at[0], at[1])
     },
     zoomIn: () => zoomBy(BUTTON_STEP),
     zoomOut: () => zoomBy(1 / BUTTON_STEP),

@@ -69,6 +69,8 @@
   "lists.flips": "Cambios de partido",
   "lists.flips.loses": "Pierde {party} ({count})",
   "lists.none": "Ninguno con este entorno.",
+  "lists.showAll": "Ver los {count}",
+  "lists.showFewer": "Ver menos",
   "lists.closest": "Elecciones más reñidas",
   "lists.closest.note": "No incluye las elecciones ya decididas.",
   "lists.tipping": "Punto de inflexión",

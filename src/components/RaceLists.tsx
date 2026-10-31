@@ -1,7 +1,7 @@
 // The lists under the map (docs/SPEC.md §4.7): flips, the closest races and
 // the tipping-point race. Each race is a button that selects it.
 
-import { useMemo } from 'react'
+import { useId, useMemo, useState } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatCount } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
@@ -19,11 +19,22 @@ interface RaceListsProps {
 
 /** The parties whose seats can flip: always R and D, I only if it holds one. */
 const LOSERS: readonly Party[] = ['R', 'D', 'I']
+/** How many flips a column shows until "Show all" is pressed. */
+const FLIPS_SHOWN = 10
 
 export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
   const { lang, t } = useI18n()
   const { chamber, races, outcomes, notUp } = view
   const senate = chamber === 'senate'
+  const listId = useId()
+  // The flip columns showing every race.
+  const [expanded, setExpanded] = useState<ReadonlySet<Party>>(new Set())
+  const toggleColumn = (party: Party) =>
+    setExpanded((current) => {
+      const next = new Set(current)
+      if (!next.delete(party)) next.add(party)
+      return next
+    })
 
   const lists = useMemo(
     () => ({
@@ -69,10 +80,29 @@ export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
           <div className="list-columns">
             {LOSERS.filter((party) => party !== 'I' || lists.flips.I.length > 0).map((party) => {
               const flips = lists.flips[party]
+              const open = expanded.has(party)
+              const id = `${listId}-${party}`
               return (
                 <div key={party}>
                   <h4>{t('lists.flips.loses', { party, count: formatCount(lang, flips.length) })}</h4>
-                  {flips.length > 0 ? <ul className="list">{flips.map(item)}</ul> : none}
+                  {flips.length > 0 ? (
+                    <ul id={id} className="list">
+                      {(open ? flips : flips.slice(0, FLIPS_SHOWN)).map(item)}
+                    </ul>
+                  ) : (
+                    none
+                  )}
+                  {flips.length > FLIPS_SHOWN && (
+                    <button
+                      type="button"
+                      className="list-more"
+                      aria-expanded={open}
+                      aria-controls={id}
+                      onClick={() => toggleColumn(party)}
+                    >
+                      {open ? t('lists.showFewer') : t('lists.showAll', { count: formatCount(lang, flips.length) })}
+                    </button>
+                  )}
                 </div>
               )
             })}

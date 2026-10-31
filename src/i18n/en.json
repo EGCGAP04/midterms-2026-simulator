@@ -69,6 +69,8 @@
   "lists.flips": "Flips",
   "lists.flips.loses": "{party} loses ({count})",
   "lists.none": "None at this environment.",
+  "lists.showAll": "Show all {count}",
+  "lists.showFewer": "Show fewer",
   "lists.closest": "Closest races",
   "lists.closest.note": "Races already decided are left out.",
   "lists.tipping": "Tipping point",
