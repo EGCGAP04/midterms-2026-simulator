@@ -5,7 +5,7 @@ import { useId, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
-import { arrowStep, roundEnv, stepEnv } from '../state/env.ts'
+import { arrowStep, roundEnv, stepEnv, tintAt, trackStops } from '../state/env.ts'
 
 interface SliderProps {
   env: number
@@ -17,34 +17,29 @@ function toPoints(value: number): number {
   return Math.round(value * 10_000) / 100
 }
 
-/** Where, between a party's end of the track and EVEN, its colour is half
- * faded: past the middle, so small margins already show colour. */
-const TINT_HINT = 0.75
-/** The exponent of a CSS colour hint at TINT_HINT. */
-const TINT_POWER = Math.log(0.5) / Math.log(TINT_HINT)
-
 /** Where a value sits along the slider, from 0 (left) to 1 (right). */
 function position(value: number): number {
   return (value - ENV_MIN) / (ENV_MAX - ENV_MIN)
 }
+
+/** The track: each rating's colour at its margin, mixed in OKLCH between. */
+const TRACK = `linear-gradient(in oklch to right, ${trackStops().join(', ')})`
 
 export function Slider({ env, onChange }: SliderProps) {
   const { lang, t } = useI18n()
   const id = useId()
   const value = formatMargin(lang, env)
   const defaultValue = formatMargin(lang, DEFAULT_ENV)
-  const side = roundEnv(env) === 0 ? 'even' : env < 0 ? 'd' : 'r'
-  const track = { '--default': position(DEFAULT_ENV), '--even': position(0), '--hint': TINT_HINT } as CSSProperties
-  // How much party colour the value takes: the track's at the same point,
-  // from 0 at EVEN to 1 at the party's end.
-  const lean = env < 0 ? env / ENV_MIN : env / ENV_MAX
-  const tint = { '--tint': 1 - (1 - lean) ** TINT_POWER } as CSSProperties
+  const track = { '--default': position(DEFAULT_ENV), '--track': TRACK } as CSSProperties
+  // The value takes the track's colour at the same point.
+  const { lo, hi, mix } = tintAt(env)
+  const tint = { '--lo': `var(${lo})`, '--hi': `var(${hi})`, '--mix': mix } as CSSProperties
 
   return (
     <section className="slider">
       <div className="slider-heading">
         <label htmlFor={id}>{t('slider.label')}</label>
-        <output htmlFor={id} className={`slider-value slider-value-${side}`} style={tint}>
+        <output htmlFor={id} className="slider-value" style={tint}>
           {value}
         </output>
       </div>

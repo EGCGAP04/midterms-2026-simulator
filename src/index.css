@@ -18,6 +18,17 @@
   --color-surface: light-dark(#f4f4f4, #262626);
   --color-even: light-dark(#dcdcdc, #6e6e6e);
 
+  /* Ratings: four steps per party from Tilt (lightest) to Safe (darkest), the
+   * same in both themes (docs/SPEC.md §4.3). The slider's track uses them too. */
+  --d-tilt: #94bbe0;
+  --d-lean: #6a9fd0;
+  --d-likely: #4382bf;
+  --d-safe: #2166ac;
+  --r-tilt: #eb9c8c;
+  --r-lean: #dc7465;
+  --r-likely: #c94843;
+  --r-safe: #b2182b;
+
   color: var(--color-text);
 }
 
@@ -126,22 +137,13 @@ button {
 /* Text shades of the track's gradient: grey at EVEN, the party's colour at
  * its end of the track. Mixed in OKLCH, which keeps the hue's saturation. */
 .slider-value {
+  --tint: color-mix(in oklch, var(--hi) calc(var(--mix) * 100%), var(--lo));
   font-size: 1.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: color-mix(in oklch, var(--side) calc(var(--tint) * 100%), var(--color-muted));
-}
-
-.slider-value-d {
-  --side: var(--color-d-text);
-}
-
-.slider-value-r {
-  --side: var(--color-r-text);
-}
-
-.slider-value-even {
-  --side: var(--color-muted);
+  /* The track's colour, darkened (light theme) or lightened (dark theme) just
+   * enough to read: Tilt's light blue alone is about 2:1 on white. */
+  color: light-dark(oklch(from var(--tint) min(l, 0.5) c h), oklch(from var(--tint) max(l, 0.78) c h));
 }
 
 .slider-track {
@@ -158,21 +160,8 @@ button {
   cursor: pointer;
 }
 
-/* The track runs from blue (D) through light grey at EVEN to red (R). The
- * colour hints keep each party's colour until near EVEN (Slider.tsx,
- * TINT_HINT), and OKLCH keeps it saturated on the way.
- * Declared where --even and --hint are set. */
-.slider-track {
-  --track: linear-gradient(
-    in oklch to right,
-    var(--color-d),
-    calc(var(--even) * var(--hint) * 100%),
-    var(--color-even) calc(var(--even) * 100%),
-    calc((var(--even) + (1 - var(--even)) * (1 - var(--hint))) * 100%),
-    var(--color-r)
-  );
-}
-
+/* The track (--track, set in Slider.tsx) reaches each rating's colour at its
+ * margin: Tilt at 2 points, Lean at 4, Likely at 8, Safe at 16. */
 .slider input::-webkit-slider-runnable-track {
   height: 0.5rem;
   border-radius: 0.25rem;
@@ -252,40 +241,39 @@ button {
   opacity: 0.5;
 }
 
-/* Ratings: four steps per party from Tilt (lightest) to Safe (darkest), the
- * same in both themes, and violet for independents (docs/SPEC.md §4.3).
- * Shared with the maps. Each class sets the fill and the text drawn on it. */
+/* Rating classes, shared with the maps: each sets the fill (the colours in
+ * :root, and violet for independents) and the text drawn on it. */
 
 .rating-d-tilt {
-  --fill: #94bbe0;
+  --fill: var(--d-tilt);
   --ink: #111;
 }
 .rating-d-lean {
-  --fill: #6a9fd0;
+  --fill: var(--d-lean);
   --ink: #111;
 }
 .rating-d-likely {
-  --fill: #4382bf;
+  --fill: var(--d-likely);
   --ink: #111;
 }
 .rating-d-safe {
-  --fill: #2166ac;
+  --fill: var(--d-safe);
   --ink: #fff;
 }
 .rating-r-tilt {
-  --fill: #eb9c8c;
+  --fill: var(--r-tilt);
   --ink: #111;
 }
 .rating-r-lean {
-  --fill: #dc7465;
+  --fill: var(--r-lean);
   --ink: #111;
 }
 .rating-r-likely {
-  --fill: #c94843;
+  --fill: var(--r-likely);
   --ink: #fff;
 }
 .rating-r-safe {
-  --fill: #b2182b;
+  --fill: var(--r-safe);
   --ink: #fff;
 }
 .rating-i {
