@@ -7,10 +7,12 @@
   --color-d: #2166ac;
   --color-r: #b2182b;
   --color-i: #775eb2;
-  /* The same colours as text, lighter on a dark background for contrast. */
-  --color-d-text: light-dark(#2166ac, #7fb2e5);
-  --color-r-text: light-dark(#b2182b, #f4877d);
-  --color-i-text: light-dark(#775eb2, #a993dc);
+  /* The same colours as text. On a dark background they are lightened just
+   * enough to read (OKLCH lightness at least 0.62, as the slider's value), so
+   * they keep their depth. */
+  --color-d-text: light-dark(#2166ac, oklch(from #2166ac max(l, 0.62) c h));
+  --color-r-text: light-dark(#b2182b, oklch(from #b2182b max(l, 0.62) c h));
+  --color-i-text: light-dark(#775eb2, oklch(from #775eb2 max(l, 0.62) c h));
 
   --color-text: light-dark(#1a1a1a, #ececec);
   --color-muted: light-dark(#5c5c5c, #a8a8a8);
