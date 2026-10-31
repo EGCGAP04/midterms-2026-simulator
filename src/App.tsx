@@ -1,4 +1,5 @@
-// The page: header, slider, summary bar, map, race panel and lists.
+// The page: header, slider, summary bar, map, race panel, seat histogram and
+// lists.
 
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Header } from './components/Header.tsx'
@@ -6,6 +7,7 @@ import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
 import { RaceLists } from './components/RaceLists.tsx'
 import { RacePanel } from './components/RacePanel.tsx'
+import { SeatHistogram } from './components/SeatHistogram.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
 import { SummaryBar } from './components/SummaryBar.tsx'
@@ -93,6 +95,7 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
           )}
         </div>
         <RacePanel ref={panel} view={view} selected={selected} />
+        <SeatHistogram view={view} />
         <RaceLists view={view} selected={selected} onSelect={onListSelect} />
       </div>
     </>

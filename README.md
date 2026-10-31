@@ -73,6 +73,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── MapParts.tsx         # The maps' hatch, tooltip, zoom buttons and legend
 │   │   ├── RaceLists.tsx        # Flips, closest races and the tipping point
 │   │   ├── RacePanel.tsx        # The selected race: candidates, chances, context and notes
+│   │   ├── SeatHistogram.tsx    # Simulated R seats, majority line, medians and 80% intervals
 │   │   ├── SenateMap.tsx        # States by rating, with a tooltip and selection
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
@@ -93,6 +94,8 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── config.ts            # Sigmas, seed, DEFAULT_ENV, thresholds
 │   │   ├── flips.test.ts
 │   │   ├── flips.ts             # Whether a race changes hands
+│   │   ├── histogram.test.ts
+│   │   ├── histogram.ts         # The histogram's bars and round ticks
 │   │   ├── lists.test.ts
 │   │   ├── lists.ts             # Flips by losing party, closest races, tipping point
 │   │   ├── margin.test.ts
