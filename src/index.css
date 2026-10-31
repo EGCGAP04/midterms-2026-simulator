@@ -144,8 +144,9 @@ button {
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   /* The track's colour, darkened (light theme) or lightened (dark theme) just
-   * enough to read: Tilt's light blue alone is about 2:1 on white. */
-  color: light-dark(oklch(from var(--tint) min(l, 0.5) c h), oklch(from var(--tint) max(l, 0.78) c h));
+   * enough to read: Tilt's light blue alone is about 2:1 on white, and Safe's
+   * deep red about 2.7:1 on the dark background. */
+  color: light-dark(oklch(from var(--tint) min(l, 0.5) c h), oklch(from var(--tint) max(l, 0.62) c h));
 }
 
 .slider-track {
