@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - House district map, now the House's default: every district with its real 2026 shape (U.S. Census Bureau TIGER/Line, 120th Congress, with the nine states that redrew; Missouri keeps its 2022–2024 plan), in the same colours, hatch, tooltip and selection as the other maps, with the state borders on top and the source credited under it. It is fetched on its own (`public/us-house-districts-2026.json`, about 0.3 MB compressed) when first shown. A "Districts / Hexagons" switch keeps the hex map, and the choice goes in the URL (`map=hex`). `scripts/build_districts_map.sh` (`npm run districts-map`, needs mapshaper) rebuilds the file from the Census files, byte for byte.
 - Zoom and pan on both House maps (`d3-zoom`): the mouse wheel or a pinch zooms the map (up to 40× on the district map, 6× on the hex map), dragging moves it, and zoom in, zoom out and "Show the whole map" buttons work from the keyboard. One finger scrolls the page until the map is zoomed in. Lines and labels keep their size, the tooltip follows its race, and Tab moves the zoomed map to the focused race. It adds about 17 kB gzipped to the bundle.
 - The left and right arrow keys move the slider from anywhere on the page, without focusing it first (0.1 points, or 1 point with Shift), except in text fields and other form controls. Up and down keep scrolling the page.
+- Race panel, beside the map on wide screens and under it on narrower ones: the selected race's rating and margin, whether it flips, each candidate with their incumbency status and chance of winning (Montana's three-way shares, and the within-party shares of same-party races), its 2024 presidential margin and last election, and notes on how the race works (primary blends, uncontested and same-party races, Montana, independents). Switching chambers clears the selection.
 - `races.json` carries the workbook's own ratings and totals (`workbookRating`, `workbook`), so the acceptance tests compare the TypeScript model with the workbook.
 
 ### Changed
@@ -31,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Specification: the page opens at D+8.75 (`DEFAULT_ENV`), separate from the workbook baseline; the slider runs from D+29 to R+20 in 0.01-point steps; candidate labels keep only the incumbency status; independents can run in the REP slot; Montana's third candidate is named; each race carries its 2024 presidential margin and its last election as context. Also documents workbook details the exporter must handle.
 - The Senate map's description, hover, selection, tooltip and legend moved to `useRaceMap` and `MapParts`, shared with the House maps.
 - Real district shapes are in scope: the spec and `CLAUDE.md` describe the district map, its source and how to rebuild it.
+- Fixed races (uncontested and same-party) no longer show a margin of ±100 in the map's tooltip.
 - The spec lists the supported browsers: Chrome and Edge 123+, Firefox 128+, Safari 18+.
 
 ### Fixed

@@ -71,6 +71,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── HouseDistrictMap.tsx # Districts by rating, with their real 2026 shapes
 │   │   ├── HouseHexMap.tsx      # Districts by rating, a hexagon each, grouped by state
 │   │   ├── MapParts.tsx         # The maps' hatch, tooltip, zoom buttons and legend
+│   │   ├── RacePanel.tsx        # The selected race: candidates, chances, context and notes
 │   │   ├── SenateMap.tsx        # States by rating, with a tooltip and selection
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
@@ -83,10 +84,14 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── es.json
 │   │   ├── format.ts            # Margins, probabilities and counts
 │   │   ├── i18n.test.ts
-│   │   └── i18n.ts              # String lookup with English fallback
+│   │   ├── i18n.ts              # String lookup with English fallback
+│   │   ├── raceNotes.test.ts
+│   │   └── raceNotes.ts         # The race panel's notes on how a race works
 │   ├── model/                   # Pure forecast model, unit-tested with Vitest
 │   │   ├── acceptance.test.ts   # SPEC §5 against public/races.json
 │   │   ├── config.ts            # Sigmas, seed, DEFAULT_ENV, thresholds
+│   │   ├── flips.test.ts
+│   │   ├── flips.ts             # Whether a race changes hands
 │   │   ├── margin.test.ts
 │   │   ├── margin.ts            # Margins and winners under the slider
 │   │   ├── ratings.test.ts
