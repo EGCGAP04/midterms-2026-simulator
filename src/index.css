@@ -16,7 +16,7 @@
   --color-muted: light-dark(#5c5c5c, #a8a8a8);
   --color-border: light-dark(#d0d0d0, #444);
   --color-surface: light-dark(#f4f4f4, #262626);
-  --color-even: light-dark(#a6a6a6, #5c5c5c);
+  --color-even: light-dark(#dcdcdc, #6e6e6e);
 
   color: var(--color-text);
 }
@@ -123,13 +123,13 @@ button {
   font-weight: 600;
 }
 
-/* Text shades of the track's gradient: the text colour at EVEN, the party's
- * colour at its end of the track. */
+/* Text shades of the track's gradient: grey at EVEN, the party's colour at
+ * its end of the track. Mixed in OKLCH, which keeps the hue's saturation. */
 .slider-value {
   font-size: 1.75rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  color: color-mix(in oklab, var(--side) calc(var(--tint) * 100%), var(--color-text));
+  color: color-mix(in oklch, var(--side) calc(var(--tint) * 100%), var(--color-muted));
 }
 
 .slider-value-d {
@@ -141,7 +141,7 @@ button {
 }
 
 .slider-value-even {
-  --side: var(--color-text);
+  --side: var(--color-muted);
 }
 
 .slider-track {
@@ -158,12 +158,13 @@ button {
   cursor: pointer;
 }
 
-/* The track runs from blue (D) through grey at EVEN to red (R). The colour
- * hints keep each party's colour until near EVEN (Slider.tsx, TINT_HINT).
+/* The track runs from blue (D) through light grey at EVEN to red (R). The
+ * colour hints keep each party's colour until near EVEN (Slider.tsx,
+ * TINT_HINT), and OKLCH keeps it saturated on the way.
  * Declared where --even and --hint are set. */
 .slider-track {
   --track: linear-gradient(
-    to right,
+    in oklch to right,
     var(--color-d),
     calc(var(--even) * var(--hint) * 100%),
     var(--color-even) calc(var(--even) * 100%),

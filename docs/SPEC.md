@@ -261,8 +261,8 @@ Use a responsive layout that also works on a phone.
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
-   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in a colour that follows the track: from the D text colour at D+29 through the page's text colour at EVEN to the R text colour at R+20 (text shades, so it stays readable).
-   - The track runs from D blue through grey at EVEN to R red. Each party's colour fades out only near EVEN (half faded three quarters of the way to it), so small margins already show colour, and the value's colour follows the same curve.
+   - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in a colour that follows the track: from the D text colour at D+29 through grey at EVEN to the R text colour at R+20 (text shades, so it stays readable).
+   - The track runs from D blue through light grey at EVEN to R red, interpolated in OKLCH so the colours stay saturated. Each party's colour fades out only near EVEN (half faded three quarters of the way to it), so small margins already show colour, and the value's colour follows the same curve.
    - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
 3. **Summary bar:**
    - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
