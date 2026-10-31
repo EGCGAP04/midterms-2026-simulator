@@ -10,6 +10,7 @@
     "test:watch": "vitest",
     "bench": "node scripts/bench.ts",
     "house-hexes": "node scripts/house_hexes.ts",
+    "districts-map": "bash scripts/build_districts_map.sh",
     "lint": "oxlint",
     "preview": "vite preview"
   },
