@@ -71,6 +71,8 @@ export function useRaceMap(view: ChamberView, selected: string | undefined, onSe
     return {
       tabIndex: 0,
       role: 'button',
+      // Which race a focus event on the map came from.
+      'data-race': id,
       'aria-pressed': selected === id,
       'aria-label': `${details.name}: ${details.ratingText}, ${details.margin}`,
       ...pointer(id),

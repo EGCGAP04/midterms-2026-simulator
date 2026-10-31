@@ -640,6 +640,86 @@ button {
   pointer-events: none;
 }
 
+/* Zoom and pan (the House maps): lines keep their width and labels their
+ * size at any zoom. One finger scrolls the page until the map is zoomed in;
+ * a pinch is always the map's. */
+.map-zoomable {
+  touch-action: pan-x pan-y;
+}
+
+.map-zoomable .map-state,
+.map-zoomable .map-borders,
+.map-zoomable .map-state-borders,
+.map-zoomable .map-ring > *,
+.map-zoomable .map-label {
+  vector-effect: non-scaling-stroke;
+}
+
+.map-zoomable .map-label {
+  font-size: calc(11px / var(--k, 1));
+}
+
+/* Zoomed in, the map stays inside its frame and one finger moves it. */
+.map-zoomed {
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+
+.map-zoomed:active {
+  cursor: grabbing;
+}
+
+.map-zoom {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.map-zoom button {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.map-zoom button + button {
+  border-top: 1px solid var(--color-border);
+}
+
+.map-zoom button:disabled {
+  color: var(--color-muted);
+  cursor: default;
+  opacity: 0.5;
+}
+
+.map-zoom button:focus-visible {
+  outline: 2px solid var(--color-d);
+  outline-offset: -2px;
+}
+
+.map-zoom .icon {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* The same ring as the summary bar's blocks: the text colour, set apart from
  * the fills by the page background. */
 .map-ring {
