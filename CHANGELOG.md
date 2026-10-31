@@ -19,12 +19,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Light/dark theme toggle in the header: it follows the browser until the reader picks a theme, which the browser then remembers.
 - The page loads `races.json` and runs the simulation as the slider moves, with a loading and an error message.
 - Senate map (`us-atlas`, `d3-geo`, `topojson-client`): each state with a race in its rating's colour at the slider, the others in grey, independents in violet and a hatch for fixed races; squares for the small North-East states; a tooltip with the race's name, rating, margin and the leader's chance of winning on hover or keyboard focus, and a selected race (click, tap, Enter or Space; Escape clears it). The map is fetched on its own (31 kB gzipped), outside the main bundle. State and race names in both languages.
+- House map: a hex cartogram with one hexagon per district, grouped by state, in the same colours, hatch, tooltip and selection as the Senate map, with wider gaps between states and their postal codes on top. No openly licensed layout matched the current apportionment, so `scripts/house_hexes.ts` (`npm run house-hexes`) generates it from the states' centroids; tests check that every district has its own cell, every state is in one piece and no holes are left. A note under the map says that districts follow number order within a state, not their real places.
 - `races.json` carries the workbook's own ratings and totals (`workbookRating`, `workbook`), so the acceptance tests compare the TypeScript model with the workbook.
 
 ### Changed
 
-- Issue forms list only the open milestones (M4–M6), and the roadmap marks M2 and M3 as done.
+- Issue forms list only the open milestones (M5 and M6), and the roadmap marks M2, M3 and M4 as done.
 - Specification: the page opens at D+8.75 (`DEFAULT_ENV`), separate from the workbook baseline; the slider runs from D+29 to R+20 in 0.01-point steps; candidate labels keep only the incumbency status; independents can run in the REP slot; Montana's third candidate is named; each race carries its 2024 presidential margin and its last election as context. Also documents workbook details the exporter must handle.
+- The Senate map's description, hover, selection, tooltip and legend moved to `useRaceMap` and `MapParts`, shared with the House map.
 - The spec lists the supported browsers: Chrome and Edge 123+, Firefox 128+, Safari 18+.
 
 ### Fixed

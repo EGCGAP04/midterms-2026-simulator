@@ -2,6 +2,7 @@
 
 import { useDeferredValue, useEffect, useState } from 'react'
 import { Header } from './components/Header.tsx'
+import { HouseHexMap } from './components/HouseHexMap.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
 import { SummaryBar } from './components/SummaryBar.tsx'
@@ -32,7 +33,11 @@ function Forecast({ chamber, env, dataset, simulator }: ForecastProps) {
   return (
     <>
       <SummaryBar view={view} />
-      {chamber === 'senate' && <SenateMap view={view} selected={selected} onSelect={setSelected} />}
+      {chamber === 'house' ? (
+        <HouseHexMap view={view} selected={selected} onSelect={setSelected} />
+      ) : (
+        <SenateMap view={view} selected={selected} onSelect={setSelected} />
+      )}
     </>
   )
 }

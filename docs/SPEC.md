@@ -285,6 +285,10 @@ Use a responsive layout that also works on a phone.
      - The small North-East states (VT, NH, MA, RI, CT, NJ, DE, MD) also get a square with their postal code beside the coast, filled like the state, so they can be seen and tapped.
    - **House:** a **hex cartogram**, one hexagon per district, grouped by state. Use an openly licensed hex layout if one exists with the right number of districts per state (check the licence). Otherwise generate the layout algorithmically, as compact state blocks placed on a US-shaped grid.
      - Use hexes rather than real district shapes: many states redrew their maps for 2026, and public 2026 geometries are not readily available.
+     - No open layout fits (checked in October 2026): Daily Kos Elections' 2022 hexmap uses five hexagons per district and asks for attribution, its earlier versions were CC BY-SA 4.0, and the one-hexagon versions predate the 2022 apportionment. So `scripts/house_hexes.ts` generates it into `src/state/houseHexes.json` (each district's `[column, row]`, pointy-top hexagons with the odd rows shifted half a hexagon right), committed and checked by tests. Run it again when the number of districts per state changes.
+     - The generator starts each state at its `us-atlas` centroid as a circle with its hexagons' area, pushes the circles apart (a Dorling cartogram, pulled back toward the centroids and lightly toward the middle of the map), then grows the states one at a time from their centres, so each stays in one piece. A few North-East states start slightly moved so the coast keeps its order. Holes boxed in by states move out of the map.
+     - Within a state the districts go in reading order (left to right, top to bottom): their positions do not follow the real districts. A note under the map says so.
+     - Wider gaps (in the page background) separate the states, and each state's postal code sits over the middle of its block.
    - **Fill:** a diverging scale by margin, matching the rating buckets. Fixed races get a hatch pattern; independents are violet (`#775EB2`).
      - The colours are the summary bar's (§4.3), by each race's rating at the slider. The hatch is white stripes over the fill.
      - A legend under the map explains the grey and, when the chamber has fixed races, the hatch.
@@ -347,12 +351,15 @@ Use a responsive layout that also works on a phone.
 /scripts/export_data.py
 /scripts/test_export_data.py   (unit tests of the pure helpers, stdlib unittest)
 /scripts/bench.ts              (times the simulation: npm run bench, local only)
+/scripts/house_hexes.ts        (generates the House map's layout: npm run house-hexes)
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
 /src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
-/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, Tooltip, Histogram, RaceLists}.tsx
+/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists}.tsx
+/src/components/useRaceMap.ts  (what both maps share: race descriptions, hover, focus and selection)
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
 /src/model/states.ts           (postal codes by FIPS code)
 /src/state/{env.ts, url.ts, dataset.ts, theme.ts, forecast.ts, atlas.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme; a chamber's outcomes and chances; loading the map)
+/src/state/{hexGrid.ts, houseHexes.json, houseLayout.ts}   (the hexagon grid; the generated House layout; its hexagons, borders and labels)
 /README.md   (how to regenerate the data and deploy)
 ```
