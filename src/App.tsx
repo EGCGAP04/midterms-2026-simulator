@@ -1,9 +1,10 @@
-// The page: header, slider, summary bar, map and race panel.
+// The page: header, slider, summary bar, map, race panel and lists.
 
-import { useCallback, useDeferredValue, useEffect, useState } from 'react'
+import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Header } from './components/Header.tsx'
 import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
+import { RaceLists } from './components/RaceLists.tsx'
 import { RacePanel } from './components/RacePanel.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
@@ -31,15 +32,38 @@ interface ForecastProps {
   simulator: Simulator
 }
 
+/** Scrolls the race panel into view when its top is off the screen: on narrow
+ * screens it sits above the lists (§4.7). Wide screens keep it in view. */
+function revealPanel(panel: HTMLElement | null) {
+  if (!panel) return
+  const { top } = panel.getBoundingClientRect()
+  if (top >= 0 && top < window.innerHeight) return
+  const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  panel.scrollIntoView({ block: 'start', behavior: smooth ? 'smooth' : 'auto' })
+}
+
 /** Everything that depends on the forecast, once it has loaded. */
 function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator }: ForecastProps) {
   const { t } = useI18n()
   const view = useChamberView(dataset, simulator, chamber, env)
-  // The selected race (§4.4), shown by the race panel (§4.5). It belongs to
-  // its chamber: switching chambers clears it.
+  // The selected race (§4.4), shown by the race panel (§4.5) and picked on
+  // the map or in the lists (§4.7). It belongs to its chamber: switching
+  // chambers clears it.
   const [selection, setSelection] = useState<{ chamber: Chamber; id: string }>()
   const selected = selection?.chamber === chamber ? selection.id : undefined
   const onSelect = (id: string | undefined) => setSelection(id === undefined ? undefined : { chamber, id })
+  const panel = useRef<HTMLElement>(null)
+  // A race picked in the lists: show it in the panel, wherever that is. Once
+  // the panel has grown to show it, or the browser's scroll anchoring would
+  // undo the scroll; each pick counts, even of the same race.
+  const [picks, setPicks] = useState(0)
+  const onListSelect = (id: string | undefined) => {
+    onSelect(id)
+    if (id !== undefined) setPicks((n) => n + 1)
+  }
+  useLayoutEffect(() => {
+    if (picks > 0) revealPanel(panel.current)
+  }, [picks])
   return (
     <>
       <SummaryBar view={view} />
@@ -68,7 +92,8 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
             <SenateMap view={view} selected={selected} onSelect={onSelect} />
           )}
         </div>
-        <RacePanel view={view} selected={selected} />
+        <RacePanel ref={panel} view={view} selected={selected} />
+        <RaceLists view={view} selected={selected} onSelect={onListSelect} />
       </div>
     </>
   )

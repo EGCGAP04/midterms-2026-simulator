@@ -28,7 +28,6 @@ export function HouseDistrictMap({ view, selected, onSelect }: HouseDistrictMapP
   const hatch = `hatch-${useId()}`
   const { races } = view
   const { describe, raceProps, mapProps, tip, ringed } = useRaceMap(view, selected, onSelect)
-  const zoom = useMapZoom(ATLAS_WIDTH, ATLAS_HEIGHT, MAX_ZOOM)
 
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.id, k])), [races])
   // In the races' order, so Tab goes through them as listed (AL-01, AL-02…).
@@ -37,6 +36,8 @@ export function HouseDistrictMap({ view, selected, onSelect }: HouseDistrictMapP
     const order = (id: string) => raceIndex.get(id) ?? Infinity
     return loaded.map.districts.toSorted((a, b) => order(a.id) - order(b.id))
   }, [loaded, raceIndex])
+  const shapeOf = (id: string) => districts.find((district) => district.id === id)
+  const zoom = useMapZoom(ATLAS_WIDTH, ATLAS_HEIGHT, MAX_ZOOM, selected === undefined ? undefined : shapeOf(selected)?.centroid)
   const hasFixed = races.some((race) => race.fixedWinner !== undefined)
 
   if (loaded.status !== 'ready') {
@@ -51,7 +52,6 @@ export function HouseDistrictMap({ view, selected, onSelect }: HouseDistrictMapP
     )
   }
 
-  const shapeOf = (id: string) => districts.find((district) => district.id === id)
   const tipShape = tip && shapeOf(tip.race.id)
   const tipAt = tipShape && zoom.place(tipShape.centroid)
 

@@ -1,6 +1,7 @@
 // The race panel (docs/SPEC.md §4.5): the selected race in full, beside or
 // under the map.
 
+import type { Ref } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin, formatProbability, formatShare } from '../i18n/format.ts'
 import type { Lang } from '../i18n/i18n.ts'
@@ -14,6 +15,8 @@ interface RacePanelProps {
   view: ChamberView
   /** The selected race's id. */
   selected: string | undefined
+  /** The panel's element, to bring it into view. */
+  ref?: Ref<HTMLElement>
 }
 
 interface CandidateRow {
@@ -62,13 +65,13 @@ function contextLine(lang: Lang, t: ReturnType<typeof useI18n>['t'], race: Race)
   return parts.join(' · ')
 }
 
-export function RacePanel({ view, selected }: RacePanelProps) {
+export function RacePanel({ view, selected, ref }: RacePanelProps) {
   const { lang, t } = useI18n()
   const k = selected === undefined ? -1 : view.races.findIndex((race) => race.id === selected)
   const details = k === -1 ? undefined : raceDetails(lang, view, k)
 
   return (
-    <aside className="panel" aria-labelledby="panel-title">
+    <aside ref={ref} className="panel" aria-labelledby="panel-title">
       <h2 id="panel-title" className="panel-title">
         {t('panel.title')}
       </h2>
