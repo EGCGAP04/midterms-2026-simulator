@@ -12,11 +12,11 @@ export interface Candidate {
 }
 
 export interface Context {
-  /** Two-party, Trump − Harris (House: on the 2026 lines; Senate: statewide). */
+  /** Two-party, Trump − Harris (House: on the 2024 lines; Senate: statewide). */
   pres2024: number
   /** House: last House race; Senate: last election for the same seat. */
   last: { margin: number; year: number } | null
-  /** House only: the lines changed since `last`. */
+  /** House only: the lines changed for 2026, so both results are on the old ones. */
   redrawn?: boolean
 }
 
