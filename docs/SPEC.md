@@ -258,7 +258,19 @@ Errors are correlated across races: if the polls miss the national environment, 
 ### 3.4 Seat totals
 
 - **House:** sum of winners (fixed races included). An independent winner counts as I, reported separately; there are none at the baseline.
-- **Senate:** winners plus seats not up (D 34, R 31). Independents are counted separately.
+- **Senate:** winners plus seats not up (D 32, I 2, R 31). Independents are counted separately.
+
+### 3.5 Local adjustments
+
+The reader can make a state or a House district more Republican or more Democratic than the forecast (§4.10).
+
+- **Shifts:** at most one per state (its postal code, "TX") and one per House district (its race id, "TX-09"), each a fraction, R − opposition, from −0.20 to +0.20, rounded to 0.001 (0.1 points). Positive helps R; negative helps the opposition (D, or the independent who runs instead of D).
+- **A race's shift** `a`: its state's shift plus, for a House race, its district's own. A state's shift reaches its Senate race and all its House districts.
+- **The shift moves the baseline**, before the slider, and is not scaled by `slope`: it is a change to the race itself, not to the national environment.
+  - **normal / blend:** `m0 → m0 + a`; the cap of §3.1 uses the shifted `m0`.
+  - **MT3:** the baseline shares become those of §3.1 with Δ = `a` (Alme's share moves by `a/2`, the others in proportion); the slider then moves them as usual.
+  - **uncontested / DvD / RvR:** no effect; the winner is fixed.
+- **Simulation:** the errors drawn for §3.3 do not change, only the baselines they are added to; a change of shift re-runs the chamber like a slider step, and with no shifts the forecast is exactly the unadjusted one.
 
 ---
 
@@ -368,7 +380,8 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - **Tipping point:** sort the races by margin (R − opposition, so an independent sits on the side of the party it runs against, as in the summary bar) and take the one that gives control: in the House the 218th from the most R end, which is also the 218th from the most D end (435 races). In the Senate, with the seats not up (R 31, D 34), the 19th most R race, which is also the 17th most D: R needs 50 seats, D + I 51. The side that wins it has control, so its margin shows how close control is. With independents in the House this is only approximate: an independent ahead counts as a seat on its side, not as a seat of that party.
    - At most two columns, the same for the flips' columns and for the closest races and the tipping point, so "Tipping point" starts where "D loses" does; one column when there is no room for two.
    - Wide screens: the lists go under the map and the histogram (§4.6), in the map's column, so the race panel stays beside them. Narrow screens: map, race panel, histogram, then the lists; picking a race in a list scrolls the page up to the panel when its top is off the screen.
-8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex&colors=flips` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
+8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex&colors=flips&adj=TX:-2.5,CA-22:1` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
+   - `adj` lists the local shifts that are not zero (§3.5, §4.10), `key:points` separated by commas, states first and then districts, each in alphabetical order; points R − opposition, up to one decimal. Without it, no shifts. An entry with an unknown key shape or a value out of range is ignored; a key that matches no state or district in the forecast has no effect and is not listed.
    - `ch` is `house` or `senate`, `house` by default.
    - `colors` is `flips` for the flips fill (§4.4); without it, the maps show ratings, so the page writes it only for `flips`.
    - `map` is `hex` for the House hex map. Without it, the House shows the district map, so the page writes it only for `hex` (whatever the chamber, so the choice survives a trip to the Senate).
@@ -378,6 +391,12 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - An invalid or out-of-range value is ignored, as if it were missing.
    - The page keeps the URL in step with the state (`history.replaceState`, so it adds no history entries). It writes them once the slider stops for a moment, not on every step: browsers throttle frequent URL changes.
 9. **Footer:** a line under the page with the author and the licenses, so whoever reuses the forecast knows whom to credit: "© 2026 Enzo Agustín Aguirre Polenta · Code: Apache 2.0 · Forecast: CC BY 4.0 · GitHub", each license and "GitHub" a link (the license's official page, in Spanish where it has one, and the repository). The code is under the Apache License 2.0 (`LICENSE`, with the author in `NOTICE`); the forecast in `public/races.json` under CC BY 4.0 (`LICENSE-DATA`).
+10. **Local adjustments** ("Local adjustments" / "Ajustes locales"), the shifts of §3.5.
+   - On wide screens (from 117rem), in the empty space to the left of the page's column, mirroring the race panel, and in view while the page scrolls. On narrower ones, under the map (and the race panel, when that is under the map too), before the histogram.
+   - A one-line explanation, then a search field like the map's (§4.4): states by name or postal code and, in the House, districts by name, code or candidate; in the Senate only states. When a race is selected, buttons offer its state and, in the House, its district. Picking one adds it to the list at 0.
+   - **The list:** one row per state or district added, the states first, each with its name, a slider from D+20 to R+20 (steps of 0.5 points; the arrow keys move it, not the page's slider) and its value in the side's colour ("R+2.0", "D+1.5", "Even" at zero), and a button that removes it. A "Reset all" button empties the list.
+   - The race panel (§4.5) shows a race's total shift under its rating when it is not zero: "Local shift: R+2.0".
+   - A row at 0 changes nothing and is not written to the URL.
 
 ### i18n
 
@@ -420,8 +439,8 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 /requirements.txt              (openpyxl, for the exporter)
 /public/races.json
 /public/us-house-districts-2026.json   (the House district map, TopoJSON)
-/src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
-/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseDistrictMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists, Footer}.tsx
+/src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, adjust.ts, config.ts}
+/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseDistrictMap, HouseHexMap, MapParts, SearchBox, RaceSearch, RacePanel, SeatHistogram, RaceLists, AdjustPanel, Footer}.tsx
 /src/components/useRaceMap.ts  (what the maps share: race descriptions, hover, focus and selection)
 /src/components/useMapZoom.ts  (zoom and pan for the House maps, with d3-zoom)
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}

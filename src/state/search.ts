@@ -49,6 +49,26 @@ export function searchEntry(race: Race): SearchEntry {
   }
 }
 
+/** "David Valadao (R) · Randy Villegas (D)": the candidates, the REP slot
+ * first (Montana's third too), as the suggestions show them. */
+export function candidateList(race: Race): string {
+  const named = [race.rep, race.opp].filter((candidate) => candidate !== null)
+  const list = named.map(({ name, party }) => `${name} (${party})`)
+  if (race.shares) list.push(`${race.shares.names[2]} (D)`)
+  return list.join(' · ')
+}
+
+/** A whole state, found by its name (in both languages) or postal code. */
+export function stateSearchEntry(postal: string): SearchEntry {
+  return {
+    postal: postal.toLowerCase(),
+    district: undefined,
+    atLarge: false,
+    places: words(LANGS.map((lang) => stateName(lang, postal))),
+    candidates: [],
+  }
+}
+
 /** How well one word of the query matches: lower is better, undefined is no
  * match. A number must be the district's; a word the postal code, or the
  * start of a word of the place, then of a candidate. */
