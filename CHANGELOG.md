@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- Montana's race panel gave no status for Alani Bankhead, whom the workbook names only in a note. The exporter now gives her "Non-incumbent" too (`shares.thirdLabel`), and the panel shows it.
 - A district redrawn for 2026 showed the workbook's projection of the 2024 presidential margin onto the new lines (Alabama 02: R+15.7). It now shows the 2024 result on the previous lines, like the House race next to it (D+8.3): `context.pres2024` is the workbook's `S` for every district.
 - `npm run lint` reported two `react(refs)` warnings in the House maps: the zoom hook returned the map's ref inside the object the maps read during render. The maps now take the ref out of it, and the lint runs clean.
 - In CA-11 and CA-14, two Democrats running for an open seat, one was labelled "Open seat" and the other "Challenger". The exporter now labels both "Open seat" when a same-party race has no incumbent running.

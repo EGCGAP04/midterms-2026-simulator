@@ -89,7 +89,7 @@ describe('leaderName', () => {
       type: 'MT3',
       rep: candidate('R', 'Alme'),
       opp: candidate('I', 'Bodnar'),
-      shares: { A: 0.3, B: 0.3, C: 0.4, names: ['Alme', 'Bodnar', 'Bankhead'] },
+      shares: { A: 0.3, B: 0.3, C: 0.4, names: ['Alme', 'Bodnar', 'Bankhead'], thirdLabel: 'nonIncumbent' },
     })
     expect(leaderName(mt, { winner: 'D', margin: -0.1 })).toBe('Bankhead')
     expect(leaderName(mt, { winner: 'I', margin: -0.1 })).toBe('Bodnar')

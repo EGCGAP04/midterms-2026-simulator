@@ -45,8 +45,7 @@ export function raceShift(race: Race, adjustments: Adjustments): number {
 export function shiftRace(race: Race, shift: number): Race {
   if (shift === 0 || race.fixedWinner !== undefined) return race
   if (race.type === 'MT3' && race.shares) {
-    const { names } = race.shares
-    return { ...race, shares: { ...mt3Shares(race.shares, shift), names } }
+    return { ...race, shares: { ...race.shares, ...mt3Shares(race.shares, shift) } }
   }
   return { ...race, m0: race.m0 + shift }
 }

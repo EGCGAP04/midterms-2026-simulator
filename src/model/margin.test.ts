@@ -59,7 +59,7 @@ describe('Montana (MT3)', () => {
     chamber: 'senate',
     m0: 0.13,
     opp: candidate('I'),
-    shares: { ...shares, names: ['Alme', 'Bodnar', 'Bankhead'] },
+    shares: { ...shares, names: ['Alme', 'Bodnar', 'Bankhead'], thirdLabel: 'nonIncumbent' },
   })
 
   it('keeps the baseline shares at Δ = 0', () => {
