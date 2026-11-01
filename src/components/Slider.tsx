@@ -5,7 +5,8 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
-import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
+import type { Lang } from '../i18n/i18n.ts'
+import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP, PAST_ENVS } from '../model/config.ts'
 import { ARROW_CONTROLS, arrowStep, pageArrowStep, roundEnv, tintAt, trackStops } from '../state/env.ts'
 
 interface SliderProps {
@@ -26,6 +27,43 @@ function position(value: number): number {
   return (value - ENV_MIN) / (ENV_MAX - ENV_MIN)
 }
 
+/** A labelled mark above the track. */
+interface MarkLabel {
+  at: number
+  text: string
+  /** On narrow screens. */
+  short: string
+  /** Its value, for the tooltip and screen readers. */
+  value: string
+  /** On narrow screens, the labels alternate between two rows. */
+  row: number
+}
+
+/** "2018" → "’18". */
+const shortYear = (year: number) => `’${String(year).slice(-2)}`
+
+/** Even and the past environments, labelled. Years less than half a point
+ * apart share a label (2022 and 2024). */
+function markLabels(lang: Lang, even: string): MarkLabel[] {
+  const groups: { year: number; env: number }[][] = []
+  for (const past of [...PAST_ENVS].sort((a, b) => a.env - b.env)) {
+    const last = groups.at(-1)
+    if (last && Math.abs(last[0].env - past.env) < 0.005) last.push(past)
+    else groups.push([past])
+  }
+  const labels = groups.map((group) => {
+    const byYear = group.toSorted((a, b) => a.year - b.year)
+    return {
+      at: group.reduce((sum, { env }) => sum + env, 0) / group.length,
+      text: byYear.map(({ year }) => year).join(' · '),
+      short: byYear.map(({ year }) => shortYear(year)).join('/'),
+      value: byYear.map(({ year, env }) => `${year}: ${formatMargin(lang, env)}`).join(', '),
+    }
+  })
+  labels.push({ at: 0, text: even, short: even, value: even })
+  return labels.sort((a, b) => a.at - b.at).map((label, k) => ({ ...label, row: k % 2 }))
+}
+
 /** The track: each rating's colour at its margin, mixed in OKLCH between. */
 const TRACK = `linear-gradient(in oklch to right, ${trackStops().join(', ')})`
 
@@ -38,6 +76,8 @@ export function Slider({ env, onChange, onStep }: SliderProps) {
   // The value takes the track's colour at the same point.
   const { lo, hi, mix } = tintAt(env)
   const tint = { '--lo': `var(${lo})`, '--hi': `var(${hi})`, '--mix': mix } as CSSProperties
+  const labels = markLabels(lang, t('slider.even'))
+  const at = (value: number) => ({ '--at': position(value) }) as CSSProperties
 
   // Left and right move the slider from anywhere on the page. On the window,
   // so the slider's own handler (and any other) runs first.
@@ -66,9 +106,23 @@ export function Slider({ env, onChange, onStep }: SliderProps) {
           {value}
         </output>
       </div>
+      <div className="slider-marks" aria-hidden="true">
+        {labels.map((label) => (
+          <span key={label.text} className="slider-mark-label" data-row={label.row} style={at(label.at)} title={label.value}>
+            <span className="slider-mark-full">{label.text}</span>
+            <span className="slider-mark-short">{label.short}</span>
+          </span>
+        ))}
+      </div>
       <div className="slider-track" style={track}>
+        {/* Before the input, so the thumb covers them. */}
+        {[0, ...PAST_ENVS.map(({ env }) => env)].map((value) => (
+          <span key={value} className="slider-mark" style={at(value)} />
+        ))}
+        <span className="slider-default" title={t('slider.default', { value: defaultValue })} />
         <input
           id={id}
+          aria-describedby={`${id}-marks`}
           type="range"
           min={toPoints(ENV_MIN)}
           max={toPoints(ENV_MAX)}
@@ -93,8 +147,10 @@ export function Slider({ env, onChange, onStep }: SliderProps) {
             onStep(step)
           }}
         />
-        <span className="slider-default" title={t('slider.default', { value: defaultValue })} />
       </div>
+      <p id={`${id}-marks`} className="visually-hidden">
+        {t('slider.marks', { marks: labels.map(({ value }) => value).join('; ') })}
+      </p>
       <div className="slider-scale" style={track}>
         <span>{formatMargin(lang, ENV_MIN, { decimals: 0 })}</span>
         <span className="slider-default-label">{t('slider.default', { value: defaultValue })}</span>

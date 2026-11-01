@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - The forecast's date under the title: "Forecast as of 10/31" / "Pronóstico al 31/10". The exporter takes it as `--as-of` and writes it to `races.json` (`asOf`).
 - A "Ratings | Flips" switch on every map: the flips fill paints the races that flip at the slider in the winner's dark colour and the others in its light one. The choice goes in the URL (`colors=flips`).
+- Marks on the slider for Even and the House popular vote of 2018 (D+8.56), 2020 (D+3.04), 2022 (R+2.72) and 2024 (R+2.56), labelled above the track (2022 and 2024 share a label); on a narrow slider the years are shortened and the labels take two rows. The marks' lines are taller than the thumb, which is a little smaller (1.25rem) and now covers them, the default's included.
 
 ### Changed
 

@@ -17,6 +17,8 @@
   "theme.dark": "Dark theme",
   "slider.label": "Estimated National Environment (Generic Congressional Ballot)",
   "slider.default": "Default: {value}",
+  "slider.even": "Even",
+  "slider.marks": "Marks: {marks}.",
   "slider.reset": "Reset to default ({value})",
   "margin.even": "EVEN",
   "party.D": "Democrats",

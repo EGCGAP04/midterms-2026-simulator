@@ -17,6 +17,8 @@
   "theme.dark": "Tema oscuro",
   "slider.label": "Entorno nacional estimado (voto genérico al Congreso)",
   "slider.default": "Predeterminado: {value}",
+  "slider.even": "Empate",
+  "slider.marks": "Marcas: {marks}.",
   "slider.reset": "Volver al valor predeterminado ({value})",
   "margin.even": "Empate",
   "party.D": "Demócratas",

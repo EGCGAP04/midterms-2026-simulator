@@ -128,7 +128,10 @@ button {
 /* Slider */
 
 .slider {
-  --thumb: 1.5rem;
+  container: slider / inline-size;
+  --thumb: 1.25rem;
+  /* The marks' lines: a little taller than the thumb, which covers them. */
+  --mark: calc(var(--thumb) + 0.5rem);
   display: grid;
   gap: 0.25rem;
 }
@@ -158,11 +161,86 @@ button {
   color: light-dark(oklch(from var(--tint) min(l, 0.5) c h), oklch(from var(--tint) max(l, 0.62) c h));
 }
 
+/* The thumb's centre travels from thumb/2 to 100% − thumb/2: a value's
+ * place along the track, for the marks and their labels (--at, 0 to 1). */
+.slider-mark,
+.slider-mark-label {
+  left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--at));
+}
+
+.slider-marks {
+  position: relative;
+  height: 1.25em;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.slider-mark-label {
+  position: absolute;
+  bottom: 0;
+  translate: -50% 0;
+  white-space: nowrap;
+}
+
+.slider-mark-short {
+  display: none;
+}
+
+/* A narrow slider (a phone, or a narrow column): shorter years, on two rows. */
+@container slider (max-width: 40rem) {
+  .slider-marks {
+    height: 2.5em;
+  }
+
+  .slider-mark-label[data-row='0'] {
+    bottom: 1.25em;
+  }
+
+  .slider-mark-full {
+    display: none;
+  }
+
+  .slider-mark-short {
+    display: inline;
+  }
+}
+
+/* The track is drawn here, under the marks; the input above them only
+ * draws its thumb. */
 .slider-track {
   position: relative;
+  height: var(--mark);
+  display: flex;
+  align-items: center;
+}
+
+.slider-track::before {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 0.5rem;
+  translate: 0 -50%;
+  border-radius: 0.25rem;
+  background: var(--track);
+}
+
+.slider-mark,
+.slider-default {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: var(--mark);
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.slider-mark {
+  background: var(--color-muted);
 }
 
 .slider input {
+  position: relative;
   appearance: none;
   display: block;
   width: 100%;
@@ -172,18 +250,17 @@ button {
   cursor: pointer;
 }
 
-/* The track (--track, set in Slider.tsx) reaches each rating's colour at its
- * margin: Tilt at 2 points, Lean at 4, Likely at 8, Safe at 16. */
+/* The track (--track, set in Slider.tsx, drawn by .slider-track::before)
+ * reaches each rating's colour at its margin: Tilt at 2 points, Lean at 4,
+ * Likely at 8, Safe at 16. */
 .slider input::-webkit-slider-runnable-track {
   height: 0.5rem;
-  border-radius: 0.25rem;
-  background: var(--track);
+  background: transparent;
 }
 
 .slider input::-moz-range-track {
   height: 0.5rem;
-  border-radius: 0.25rem;
-  background: var(--track);
+  background: transparent;
 }
 
 .slider input::-webkit-slider-thumb {
@@ -210,16 +287,9 @@ button {
   outline-offset: 2px;
 }
 
-/* The thumb's centre travels from thumb/2 to 100% − thumb/2. */
 .slider-default {
-  position: absolute;
-  top: 0;
   left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--default));
-  width: 2px;
-  height: var(--thumb);
-  translate: -50% 0;
   background: var(--color-text);
-  pointer-events: none;
 }
 
 .slider-scale {
