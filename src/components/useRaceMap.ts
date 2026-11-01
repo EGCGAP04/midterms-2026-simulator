@@ -5,21 +5,61 @@ import { useState, type FocusEvent, type KeyboardEvent, type MouseEvent, type Po
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin, raceName } from '../i18n/format.ts'
 import { translate, type Lang } from '../i18n/i18n.ts'
+import { flipOf, type Flip } from '../model/flips.ts'
 import type { Outcome } from '../model/margin.ts'
 import { ratingOf, type Rating } from '../model/ratings.ts'
 import { independentSide } from '../model/summary.ts'
-import type { Race } from '../model/types.ts'
+import type { Party, Race } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import type { MapColours } from '../state/url.ts'
 
 /** The CSS class that colours a race (shared with the summary bar). */
 export function ratingClass(rating: Rating): string {
   return rating.party === 'I' ? 'rating-i' : `rating-${rating.party.toLowerCase()}-${rating.bucket}`
 }
 
+/** The winner's colour, dark for a flip and light for a hold (the rating
+ * classes' Safe and Tilt): the flip pill and the flips map. */
+export function outcomeClass(winner: Party, flip: boolean): string {
+  if (winner === 'I') return flip ? 'rating-i' : 'rating-i-light'
+  return `rating-${winner.toLowerCase()}-${flip ? 'safe' : 'tilt'}`
+}
+
+/** The classes whose fill is light, with dark text: a hatch over them is
+ * drawn in dark stripes. */
+const LIGHT_FILLS = new Set([
+  'rating-d-tilt',
+  'rating-d-lean',
+  'rating-d-likely',
+  'rating-r-tilt',
+  'rating-r-lean',
+  'rating-i-light',
+])
+
+/** How a race is painted on a map: its fill class, and the hatch over a flip. */
+export interface RacePaint {
+  fill: string
+  /** Undefined when the race holds; otherwise the stripes' tone. */
+  hatch: 'light' | 'dark' | undefined
+}
+
+export function racePaint(details: RaceDetails, colours: MapColours): RacePaint {
+  const flip = details.flip !== undefined
+  const fill = colours === 'flips' ? outcomeClass(details.outcome.winner, flip) : ratingClass(details.rating)
+  return { fill, hatch: flip ? (LIGHT_FILLS.has(fill) ? 'dark' : 'light') : undefined }
+}
+
+/** The fill of a flip's hatch: one of the patterns of `HatchPatterns`. */
+export function hatchFill(id: string, tone: 'light' | 'dark'): string {
+  return `url(#${id}-${tone})`
+}
+
 export interface RaceDetails {
   race: Race
   outcome: Outcome
   rating: Rating
+  /** Whether the side ahead is not the party that holds the seat. */
+  flip: Flip | undefined
   name: string
   ratingText: string
   /** Undefined for a fixed race, whose ±100 is no real margin. */
@@ -43,6 +83,7 @@ export function raceDetails(lang: Lang, view: ChamberView, k: number): RaceDetai
     race,
     outcome,
     rating,
+    flip: flipOf(race, outcome),
     name: raceName(lang, race),
     ratingText,
     margin: race.fixedWinner === undefined ? formatMargin(lang, outcome.margin, { ahead: outcome.winner }) : undefined,

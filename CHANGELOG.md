@@ -9,10 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - The forecast's date under the title: "Forecast as of 10/31" / "Pronóstico al 31/10". The exporter takes it as `--as-of` and writes it to `races.json` (`asOf`).
+- A "Ratings | Flips" switch on every map: the flips fill paints the races that flip at the slider in the winner's dark colour and the others in its light one. The choice goes in the URL (`colors=flips`).
 
 ### Changed
 
 - A race decided before the vote (uncontested or same-party) shows its winner's chance as "100%" instead of ">99%", in the map's tooltip and the race panel.
+- The maps' diagonal stripes mark the races that flip at the slider, not the fixed races (whose plain colour is their rating's). They are dark over light fills, so a flip that is only Tilt shows too. The legend explains them.
 - The race panel shows the winner at the slider first (in same-party and three-way races, the largest share), whatever their chance, under a "Candidates" heading. The flip flag becomes a pill before the race's name ("Hold R" on the winner's light colour, "Flip R → D" on its dark one), and the margin, in the leading party's colour, follows the rating.
 - Issue forms list the new milestone, M7 (post-release changes), instead of M6, and the roadmap adds it.
 

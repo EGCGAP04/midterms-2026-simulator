@@ -1,18 +1,25 @@
-// The pieces the maps draw (docs/SPEC.md §4.4): the hatch for fixed races,
-// the tooltip, the zoom buttons and the legend.
+// The pieces the maps draw (docs/SPEC.md §4.4): the hatch for flips, the
+// tooltip, the zoom buttons and the legend.
 
 import type { CSSProperties, ReactNode } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatProbability } from '../i18n/format.ts'
+import type { MapColours } from '../state/url.ts'
 import type { MapZoom } from './useMapZoom.ts'
 import type { RaceDetails } from './useRaceMap.ts'
 
-/** White stripes over a fixed race's fill. */
-export function HatchPattern({ id }: { id: string }) {
+/** The stripes over a flip: `${id}-light` (white, for dark fills) and
+ * `${id}-dark` (for light fills). A pattern takes its colours from where it
+ * is defined, not from the shape that uses it, hence two. */
+export function HatchPatterns({ id }: { id: string }) {
   return (
-    <pattern id={id} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-      <rect className="map-hatch-stripe" width="2" height="6" />
-    </pattern>
+    <>
+      {(['light', 'dark'] as const).map((tone) => (
+        <pattern key={tone} id={`${id}-${tone}`} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          <rect className={`map-hatch-stripe map-hatch-stripe-${tone}`} width="2" height="6" />
+        </pattern>
+      ))}
+    </>
   )
 }
 
@@ -72,31 +79,33 @@ export function MapZoomControls({ zoom }: { zoom: MapZoom }) {
 interface MapLegendProps {
   /** What the grey means, if the map has any. */
   noRace?: string
-  hasFixed: boolean
+  colours: MapColours
   /** The lines under the legend. */
   children: ReactNode
 }
 
-export function MapLegend({ noRace, hasFixed, children }: MapLegendProps) {
+export function MapLegend({ noRace, colours, children }: MapLegendProps) {
   const { t } = useI18n()
   return (
     <>
-      {(noRace !== undefined || hasFixed) && (
-        <ul className="map-legend">
-          {noRace !== undefined && (
-            <li>
-              <span className="map-swatch map-no-race" />
-              {noRace}
-            </li>
-          )}
-          {hasFixed && (
-            <li>
-              <span className="map-swatch map-swatch-fixed" />
-              {t('map.fixed')}
-            </li>
-          )}
-        </ul>
-      )}
+      <ul className="map-legend">
+        {noRace !== undefined && (
+          <li>
+            <span className="map-swatch map-no-race" />
+            {noRace}
+          </li>
+        )}
+        {colours === 'flips' && (
+          <li>
+            <span className="map-swatch map-swatch-hold" />
+            {t('map.legend.hold')}
+          </li>
+        )}
+        <li>
+          <span className={`map-swatch map-swatch-flip${colours === 'flips' ? ' map-swatch-flip-dark' : ''}`} />
+          {t('map.legend.flip')}
+        </li>
+      </ul>
       {children}
     </>
   )

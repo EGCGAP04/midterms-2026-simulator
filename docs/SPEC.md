@@ -321,9 +321,11 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
      - Lines keep their width and the hex map's postal codes their size at any zoom. Zoomed in, the map is clipped to its frame.
      - The tooltip follows its race, and hides while the race is out of view. Focusing a race with Tab while zoomed in moves the map to it, and so does selecting one out of view from outside the map (the lists, §4.7), keeping the zoom.
      - A note under the map explains the wheel, the pinch and dragging. Switching maps or chambers resets the zoom.
-   - **Fill:** a diverging scale by margin, matching the rating buckets. Fixed races get a hatch pattern; independents are violet (`#775EB2`).
-     - The colours are the summary bar's (§4.3), by each race's rating at the slider. The hatch is white stripes over the fill.
-     - A legend under the map explains the grey and, when the chamber has fixed races, the hatch.
+   - **Fill:** a "Ratings | Flips" switch, to the left of the House's "Districts | Hexagons" and in the same style, on every map (ratings by default; the choice is kept across chambers and maps, and in the URL, §4.8).
+     - **Ratings:** a diverging scale by margin, matching the rating buckets: the summary bar's colours (§4.3), by each race's rating at the slider. Independents are violet (`#775EB2`).
+     - **Flips:** whether each race flips at the slider (§4.5): a flip in the winner's dark colour (Safe), a hold in its light one (Tilt; for an independent, a light violet).
+     - **Hatch:** diagonal stripes over every race that flips at the slider, on both fills (a cue that does not depend on colour). The stripes are white over dark fills and dark over light ones. Fixed races get no hatch of their own: their plain colour is their rating's (Safe), and they are hatched only when they flip (a same-party race in a seat the other party held).
+     - A legend under the map explains the grey, the hatch and, on the flips fill, the light colour.
    - **Hover, focus and selection:**
      - Hovering a race, or focusing it with the keyboard (every race is in the Tab order), shows a tooltip with its name, rating, margin and the leader's chance of winning, and outlines it in the text colour. A fixed race shows no margin: its ±100 is not a real one.
      - A click, a tap, Enter or Space selects the race: it keeps the outline and the tooltip until another race is selected, it is clicked again, the map's background is clicked or Escape is pressed. The race panel (§4.5) shows the selected race.
@@ -360,8 +362,9 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - **Closest races:** the 10 with the smallest margin, either side, fixed races left out.
    - **Tipping point:** sort the races by margin (R − opposition, so an independent sits on the side of the party it runs against, as in the summary bar) and take the one that gives control: in the House the 218th from the most R end, which is also the 218th from the most D end (435 races). In the Senate, with the seats not up (R 31, D 34), the 19th most R race, which is also the 17th most D: R needs 50 seats, D + I 51. The side that wins it has control, so its margin shows how close control is. With independents in the House this is only approximate: an independent ahead counts as a seat on its side, not as a seat of that party.
    - Wide screens: the lists go under the map and the histogram (§4.6), in the map's column, so the race panel stays beside them. Narrow screens: map, race panel, histogram, then the lists; picking a race in a list scrolls the page up to the panel when its top is off the screen.
-8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
+8. **URL state:** e.g. `?ch=house&env=-5.25&lang=es&map=hex&colors=flips` (`env` in points, R − D, up to two decimals), so scenarios can be shared.
    - `ch` is `house` or `senate`, `house` by default.
+   - `colors` is `flips` for the flips fill (§4.4); without it, the maps show ratings, so the page writes it only for `flips`.
    - `map` is `hex` for the House hex map. Without it, the House shows the district map, so the page writes it only for `hex` (whatever the chamber, so the choice survives a trip to the Senate).
    - `env` is a number in the slider range, rounded to 0.01. Without it, the page uses `DEFAULT_ENV`.
    - `lang` is `en` or `es`. Without it, the page follows the browser language: Spanish if it starts with `es`, English otherwise.

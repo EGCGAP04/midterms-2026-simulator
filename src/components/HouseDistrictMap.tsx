@@ -7,9 +7,10 @@ import { useI18n } from '../i18n/context.ts'
 import { ATLAS_HEIGHT, ATLAS_WIDTH } from '../state/atlas.ts'
 import { useDistricts } from '../state/districts.ts'
 import type { ChamberView } from '../state/forecast.ts'
-import { HatchPattern, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
+import type { MapColours } from '../state/url.ts'
+import { HatchPatterns, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
 import { useMapZoom, type ZoomRequest, type ZoomTarget } from './useMapZoom.ts'
-import { ratingClass, useRaceMap } from './useRaceMap.ts'
+import { hatchFill, racePaint, useRaceMap } from './useRaceMap.ts'
 
 /** Enough to tap New York City's districts on a phone: at 360 px wide, the
  * smallest are then about 15 × 25 px. */
@@ -31,9 +32,10 @@ interface HouseDistrictMapProps {
   onSelect: (id: string | undefined) => void
   /** The race picked in the search, to zoom to. */
   zoomRequest?: ZoomRequest
+  colours: MapColours
 }
 
-export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: HouseDistrictMapProps) {
+export function HouseDistrictMap({ view, selected, onSelect, zoomRequest, colours }: HouseDistrictMapProps) {
   const { t } = useI18n()
   const loaded = useDistricts()
   const hatch = `hatch-${useId()}`
@@ -62,7 +64,6 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
     selected === undefined ? undefined : shapeOf(selected)?.centroid,
     target,
   )
-  const hasFixed = races.some((race) => race.fixedWinner !== undefined)
 
   if (loaded.status !== 'ready') {
     return (
@@ -97,7 +98,7 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
           {...mapProps}
         >
           <defs>
-            <HatchPattern id={hatch} />
+            <HatchPatterns id={hatch} />
           </defs>
 
           <g transform={zoom.transform.toString()}>
@@ -106,12 +107,11 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
               // Every district has a race (checked in districts.test.ts).
               if (k === undefined) return null
               const details = describe(k)
+              const paint = racePaint(details, colours)
               return (
                 <g key={district.id}>
-                  <path className={`map-state map-race ${ratingClass(details.rating)}`} d={district.d} {...raceProps(details)} />
-                  {details.race.fixedWinner !== undefined && (
-                    <path className="map-hatch" d={district.d} fill={`url(#${hatch})`} aria-hidden="true" />
-                  )}
+                  <path className={`map-state map-race ${paint.fill}`} d={district.d} {...raceProps(details)} />
+                  {paint.hatch && <path className="map-hatch" d={district.d} fill={hatchFill(hatch, paint.hatch)} aria-hidden="true" />}
                 </g>
               )
             })}
@@ -131,7 +131,7 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
         {tip && tipAt && <MapTooltip tip={tip} at={tipAt} width={ATLAS_WIDTH} height={ATLAS_HEIGHT} />}
       </div>
 
-      <MapLegend hasFixed={hasFixed}>
+      <MapLegend colours={colours}>
         <p className="map-hint">{t('map.hint.house')}</p>
         <p className="map-hint">{t('map.zoom.hint')}</p>
         <p className="map-hint">{t('map.credit.districts')}</p>

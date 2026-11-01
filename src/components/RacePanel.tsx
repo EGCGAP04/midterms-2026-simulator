@@ -6,10 +6,9 @@ import { useI18n } from '../i18n/context.ts'
 import { formatMargin, formatProbability, formatShare } from '../i18n/format.ts'
 import type { Lang } from '../i18n/i18n.ts'
 import { raceNotes } from '../i18n/raceNotes.ts'
-import { flipOf } from '../model/flips.ts'
 import type { Incumbency, Party, Race } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
-import { raceDetails, ratingClass, type RaceDetails } from './useRaceMap.ts'
+import { outcomeClass, raceDetails, ratingClass, type RaceDetails } from './useRaceMap.ts'
 
 interface RacePanelProps {
   view: ChamberView
@@ -77,13 +76,6 @@ function contextLine(lang: Lang, t: ReturnType<typeof useI18n>['t'], race: Race)
   return parts.join(' · ')
 }
 
-/** The flip flag's colours: the winner's dark colour for a flip, its light
- * one for a hold (the rating classes' Safe and Tilt). */
-function statusClass(winner: Party, flip: boolean): string {
-  if (winner === 'I') return flip ? 'rating-i' : 'panel-status-i-hold'
-  return `rating-${winner.toLowerCase()}-${flip ? 'safe' : 'tilt'}`
-}
-
 export function RacePanel({ view, selected, ref }: RacePanelProps) {
   const { lang, t } = useI18n()
   const k = selected === undefined ? -1 : view.races.findIndex((race) => race.id === selected)
@@ -105,8 +97,7 @@ export function RacePanel({ view, selected, ref }: RacePanelProps) {
 
 function RaceDetailsView({ details, view }: { details: RaceDetails; view: ChamberView }) {
   const { lang, t } = useI18n()
-  const { race, outcome, rating } = details
-  const flip = flipOf(race, outcome)
+  const { race, outcome, rating, flip } = details
   const rows = candidateRows(details, view.forecast.probabilities.get(race.id))
   const hasShare = rows.some((row) => row.share !== undefined)
   const hasChance = rows.some((row) => row.chance !== undefined)
@@ -116,7 +107,7 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
   return (
     <>
       <div className="panel-head">
-        <span className={`panel-badge ${statusClass(outcome.winner, flip !== undefined)}`}>
+        <span className={`panel-badge ${outcomeClass(outcome.winner, flip !== undefined)}`}>
           {flip ? t('panel.flip', { from: flip.from, to: flip.to }) : t('panel.hold', { party: race.holder })}
         </span>
         <h3 className="panel-race">{details.name}</h3>
