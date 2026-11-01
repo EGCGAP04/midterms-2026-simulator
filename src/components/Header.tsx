@@ -17,6 +17,14 @@ interface HeaderProps {
   onThemeChange: (theme: Theme) => void
 }
 
+/** The favicon's hexagon, half blue and half red (public/favicon.svg). */
+const Logo = () => (
+  <svg className="header-logo" viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M16 2 28.1 9v14L16 30z" fill="#c0392b" />
+    <path d="M16 2 3.9 9v14L16 30z" fill="#2e6fbf" />
+  </svg>
+)
+
 const SunIcon = () => (
   <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
     <circle cx="12" cy="12" r="4" />
@@ -34,17 +42,20 @@ export function Header({ chamber, asOf, theme, onChamberChange, onLangChange, on
   const { lang, t } = useI18n()
   return (
     <header className="header">
-      <div>
-        <h1>{t('app.title')}</h1>
-        <p className="subtitle">
-          {t('app.subtitle')}
-          {asOf && (
-            <>
-              {' · '}
-              <time dateTime={asOf}>{t('app.asOf', { date: formatDayMonth(lang, asOf) })}</time>
-            </>
-          )}
-        </p>
+      <div className="header-brand">
+        <Logo />
+        <div>
+          <h1>{t('app.title')}</h1>
+          <p className="subtitle">
+            {t('app.subtitle')}
+            {asOf && (
+              <>
+                {' · '}
+                <time dateTime={asOf}>{t('app.asOf', { date: formatDayMonth(lang, asOf) })}</time>
+              </>
+            )}
+          </p>
+        </div>
       </div>
       <div className="header-controls">
         <Toggle

@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- The logo before the page's title: the favicon's hexagon, half blue and half red.
 - The summary bar's blocks list who they stand for: each race's leader at the slider (name, district or state, margin) or, for the Senate seats not up, the senators. A hover shows the first 12; a click or a tap keeps the whole list open, scrolling, until Escape, a click elsewhere or its close button. The blocks are buttons, so the keyboard opens them too. The senators not up come from `scripts/senate_not_up.csv`, which the exporter checks against the workbook and writes to `races.json` (`senatorsNotUp`); the split of the seats not up (D 32, I 2, R 31) now comes from it.
 - The forecast's date under the title: "Forecast as of 10/31" / "Pronóstico al 31/10". The exporter takes it as `--as-of` and writes it to `races.json` (`asOf`).
 - A "Ratings | Flips" switch on every map: the flips fill paints the races that flip at the slider in the winner's dark colour and the others in its light one. The choice goes in the URL (`colors=flips`).
