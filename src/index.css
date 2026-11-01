@@ -1383,9 +1383,16 @@ main {
   font-size: 1.125rem;
 }
 
+/* At most two columns, the same in the flips' columns below, so "Tipping
+ * point" starts where "D loses" does. */
+.lists-grid,
+.list-columns {
+  --columns: repeat(auto-fit, minmax(min(100%, max(18rem, (100% - 1.5rem) / 2)), 1fr));
+}
+
 .lists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: var(--columns);
   gap: 1rem 1.5rem;
   margin-top: 0.75rem;
   font-size: 0.875rem;
@@ -1411,7 +1418,7 @@ main {
 
 .list-columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  grid-template-columns: var(--columns);
   gap: 0.75rem 1.5rem;
 }
 
@@ -1511,10 +1518,30 @@ main {
   gap: 0 2rem;
 }
 
+/* Wide: the table to the right of the chart, centred on its bars (the
+ * description above both, the axis and the legend under the chart). */
 @media (min-width: 52rem) {
   .histogram-body {
     grid-template-columns: minmax(0, 1fr) auto;
-    align-items: end;
+  }
+
+  .histogram-main {
+    display: contents;
+  }
+
+  .histogram-main > * {
+    grid-column: 1;
+  }
+
+  .histogram-main > .histogram-desc {
+    grid-column: 1 / -1;
+  }
+
+  .histogram-body > .histogram-table {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: center;
+    margin-top: 2rem;
   }
 }
 

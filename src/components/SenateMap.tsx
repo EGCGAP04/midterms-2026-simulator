@@ -22,8 +22,8 @@ interface SenateMapProps {
 const SMALL_STATES = ['VT', 'NH', 'MA', 'RI', 'CT', 'NJ', 'DE', 'MD']
 const SQUARE = 30
 const SQUARE_GAP = 6
-const SQUARE_X = 925
-const SQUARE_TOP = 150
+const SQUARE_X = 905
+const SQUARE_TOP = 185
 
 function squareAt(index: number): { x: number; y: number } {
   return { x: SQUARE_X, y: SQUARE_TOP + index * (SQUARE + SQUARE_GAP) }
