@@ -1,15 +1,19 @@
 // The summary bar (docs/SPEC.md §4.3): the chamber's seats by rating at the
 // slider's environment, each side's seat total and its chance of control.
+// Each block lists who it stands for: a preview on hover, the whole list once
+// clicked or tapped.
 
-import { useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useId, useRef, useState, type CSSProperties, type FocusEvent } from 'react'
 import { useI18n } from '../i18n/context.ts'
-import { formatCount, formatProbability } from '../i18n/format.ts'
+import { formatCount, formatMargin, formatProbability } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
 import { seatTotals } from '../model/seats.ts'
-import { summaryBlocks, type Block } from '../model/summary.ts'
+import { blockMembers, summaryBlocks, type Block } from '../model/summary.ts'
 import type { Party } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
-import { useTouchDismiss } from './useTouchDismiss.ts'
+
+/** How many members a hover shows. */
+const PREVIEW = 12
 
 interface SummaryBarProps {
   view: ChamberView
@@ -58,12 +62,31 @@ function Total({ party, seats }: TotalProps) {
 export function SummaryBar({ view }: SummaryBarProps) {
   const { lang, t } = useI18n()
   const [hovered, setHovered] = useState<string>()
-  const bar = useRef<HTMLDivElement>(null)
-  const { chamber, races, outcomes, forecast, notUp } = view
+  /** The block whose whole list is open, after a click or a tap. */
+  const [pinned, setPinned] = useState<string>()
+  const chart = useRef<HTMLDivElement>(null)
+  const listId = useId()
+  const { chamber, races, outcomes, forecast, notUp, senatorsNotUp } = view
   const seats = seatTotals(outcomes, notUp)
   const blocks = summaryBlocks(races, outcomes, notUp)
 
-  useTouchDismiss(bar, hovered !== undefined, () => setHovered(undefined))
+  // An open list closes with Escape or a click or touch outside the chart.
+  useEffect(() => {
+    if (pinned === undefined) return
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && chart.current?.contains(event.target)) return
+      setPinned(undefined)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setPinned(undefined)
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [pinned])
 
   const blockName = (block: Block): string => {
     if (block.kind === 'notUp' && block.party === 'I') return t('summary.notUpIndependent', { party: block.side })
@@ -84,9 +107,11 @@ export function SummaryBar({ view }: SummaryBarProps) {
     : t('summary.line.house', { seats: HOUSE_MAJORITY })
   const label = t('summary.bar', { chamber: t(`chamber.${chamber}`) })
   const shown = blocks.filter((block) => block.seats > 0)
-  const tip = shown.find((block) => blockKey(block) === hovered)
-  // Keep the tooltip inside the bar at either end.
-  const tipAt = tip && Math.min(0.9, Math.max(0.1, tip.start + tip.share / 2))
+  const open = pinned ?? hovered
+  const tip = shown.find((block) => blockKey(block) === open)
+  const tipAt = tip && tip.start + tip.share / 2
+  const members = tip ? blockMembers(tip, races, outcomes, senatorsNotUp) : []
+  const listed = pinned === undefined ? members.slice(0, PREVIEW) : members
   // The majority line, and in the Senate where the seats not up end.
   const spans = notUpSpans(blocks)
   const lines = [0.5, ...spans.map(({ side, start, end }) => (side === 'D' ? end : start))]
@@ -117,47 +142,89 @@ export function SummaryBar({ view }: SummaryBarProps) {
       </div>
 
       <p className="summary-line-label">{line}</p>
-      <div className="summary-chart">
+      <div ref={chart} className="summary-chart">
         <div
-          ref={bar}
           className="summary-bar"
-          role="img"
-          aria-label={`${label}: ${shown.map((block) => `${blockName(block)} ${block.seats}`).join(', ')}`}
+          role="group"
+          aria-label={label}
           onPointerLeave={(event) => {
             if (event.pointerType === 'mouse') setHovered(undefined)
           }}
         >
           <div className="summary-blocks">
-            {shown.map((block) => (
-              <div
-                key={blockKey(block)}
-                className={`summary-block ${ratingClass(block)}${block.kind === 'notUp' ? ` summary-block-not-up summary-block-not-up-${block.side.toLowerCase()}` : ''}`}
-                style={{ '--start': block.start, '--share': block.share } as CSSProperties}
-                data-hovered={hovered === blockKey(block) || undefined}
-                onPointerEnter={(event) => {
-                  if (event.pointerType === 'mouse') setHovered(blockKey(block))
-                }}
-                // A touch ends with a pointerleave, so a tap toggles the tooltip instead.
-                onPointerDown={(event) => {
-                  const key = blockKey(block)
-                  if (event.pointerType !== 'mouse') setHovered((current) => (current === key ? undefined : key))
-                }}
-              >
-                <span className={`summary-block-label${block.seats >= 100 ? ' summary-block-label-wide' : ''}`}>
-                  {formatCount(lang, block.seats)}
-                </span>
-              </div>
-            ))}
+            {shown.map((block) => {
+              const key = blockKey(block)
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={`summary-block ${ratingClass(block)}${block.kind === 'notUp' ? ` summary-block-not-up summary-block-not-up-${block.side.toLowerCase()}` : ''}`}
+                  style={{ '--start': block.start, '--share': block.share } as CSSProperties}
+                  aria-label={`${blockName(block)}: ${formatCount(lang, block.seats)}`}
+                  aria-expanded={pinned === key}
+                  aria-controls={listId}
+                  data-hovered={open === key || undefined}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === 'mouse') setHovered(key)
+                  }}
+                  // The keyboard's focus previews the list, as a hover does.
+                  onFocus={(event: FocusEvent<HTMLElement>) => {
+                    if (event.currentTarget.matches(':focus-visible')) setHovered(key)
+                  }}
+                  onBlur={() => setHovered((current) => (current === key ? undefined : current))}
+                  // A click, a tap, Enter or Space opens the whole list, or closes it.
+                  onClick={() => setPinned((current) => (current === key ? undefined : key))}
+                >
+                  <span className={`summary-block-label${block.seats >= 100 ? ' summary-block-label-wide' : ''}`}>
+                    {formatCount(lang, block.seats)}
+                  </span>
+                </button>
+              )
+            })}
           </div>
           {lines.map((at) => (
             <div key={at} className="summary-line" style={{ '--at': at } as CSSProperties} />
           ))}
         </div>
-        {tip && (
-          <div className="summary-tooltip" style={{ '--at': tipAt } as CSSProperties} aria-hidden="true">
-            <strong>{formatCount(lang, tip.seats)}</strong> {blockName(tip)}
-          </div>
-        )}
+        <div
+          id={listId}
+          className={`summary-tooltip${pinned === undefined ? '' : ' summary-tooltip-pinned'}`}
+          style={{ '--at': tipAt } as CSSProperties}
+          hidden={!tip}
+          // A hover's preview repeats the block's label; the open list is read.
+          aria-hidden={pinned === undefined}
+        >
+          {tip && (
+            <>
+              <p className="summary-tooltip-head">
+                <span>
+                  <strong>{formatCount(lang, tip.seats)}</strong> {blockName(tip)}
+                </span>
+                {pinned !== undefined && (
+                  <button type="button" className="summary-tooltip-close" aria-label={t('summary.close')} onClick={() => setPinned(undefined)}>
+                    ×
+                  </button>
+                )}
+              </p>
+              <ul className="summary-members" tabIndex={pinned === undefined ? undefined : 0} aria-label={blockName(tip)}>
+                {listed.map((member) => (
+                  <li key={`${member.place}-${member.name}`}>
+                    <span className="summary-member-name">{member.name}</span>
+                    <span className="summary-member-place">{member.place}</span>
+                    {member.margin !== undefined && (
+                      <span className={`summary-member-margin panel-party-${member.party.toLowerCase()}`}>
+                        {formatMargin(lang, member.margin, { ahead: member.party, decimals: 1 })}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {listed.length < members.length && (
+                <p className="summary-more">{t('summary.more', { count: formatCount(lang, members.length - listed.length) })}</p>
+              )}
+            </>
+          )}
+        </div>
         {senate && (
           <div className="summary-not-up" aria-hidden="true">
             {spans.map(({ side, start, end }) => (

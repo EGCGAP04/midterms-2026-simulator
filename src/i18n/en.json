@@ -29,6 +29,8 @@
   "rating.lean": "Lean {party}",
   "rating.tilt": "Tilt {party}",
   "summary.independent": "Independent ahead (vs {party})",
+  "summary.more": "and {count} more: click to see them all",
+  "summary.close": "Close the list",
   "summary.notUp": "Not up for grabs in 2026",
   "summary.notUpIndependent": "Not up for grabs in 2026 (I, caucus with {party})",
   "summary.notUpParty": "Not up for grabs in 2026 ({party})",

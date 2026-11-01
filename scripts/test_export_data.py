@@ -13,6 +13,7 @@ from export_data import (
     ExportError,
     as_of_date,
     blend_slope,
+    check_not_up,
     clean_name,
     district_id,
     excel_flip,
@@ -139,6 +140,37 @@ class OpenSeatLabelsTest(unittest.TestCase):
 
     def test_no_open_seat_label_keeps_the_labels(self):
         self.assertEqual(open_seat_labels("nonIncumbent", "nonIncumbent"), ("nonIncumbent", "nonIncumbent"))
+
+
+class NotUpTest(unittest.TestCase):
+    # Two states only would fail the per-state check, so build all fifty:
+    # every state but VT has its two senators not up.
+    def senators(self, vt_parties):
+        from export_data import STATES
+
+        rows = [
+            {"state": state, "name": f"{state} {k}", "party": "R"}
+            for state in sorted(set(STATES.values()))
+            if state != "VT"
+            for k in (1, 2)
+        ]
+        return rows + [{"state": "VT", "name": f"VT {k}", "party": party} for k, party in enumerate(vt_parties)]
+
+    def test_counts_independents_with_d(self):
+        self.assertEqual(check_not_up(self.senators(["D", "I"]), [], 2, 98), [])
+
+    def test_counts_must_match_the_workbook(self):
+        errors = check_not_up(self.senators(["D", "I"]), [], 1, 98)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("N3 / P3", errors[0])
+
+    def test_every_state_has_two_senators(self):
+        errors = check_not_up(self.senators(["D"]), [], 1, 98)
+        self.assertEqual(errors, ["VT: 1 senators between the races and the senators not up"])
+        self.assertEqual(check_not_up(self.senators(["D"]), ["VT"], 1, 98), [])
+
+    def test_unknown_party(self):
+        self.assertIn("unknown parties ['G']", check_not_up(self.senators(["D", "G"]), [], 1, 98)[0])
 
 
 class AsOfTest(unittest.TestCase):

@@ -472,6 +472,11 @@ button {
   bottom: 0;
   left: calc(var(--start) * 100%);
   width: calc(var(--share) * 100%);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  cursor: pointer;
   background-color: var(--fill);
   color: var(--ink);
   container-type: inline-size;
@@ -501,6 +506,11 @@ button {
 
 /* The same ring on every block: the text colour, with a ring of the page
  * background inside it so it shows on light and dark fills alike. */
+/* The keyboard's focus shows as the ring below (the bar clips outlines). */
+.summary-block:focus-visible {
+  outline: none;
+}
+
 .summary-block[data-hovered] {
   box-shadow:
     inset 0 0 0 2px var(--color-text),
@@ -540,19 +550,99 @@ button {
   pointer-events: none;
 }
 
+/* Under the bar, centred on its block as far as the chart's edges allow. */
 .summary-tooltip {
+  --w: min(19rem, 100%);
   position: absolute;
-  bottom: calc(100% + 0.5rem);
-  left: calc(var(--at) * 100%);
-  translate: -50% 0;
+  top: calc(var(--bar) + 0.5rem);
+  left: clamp(0%, calc(var(--at) * 100% - var(--w) / 2), calc(100% - var(--w)));
   z-index: 3;
-  padding: 0.25rem 0.5rem;
+  box-sizing: border-box;
+  width: var(--w);
+  padding: 0.375rem 0.625rem 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: 0.375rem;
   background: var(--color-surface);
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 20%);
   font-size: 0.875rem;
-  white-space: nowrap;
   pointer-events: none;
+}
+
+.summary-tooltip[hidden] {
+  display: none;
+}
+
+/* An open list: it scrolls, and can be clicked. */
+.summary-tooltip-pinned {
+  pointer-events: auto;
+}
+
+.summary-tooltip-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+}
+
+.summary-tooltip-close {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.summary-members {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summary-tooltip-pinned .summary-members {
+  max-height: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.summary-members li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.125rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.summary-member-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-member-place {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.summary-member-margin {
+  min-width: 3.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.summary-more {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.8125rem;
 }
 
 .summary-not-up {

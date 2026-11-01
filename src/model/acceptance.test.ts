@@ -9,7 +9,7 @@ import { outcomeAt } from './margin.ts'
 import { ratingOf, type Rating } from './ratings.ts'
 import { seatTotals, type SeatTotals } from './seats.ts'
 import { createSimulator, simulate, type ChamberForecast } from './simulate.ts'
-import { summaryBlocks } from './summary.ts'
+import { blockMembers, summaryBlocks } from './summary.ts'
 import type { Chamber, Dataset, RatingBucketName } from './types.ts'
 
 const dataset = raw as unknown as Dataset
@@ -138,6 +138,10 @@ describe('the summary bar', () => {
         const seats: SeatTotals = { R: 0, D: 0, I: 0 }
         for (const block of blocks) seats[block.party] += block.seats
         expect(seats).toEqual(seatTotals(outcomes, notUp))
+        // Each block lists as many members as it has seats.
+        for (const block of blocks) {
+          expect(blockMembers(block, races, outcomes, dataset.senatorsNotUp)).toHaveLength(block.seats)
+        }
       }
     }
   })

@@ -65,6 +65,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   ├── export_data.py           # Workbook → races.json, with self-checks
 │   ├── fips.cjs                 # Postal codes by FIPS code, for mapshaper
 │   ├── house_hexes.ts           # Generates the House map's layout (npm run house-hexes)
+│   ├── senate_not_up.csv        # The senators not up in 2026 (not in the workbook)
 │   └── test_export_data.py
 ├── src/
 │   ├── components/              # React components: render and translate events only
