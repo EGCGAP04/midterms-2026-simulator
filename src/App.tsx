@@ -138,6 +138,7 @@ export default function App() {
     <LangContext value={state.lang}>
       <Header
         chamber={state.chamber}
+        asOf={data.status === 'ready' ? data.dataset.asOf : undefined}
         theme={theme}
         onChamberChange={(chamber) => setState((s) => ({ ...s, chamber }))}
         onLangChange={(lang) => setState((s) => ({ ...s, lang }))}

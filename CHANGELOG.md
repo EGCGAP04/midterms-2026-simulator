@@ -6,13 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- The forecast's date under the title: "Forecast as of 10/31" / "Pronóstico al 31/10". The exporter takes it as `--as-of` and writes it to `races.json` (`asOf`).
+
 ### Changed
 
+- A race decided before the vote (uncontested or same-party) shows its winner's chance as "100%" instead of ">99%", in the map's tooltip and the race panel.
 - Issue forms list the new milestone, M7 (post-release changes), instead of M6, and the roadmap adds it.
 
 ### Fixed
 
 - `npm run lint` reported two `react(refs)` warnings in the House maps: the zoom hook returned the map's ref inside the object the maps read during render. The maps now take the ref out of it, and the lint runs clean.
+- In CA-11 and CA-14, two Democrats running for an open seat, one was labelled "Open seat" and the other "Challenger". The exporter now labels both "Open seat" when a same-party race has no incumbent running.
 
 ## [1.0.0] - 2026-10-31
 

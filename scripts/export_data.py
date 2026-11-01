@@ -17,7 +17,7 @@ import json
 import math
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -180,6 +180,16 @@ def formula(sheet: Any, cell: str) -> str:
     return str(getattr(value, "text", value))
 
 
+def open_seat_labels(rep_label: str, opp_label: str) -> tuple[str, str]:
+    """The labels of a same-party race (docs/SPEC.md §2.2): with no incumbent
+    running, both candidates run for their party's open seat, so one
+    `lostIncumbent` makes both."""
+    sitting = {"incumbent", "gainedIncumbency"}
+    if rep_label in sitting or opp_label in sitting or "lostIncumbent" not in (rep_label, opp_label):
+        return rep_label, opp_label
+    return "lostIncumbent", "lostIncumbent"
+
+
 def candidate(name_raw: Any, label_raw: Any, default_party: str) -> dict[str, Any] | None:
     parsed = clean_name(name_raw)
     if parsed is None:
@@ -233,6 +243,12 @@ def read_house(values: Any, formulas: Any) -> tuple[list[dict[str, Any]], dict[s
         elif race_type in ("DvD", "RvR"):
             race["fixedWinner"] = race_type[0]
             race["intraShares"] = [abs(number(values, f"AA{r}")), abs(number(values, f"AD{r}"))]
+            rep, opp = race["rep"], race["opp"]
+            if rep and opp:
+                labels = open_seat_labels(rep["label"], opp["label"])
+                if labels != (rep["label"], opp["label"]):
+                    print(f"note: {race_id}: both candidates labelled lostIncumbent (same-party open seat)")
+                    rep["label"], opp["label"] = labels
 
         # Context (docs/SPEC.md §2.2): the workbook puts the presidential result
         # in Q when there was no R-vs-D House race, so Q = S means "none".
@@ -389,11 +405,23 @@ def write_dataset(path: Path, dataset: dict[str, Any]) -> None:
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+def as_of_date(text: str) -> str:
+    """`--as-of`: an ISO date, kept as written."""
+    try:
+        date.fromisoformat(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a YYYY-MM-DD date: {text!r}") from None
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+        raise argparse.ArgumentTypeError(f"not a YYYY-MM-DD date: {text!r}")
+    return text
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Export the forecast workbook to races.json (docs/SPEC.md §2).")
     parser.add_argument("xlsx", type=Path, help="the forecast workbook")
     parser.add_argument("--house-sheet", required=True, help='House sheet, e.g. "Senate House"')
     parser.add_argument("--senate-sheet", required=True, help='Senate sheet, e.g. "29-10 Senate"')
+    parser.add_argument("--as-of", required=True, type=as_of_date, help="the forecast's date, YYYY-MM-DD")
     parser.add_argument("--out", type=Path, default=Path("public/races.json"), help="output file (default: %(default)s)")
     args = parser.parse_args(argv)
 
@@ -428,6 +456,7 @@ def main(argv: list[str] | None = None) -> int:
         race["context"] = context
     dataset = {
         "generatedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "asOf": args.as_of,
         "sourceFile": args.xlsx.name,
         "g0": number(hv, "G11"),
         "senateNotUp": {"D": int(number(sv, "N3")), "R": int(number(sv, "P3"))},

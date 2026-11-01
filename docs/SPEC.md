@@ -26,10 +26,10 @@ The forecast lives in an Excel workbook, `2026_US_Elections.xlsx`. The exporter 
 CLI:
 
 ```
-python scripts/export_data.py <xlsx> --house-sheet "Senate House" --senate-sheet "29-10 Senate" --out public/races.json
+python scripts/export_data.py <xlsx> --house-sheet "Senate House" --senate-sheet "29-10 Senate" --as-of 2026-10-31 --out public/races.json
 ```
 
-Sheet names change with each update, so they are arguments.
+Sheet names change with each update, so they are arguments. `--as-of` is the date of the forecast (ISO, `YYYY-MM-DD`), shown on the page (§4.1); it is an argument because neither the file nor the export time says it (an export after midnight UTC would show the next day).
 
 ### 2.1 Baseline
 
@@ -74,6 +74,8 @@ Seat checks: `R7` / `S7` hold the D / R totals. `R8:S11` hold the counts by rati
 | `Non-Incumbent` | `nonIncumbent` | Anyone else. | Non-incumbent / No titular |
 
 An unknown status makes the exporter fail.
+
+**Same-party open seats.** In a DvD / RvR race where neither candidate is the incumbent (`incumbent` or `gainedIncumbency`), both run for their party's open seat. When the workbook labels one of them `lostIncumbent` and the other `nonIncumbent` (CA-11 and CA-14), the exporter labels both `lostIncumbent` and says so in its output.
 
 ### 2.3 House race types
 
@@ -157,6 +159,7 @@ interface Context {
 
 interface Dataset {
   generatedAt: string;
+  asOf: string;          // the forecast's date, "2026-10-31" (`--as-of`)
   sourceFile: string;
   g0: number;
   senateNotUp: { D: number; R: number };
@@ -226,7 +229,7 @@ Errors are correlated across races: if the polls miss the national environment, 
 - **Common random numbers:** draw all errors **once** at startup from a seeded PRNG (mulberry32, Box–Muller normals) and store them in `Float32Array`s. Moving the slider only re-adds the offset, so results are smooth (no jitter) and fast.
   - One stream from `SEED`: the `N` national errors first, then each race's `N` errors in `races.json` order, with that race's `σ_race`. Both chambers share the national errors.
   - Only the chamber on screen is simulated.
-- **Per-race win probability:** the share of simulations each side wins. Display `>99%` / `<1%` at the extremes.
+- **Per-race win probability:** the share of simulations each side wins. Display `>99%` / `<1%` at the extremes, except in fixed races, whose winner is known: 100%.
 - **Chamber outputs, for each party (R, D, I):**
   - Median seats: the smallest seat count reached in at least 50% of the simulations.
   - 80% interval: the same rule at 10% and 90%.
@@ -265,7 +268,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 - **Contrast:** text reaches 4.5:1 against what is behind it (3:1 when large), in both themes. Party colours used as text are lightened in the dark theme (§4.2), a little more on the race panel's raised background.
 
 1. **Header:**
-   - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle.
+   - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle and the forecast's date (`asOf`): "Forecast as of 10/31" / "Pronóstico al 31/10" (month and day, in the language's order).
    - EN/ES toggle.
    - House/Senate switch.
    - Light/dark theme toggle. The page follows the browser's theme until the reader picks one; the choice is remembered in that browser (`localStorage`), not put in the URL.
@@ -374,7 +377,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 - Numbers are formatted with `Intl.NumberFormat` (`en-US`, `es-AR`): `es-AR` uses a decimal comma.
 - **Margins:** the letter of the party ahead and the margin in points, with two decimals: "D+8.75" ("D+8,75" in Spanish), "I+3.10". A margin that rounds to 0 shows as "EVEN" ("Empate" in Spanish).
 - **Ratings:** Safe, Likely, Lean and Tilt, followed by the party letter ("Lean D"). In Spanish the party letter goes first: Seguro, Probable, Favorito and Ajustado ("D favorito"). Seats are "escaños" in Spanish.
-- **Probabilities:** whole percentages, shown as ">99%" above 99% and "<1%" below 1%, fixed races included.
+- **Probabilities:** whole percentages, shown as ">99%" above 99% and "<1%" below 1%. A fixed race's winner shows "100%".
 
 ---
 

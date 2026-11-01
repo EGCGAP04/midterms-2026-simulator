@@ -80,7 +80,8 @@ npm run build           # type-check (tsc -b) and production build into dist/
 npm run preview         # serve dist/ locally
 python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 .venv/bin/python scripts/export_data.py 2026_US_Elections.xlsx \
-  --house-sheet "Senate House" --senate-sheet "29-10 Senate" --out public/races.json
+  --house-sheet "Senate House" --senate-sheet "29-10 Senate" \
+  --as-of 2026-10-31 --out public/races.json
 ```
 
 ## Conventions

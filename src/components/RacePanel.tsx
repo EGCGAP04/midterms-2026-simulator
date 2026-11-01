@@ -92,6 +92,7 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
   const hasShare = rows.some((row) => row.share !== undefined)
   const hasChance = rows.some((row) => row.chance !== undefined)
   const notes = raceNotes(lang, race)
+  const decided = race.fixedWinner !== undefined
 
   return (
     <>
@@ -124,7 +125,7 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
                 </span>
               </th>
               {hasShare && <td>{row.share === undefined ? '' : formatShare(lang, row.share)}</td>}
-              {hasChance && <td>{row.chance === undefined ? '' : formatProbability(lang, row.chance)}</td>}
+              {hasChance && <td>{row.chance === undefined ? '' : formatProbability(lang, row.chance, { decided })}</td>}
             </tr>
           ))}
         </tbody>

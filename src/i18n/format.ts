@@ -36,13 +36,27 @@ export function formatMargin(lang: Lang, margin: number, { ahead, decimals = 2 }
   return `${ahead ?? (margin > 0 ? 'R' : 'D')}+${points}`
 }
 
+const DAY_MONTH = {
+  en: new Intl.DateTimeFormat(LOCALES.en, { month: 'numeric', day: 'numeric', timeZone: 'UTC' }),
+  es: new Intl.DateTimeFormat(LOCALES.es, { month: 'numeric', day: 'numeric', timeZone: 'UTC' }),
+}
+
+/** An ISO date ("2026-10-31") as its month and day, in the language's order
+ * ("10/31" / "31/10"). */
+export function formatDayMonth(lang: Lang, iso: string): string {
+  return DAY_MONTH[lang].format(new Date(`${iso}T00:00:00Z`))
+}
+
 /** A whole number, with the language's thousands separator ("10,000" / "10.000"). */
 export function formatCount(lang: Lang, count: number): string {
   return COUNT[lang].format(count)
 }
 
-/** A win probability as a whole percentage, with ">99%" and "<1%" at the extremes. */
-export function formatProbability(lang: Lang, probability: number): string {
+/** A win probability as a whole percentage, with ">99%" and "<1%" at the
+ * extremes, unless the race is `decided` before the vote (a fixed race):
+ * then "100%" / "0%". */
+export function formatProbability(lang: Lang, probability: number, { decided = false } = {}): string {
+  if (decided) return PERCENT[lang].format(probability)
   if (probability > 0.99) return `>${PERCENT[lang].format(0.99)}`
   if (probability < 0.01) return `<${PERCENT[lang].format(0.01)}`
   return PERCENT[lang].format(probability)
