@@ -51,6 +51,12 @@ export interface WorkbookTotals {
   senate: { seats: { D: number; I: number; R: number } }
 }
 
+export interface Senator {
+  state: string
+  name: string
+  party: Party
+}
+
 export interface Dataset {
   generatedAt: string
   /** The forecast's date, "2026-10-31". */
@@ -59,6 +65,8 @@ export interface Dataset {
   g0: number
   /** I: Sanders and King, who caucus with D. */
   senateNotUp: { D: number; I: number; R: number }
+  /** The senators not up in 2026 (docs/SPEC.md §2.4). */
+  senatorsNotUp: Senator[]
   workbook: WorkbookTotals
   races: Race[]
 }

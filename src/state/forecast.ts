@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { deltaFrom, outcomeAt, type Outcome } from '../model/margin.ts'
 import type { SeatTotals } from '../model/seats.ts'
 import { simulate, type ChamberForecast, type Simulator } from '../model/simulate.ts'
-import type { Chamber, Dataset, Race } from '../model/types.ts'
+import type { Chamber, Dataset, Race, Senator } from '../model/types.ts'
 
 export interface ChamberView {
   chamber: Chamber
@@ -15,11 +15,14 @@ export interface ChamberView {
   forecast: ChamberForecast
   /** The Senate seats not up for election; empty for the House. */
   notUp: Partial<SeatTotals>
+  /** The senators not up for election; empty for the House. */
+  senatorsNotUp: readonly Senator[]
   /** How many simulations the chances come from. */
   sims: number
 }
 
 const NONE: Partial<SeatTotals> = {}
+const NO_SENATORS: readonly Senator[] = []
 
 export function useChamberView(dataset: Dataset, simulator: Simulator, chamber: Chamber, env: number): ChamberView {
   const notUp = chamber === 'senate' ? dataset.senateNotUp : NONE
@@ -29,5 +32,6 @@ export function useChamberView(dataset: Dataset, simulator: Simulator, chamber: 
   const outcomes = useMemo(() => races.map((race) => outcomeAt(race, delta)), [races, delta])
   const forecast = useMemo(() => simulate(simulator, chamber, delta, notUp), [simulator, chamber, delta, notUp])
 
-  return { chamber, races, outcomes, forecast, notUp, sims: simulator.n }
+  const senatorsNotUp = chamber === 'senate' ? dataset.senatorsNotUp : NO_SENATORS
+  return { chamber, races, outcomes, forecast, notUp, senatorsNotUp, sims: simulator.n }
 }

@@ -29,6 +29,8 @@
   "rating.lean": "{party} favorito",
   "rating.tilt": "{party} ajustado",
   "summary.independent": "Independiente adelante (contra {party})",
+  "summary.more": "y {count} más: con un clic se ven todos",
+  "summary.close": "Cerrar la lista",
   "summary.notUp": "Sin elección en 2026",
   "summary.notUpIndependent": "Sin elección en 2026 (I, en el bloque {party})",
   "summary.notUpParty": "Sin elección en 2026 ({party})",

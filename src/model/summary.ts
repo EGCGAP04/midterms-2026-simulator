@@ -5,7 +5,7 @@
 
 import type { Outcome } from './margin.ts'
 import { BUCKETS, countRatings, ratingOf, type Bucket } from './ratings.ts'
-import type { Party, Race } from './types.ts'
+import type { Party, Race, Senator } from './types.ts'
 
 export type BlockKind = Bucket | 'independent' | 'notUp'
 export type Side = 'D' | 'R'
@@ -60,5 +60,60 @@ export function summaryBlocks(
     const block = { ...part, start: before / total, share: part.seats / total }
     before += part.seats
     return block
+  })
+}
+
+/** Someone a block of the summary bar stands for: a race's leader at the
+ * slider, or a senator not up. */
+export interface Member {
+  name: string
+  /** The race's id ("CA-22"), or the senator's state. */
+  place: string
+  /** The race's margin at the slider (R − opposition); none for a fixed race
+   * or a senator not up. */
+  margin?: number
+  /** The leader's party (the margin's side). */
+  party: Party
+}
+
+/** The name of the candidate who leads a race: by party, by share in a
+ * same-party race. */
+export function leaderName(race: Race, outcome: Outcome): string {
+  if (race.type === 'MT3' && race.shares) {
+    if (outcome.winner === race.rep?.party) return race.rep.name
+    if (outcome.winner === race.opp?.party) return race.opp.name
+    return race.shares.names[2]
+  }
+  const { rep, opp } = race
+  if (rep && opp && rep.party === opp.party) {
+    const [repShare, oppShare] = race.intraShares ?? [1, 0]
+    return repShare >= oppShare ? rep.name : opp.name
+  }
+  return (rep?.party === outcome.winner ? rep : opp)?.name ?? rep?.name ?? ''
+}
+
+/** Who a block stands for, in the races' order (by state and district) or,
+ * for the seats not up, the senators' order. */
+export function blockMembers(
+  block: Block,
+  races: readonly Race[],
+  outcomes: readonly Outcome[],
+  senators: readonly Senator[] = [],
+): Member[] {
+  if (block.kind === 'notUp') {
+    return senators
+      .filter((senator) => senator.party === block.party)
+      .map(({ name, state, party }) => ({ name, place: state, party }))
+  }
+  return races.flatMap((race, k) => {
+    const outcome = outcomes[k]
+    const rating = ratingOf(outcome)
+    const inBlock =
+      block.kind === 'independent'
+        ? rating.party === 'I' && independentSide(race) === block.side
+        : rating.party === block.party && rating.bucket === block.kind
+    if (!inBlock) return []
+    const margin = race.fixedWinner === undefined ? outcome.margin : undefined
+    return [{ name: leaderName(race, outcome), place: race.id, margin, party: outcome.winner }]
   })
 }

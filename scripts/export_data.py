@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import csv
 import re
 import sys
 from datetime import date, datetime, timezone
@@ -29,9 +30,8 @@ HOUSE_RACES = 435
 SENATE_FIRST_ROW = 7
 SENATE_LAST_ROW = 41
 SENATE_RACES = 35
-# The independents not up in 2026, who caucus with the Democrats: the
-# workbook counts them in N3, the D seats not up (docs/SPEC.md §2.4).
-SENATE_NOT_UP_INDEPENDENTS = ("Bernie Sanders (VT)", "Angus King (ME)")
+# The senators not up in 2026 (docs/SPEC.md §2.4): not in the workbook.
+SENATE_NOT_UP_FILE = Path(__file__).with_name("senate_not_up.csv")
 
 # Bankhead is only named in Montana's note, not in any candidate cell.
 MT3_THIRD_CANDIDATE = "Alani Bankhead"
@@ -392,6 +392,33 @@ def self_check(house: list[dict[str, Any]], senate: list[dict[str, Any]], hv: An
 # --- Output -------------------------------------------------------------------
 
 
+def read_not_up(path: Path) -> list[dict[str, str]]:
+    """The senators not up in 2026: state, name and party, in file order."""
+    with path.open(newline="", encoding="utf-8") as file:
+        return [{"state": row["state"], "name": row["name"], "party": row["party"]} for row in csv.DictReader(file)]
+
+
+def check_not_up(senators: list[dict[str, str]], race_states: list[str], d_seats: int, r_seats: int) -> list[str]:
+    """The senators not up against the workbook: its D seats not up (N3)
+    count the independents, who caucus with D, and every state has two
+    senators between them and the races."""
+    errors = []
+    parties = [senator["party"] for senator in senators]
+    unknown = sorted({party for party in parties if party not in ("D", "I", "R")})
+    if unknown:
+        errors.append(f"senators not up: unknown parties {unknown}")
+    if parties.count("D") + parties.count("I") != d_seats or parties.count("R") != r_seats:
+        errors.append(
+            f"senators not up: {parties.count('D')} D + {parties.count('I')} I / {parties.count('R')} R"
+            f" != workbook N3 / P3 = {d_seats} / {r_seats}"
+        )
+    for state in sorted(set(STATES.values())):
+        seats = sum(senator["state"] == state for senator in senators) + race_states.count(state)
+        if seats != 2:
+            errors.append(f"{state}: {seats} senators between the races and the senators not up")
+    return errors
+
+
 def write_dataset(path: Path, dataset: dict[str, Any]) -> None:
     """Write the JSON with one race per line, so a new forecast shows up as a
     readable diff."""
@@ -442,6 +469,8 @@ def main(argv: list[str] | None = None) -> int:
         house, pres_votes = read_house(hv, hf)
         senate = read_senate(sv, sf, pres_votes)
         errors = self_check(house, senate, hv, sv, sf, args.house_sheet)
+        not_up = read_not_up(SENATE_NOT_UP_FILE)
+        errors += check_not_up(not_up, [race["state"] for race in senate], int(number(sv, "N3")), int(number(sv, "P3")))
     except ExportError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
@@ -462,11 +491,8 @@ def main(argv: list[str] | None = None) -> int:
         "asOf": args.as_of,
         "sourceFile": args.xlsx.name,
         "g0": number(hv, "G11"),
-        "senateNotUp": {
-            "D": int(number(sv, "N3")) - len(SENATE_NOT_UP_INDEPENDENTS),
-            "I": len(SENATE_NOT_UP_INDEPENDENTS),
-            "R": int(number(sv, "P3")),
-        },
+        "senateNotUp": {party: sum(senator["party"] == party for senator in not_up) for party in ("D", "I", "R")},
+        "senatorsNotUp": not_up,
         # The workbook's own totals, so the app's acceptance tests compare the
         # TypeScript model against the workbook (docs/SPEC.md §5).
         "workbook": {

@@ -108,7 +108,7 @@ There are 35 races in rows 7–41, one row per race and one race per state.
 
 The Senate's 2024 presidential margin is the statewide one, from the House votes (§2.2).
 
-Seats not up: `N3` = 34 D, `P3` = 31 R. The workbook counts the two independents not up, Bernie Sanders (VT) and Angus King (ME), who caucus with the Democrats, as D: the exporter takes them out of `N3` (`senateNotUp` = D 32, I 2, R 31), so the page can show them. Checks: `J44` (D), `L44` (I), `N44` (R) = 53 / 0 / 47 currently, with Sanders and King in D.
+Seats not up: `N3` = 34 D, `P3` = 31 R. The workbook does not name the senators not up, so they are in `scripts/senate_not_up.csv` (state, name, party), from Wikipedia's list of current senators (Classes 1 and 3, minus the 2026 specials in Florida and Ohio), to be kept up to date by hand. The workbook counts the two independents not up, Bernie Sanders (VT) and Angus King (ME), who caucus with the Democrats, as D; the file gives them as I, so `senateNotUp` = D 32, I 2, R 31 and the page can show them. Every independent in the file is taken to caucus with D. Checks: `J44` (D), `L44` (I), `N44` (R) = 53 / 0 / 47 currently, with Sanders and King in D.
 
 **Montana (row 25, type `MT3`).** It is a three-way race: Kurt Alme (R), Seth Bodnar (I), Alani Bankhead (D). Bankhead's name is not in any cell (only the note in `AH25` mentions "Bankhead"), so the exporter holds it as a constant and fails if `AH25` stops mentioning her.
 - `m3 = AVERAGE(AC25, AD25)` is Alme − (Bodnar + Bankhead).
@@ -163,6 +163,7 @@ interface Dataset {
   sourceFile: string;
   g0: number;
   senateNotUp: { D: number; I: number; R: number }; // I: Sanders and King, who caucus with D
+  senatorsNotUp: { state: string; name: string; party: Party }[]; // from scripts/senate_not_up.csv
   workbook: WorkbookTotals; // the workbook's own totals, for the acceptance tests (§5)
   races: Race[];
 }
@@ -187,6 +188,7 @@ The exporter must fail loudly if any check fails:
 - House rating counts equal `R8:S11`.
 - Senate totals equal `J44` / `L44` / `N44`.
 - Montana `A − B` equals `AE25` within 1e-9.
+- The senators not up (`scripts/senate_not_up.csv`) match the workbook: D + I = `N3`, R = `P3`, and each state has two senators between them and the races.
 
 ---
 
@@ -295,7 +297,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
      - **House:** D and R with their chance of a majority. I is shown only when an independent leads a race, next to the party whose side of the bar its races are on (both sides if there are some on each).
      - **Senate:** D and I with the chance of D + I control, and R with its chance of control. The I total counts Sanders and King, and any independent who leads a race on that side.
      - Each total's number is centred under its party name; the counts inside the blocks are centred too.
-   - Hovering a block, or tapping it, shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover. The swatch of independents who caucus with a party (Sanders and King) has its bottom-right triangle in that party's Tilt colour.
+   - Hovering a block, or tapping it, shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). The same window lists the block's members at the slider: each race's leader (the winner's name, the race's code and its margin, none for a fixed race), by state and district, or the senators not up with their state. A hover shows the first 12 and how many more; a click or a tap keeps the window open with the whole list, which scrolls, until Escape, a click elsewhere or the close button. The blocks are buttons, in the Tab order: Enter or Space opens a block's list the same way. A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover. The swatch of independents who caucus with a party (Sanders and King) has its bottom-right triangle in that party's Tilt colour.
    - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
    - **Senate:** US states map (`us-atlas`, the pre-projected `states-albers-10m.json`, fetched on its own so the main bundle stays small). States without a race are drawn in neutral grey.
@@ -407,6 +409,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 
 ```
 /scripts/export_data.py
+/scripts/senate_not_up.csv     (the senators not up in 2026, kept by hand: §2.4)
 /scripts/test_export_data.py   (unit tests of the pure helpers, stdlib unittest)
 /scripts/bench.ts              (times the simulation: npm run bench, local only)
 /scripts/house_hexes.ts        (generates the House map's layout: npm run house-hexes)

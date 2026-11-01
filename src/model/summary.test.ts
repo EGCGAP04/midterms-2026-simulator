@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Outcome } from './margin.ts'
-import { independentSide, summaryBlocks } from './summary.ts'
+import { blockMembers, independentSide, leaderName, summaryBlocks } from './summary.ts'
 import { candidate, makeRace } from './testRaces.ts'
 import type { Race } from './types.ts'
 
@@ -68,5 +68,54 @@ describe('summaryBlocks', () => {
     const last = blocks[blocks.length - 1]
     expect(last.start + last.share).toBeCloseTo(1, 12)
     expect(blocks[1].start).toBe(3 / 18)
+  })
+})
+
+describe('leaderName', () => {
+  const named = makeRace({ rep: candidate('R', 'Rita'), opp: candidate('D', 'Dan') })
+
+  it('names the candidate of the party ahead', () => {
+    expect(leaderName(named, { winner: 'R', margin: 0.1 })).toBe('Rita')
+    expect(leaderName(named, { winner: 'D', margin: -0.1 })).toBe('Dan')
+  })
+
+  it('names the larger share in a same-party race', () => {
+    const dvd = makeRace({ type: 'DvD', rep: candidate('D', 'Ann'), opp: candidate('D', 'Bea'), intraShares: [0.36, 0.64] })
+    expect(leaderName(dvd, { winner: 'D', margin: -1 })).toBe('Bea')
+  })
+
+  it('names Montana’s third candidate when D leads', () => {
+    const mt = makeRace({
+      type: 'MT3',
+      rep: candidate('R', 'Alme'),
+      opp: candidate('I', 'Bodnar'),
+      shares: { A: 0.3, B: 0.3, C: 0.4, names: ['Alme', 'Bodnar', 'Bankhead'] },
+    })
+    expect(leaderName(mt, { winner: 'D', margin: -0.1 })).toBe('Bankhead')
+    expect(leaderName(mt, { winner: 'I', margin: -0.1 })).toBe('Bodnar')
+  })
+})
+
+describe('blockMembers', () => {
+  it('lists a rating block’s races with their margins', () => {
+    const blocks = summaryBlocks(races, outcomes)
+    const tiltD = blocks.find((block) => block.kind === 'tilt' && block.party === 'D')
+    expect(tiltD && blockMembers(tiltD, races, outcomes)).toEqual([{ name: 'D candidate', place: 'XX-01', margin: -0.01, party: 'D' }])
+  })
+
+  it('lists the independents on their side', () => {
+    const blocks = summaryBlocks(races, outcomes)
+    const left = blocks.find((block) => block.kind === 'independent' && block.side === 'D')
+    expect(left && blockMembers(left, races, outcomes).map(({ party }) => party)).toEqual(['I', 'I'])
+  })
+
+  it('lists the senators not up of the block’s party, without a margin', () => {
+    const senators = [
+      { state: 'VT', name: 'Bernie Sanders', party: 'I' },
+      { state: 'VT', name: 'Peter Welch', party: 'D' },
+    ] as const
+    const blocks = summaryBlocks(races, outcomes, { D: 1, I: 1 })
+    const notUpI = blocks.find((block) => block.kind === 'notUp' && block.party === 'I')
+    expect(notUpI && blockMembers(notUpI, races, outcomes, senators)).toEqual([{ name: 'Bernie Sanders', place: 'VT', party: 'I' }])
   })
 })
