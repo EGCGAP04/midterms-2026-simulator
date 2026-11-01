@@ -1,6 +1,7 @@
 {
   "app.title": "Midterms 2026 Simulator",
   "app.subtitle": "A simulator of the 2026 US House and Senate elections",
+  "app.asOf": "Forecast as of {date}",
   "app.loading": "Loading the forecast…",
   "app.loadError": "The forecast could not be loaded.",
   "footer.code": "Code",

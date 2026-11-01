@@ -7,14 +7,18 @@ They need neither openpyxl nor the workbook, so CI runs them:
 import math
 import unittest
 
+import argparse
+
 from export_data import (
     ExportError,
+    as_of_date,
     blend_slope,
     clean_name,
     district_id,
     excel_flip,
     excel_rating,
     mt3_shares,
+    open_seat_labels,
     parse_label,
     senate_state,
     two_party_margin,
@@ -122,6 +126,29 @@ class MathTest(unittest.TestCase):
     def test_two_party_margin(self):
         self.assertAlmostEqual(two_party_margin(60, 40), 0.2)
         self.assertAlmostEqual(two_party_margin(40, 60), -0.2)
+
+
+class OpenSeatLabelsTest(unittest.TestCase):
+    def test_open_seat_makes_both_open(self):
+        self.assertEqual(open_seat_labels("nonIncumbent", "lostIncumbent"), ("lostIncumbent", "lostIncumbent"))
+        self.assertEqual(open_seat_labels("lostIncumbent", "nonIncumbent"), ("lostIncumbent", "lostIncumbent"))
+
+    def test_an_incumbent_running_keeps_the_labels(self):
+        self.assertEqual(open_seat_labels("nonIncumbent", "incumbent"), ("nonIncumbent", "incumbent"))
+        self.assertEqual(open_seat_labels("lostIncumbent", "gainedIncumbency"), ("lostIncumbent", "gainedIncumbency"))
+
+    def test_no_open_seat_label_keeps_the_labels(self):
+        self.assertEqual(open_seat_labels("nonIncumbent", "nonIncumbent"), ("nonIncumbent", "nonIncumbent"))
+
+
+class AsOfTest(unittest.TestCase):
+    def test_iso_date(self):
+        self.assertEqual(as_of_date("2026-10-31"), "2026-10-31")
+
+    def test_rejects_other_dates(self):
+        for text in ("31/10/2026", "2026-02-30", "20261031", "2026-10-31T00:00"):
+            with self.assertRaises(argparse.ArgumentTypeError):
+                as_of_date(text)
 
 
 if __name__ == "__main__":

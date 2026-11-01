@@ -53,6 +53,8 @@ export interface WorkbookTotals {
 
 export interface Dataset {
   generatedAt: string
+  /** The forecast's date, "2026-10-31". */
+  asOf: string
   sourceFile: string
   g0: number
   senateNotUp: { D: number; R: number }

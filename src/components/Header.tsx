@@ -1,6 +1,7 @@
 // Header (docs/SPEC.md §4.1): title, chamber switch, language and theme toggles.
 
 import { useI18n } from '../i18n/context.ts'
+import { formatDayMonth } from '../i18n/format.ts'
 import { LANGS, translate, type Lang } from '../i18n/i18n.ts'
 import type { Chamber } from '../model/types.ts'
 import type { Theme } from '../state/theme.ts'
@@ -8,6 +9,8 @@ import { Toggle } from './Toggle.tsx'
 
 interface HeaderProps {
   chamber: Chamber
+  /** The forecast's date, once it has loaded. */
+  asOf: string | undefined
   theme: Theme
   onChamberChange: (chamber: Chamber) => void
   onLangChange: (lang: Lang) => void
@@ -27,13 +30,21 @@ const MoonIcon = () => (
   </svg>
 )
 
-export function Header({ chamber, theme, onChamberChange, onLangChange, onThemeChange }: HeaderProps) {
+export function Header({ chamber, asOf, theme, onChamberChange, onLangChange, onThemeChange }: HeaderProps) {
   const { lang, t } = useI18n()
   return (
     <header className="header">
       <div>
         <h1>{t('app.title')}</h1>
-        <p className="subtitle">{t('app.subtitle')}</p>
+        <p className="subtitle">
+          {t('app.subtitle')}
+          {asOf && (
+            <>
+              {' · '}
+              <time dateTime={asOf}>{t('app.asOf', { date: formatDayMonth(lang, asOf) })}</time>
+            </>
+          )}
+        </p>
       </div>
       <div className="header-controls">
         <Toggle

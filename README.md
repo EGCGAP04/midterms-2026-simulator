@@ -32,7 +32,8 @@ The forecast lives in an Excel workbook that is **not** part of the repository; 
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
 .venv/bin/python scripts/export_data.py 2026_US_Elections.xlsx \
-  --house-sheet "Senate House" --senate-sheet "29-10 Senate" --out public/races.json
+  --house-sheet "Senate House" --senate-sheet "29-10 Senate" \
+  --as-of 2026-10-31 --out public/races.json
 ```
 
 The sheet names change with each forecast update, so they are arguments: the Senate sheet must be the one that references the House sheet given. The exporter reads the values Excel cached when it last saved the file, runs the self-checks in [`docs/SPEC.md`](docs/SPEC.md) §2.6 (race counts, ratings, flips, seat totals, Montana's three-way shares) and writes nothing if any of them fails. It writes one race per line, so a new forecast shows up as a readable diff.

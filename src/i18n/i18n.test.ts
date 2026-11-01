@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import en from './en.json'
 import es from './es.json'
 import type { Race } from '../model/types.ts'
-import { formatCount, formatMargin, formatProbability, raceName } from './format.ts'
+import { formatCount, formatDayMonth, formatMargin, formatProbability, raceName } from './format.ts'
 import { CATALOGS, translate, type Catalog, type MessageKey } from './i18n.ts'
 
 const placeholders = (text: string): string[] => [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort()
@@ -86,6 +86,23 @@ describe('formatProbability', () => {
     ['es', 0, '<1%'],
   ] as const)('%s %f is %s', (lang, probability, text) => {
     expect(formatProbability(lang, probability)).toBe(text)
+  })
+
+  it('shows a race decided before the vote as 100%', () => {
+    expect(formatProbability('en', 1, { decided: true })).toBe('100%')
+    expect(formatProbability('es', 1, { decided: true })).toBe('100%')
+    expect(formatProbability('en', 0, { decided: true })).toBe('0%')
+  })
+})
+
+describe('formatDayMonth', () => {
+  it('gives the month and day in the language\'s order', () => {
+    expect(formatDayMonth('en', '2026-10-31')).toBe('10/31')
+    expect(formatDayMonth('es', '2026-10-31')).toBe('31/10')
+  })
+
+  it('keeps the date in any time zone', () => {
+    expect(formatDayMonth('en', '2026-11-01')).toBe('11/1')
   })
 })
 
