@@ -102,5 +102,6 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - [x] M4: Maps: Senate state map, House district map and hex cartogram, zoom and pan.
 - [x] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
 - [x] M6: Polish and launch: responsive layout, the < 50 ms performance budget, first release.
+- [ ] M7: Post-release changes: forecast updates, fixes and improvements after v1.0.0.
 
 When a stage is done, tick it here (in the stage's last PR) and update the README if usage changed.
