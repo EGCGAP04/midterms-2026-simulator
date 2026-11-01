@@ -33,6 +33,9 @@ SENATE_RACES = 35
 # The senators not up in 2026 (docs/SPEC.md §2.4): not in the workbook.
 SENATE_NOT_UP_FILE = Path(__file__).with_name("senate_not_up.csv")
 
+# Independents who caucus with a party (docs/SPEC.md §2.3): not in the workbook.
+HOUSE_CAUCUS = {"CA-06": "R"}  # Kevin Kiley
+
 # Bankhead is only named in Montana's note, not in any candidate cell.
 MT3_THIRD_CANDIDATE = "Alani Bankhead"
 MT3_NOTE_MUST_MENTION = "Bankhead"
@@ -199,6 +202,20 @@ def candidate(name_raw: Any, label_raw: Any, default_party: str) -> dict[str, An
         return None
     name, independent = parsed
     return {"name": name, "label": parse_label(label_raw), "party": "I" if independent else default_party}
+
+
+def apply_caucus(races: list[dict[str, Any]], caucus: dict[str, str]) -> None:
+    """Marks the independent of each race in `caucus` with the party they
+    caucus with. Fails if a race is missing or has no single independent."""
+    by_id = {race["id"]: race for race in races}
+    for race_id, party in caucus.items():
+        race = by_id.get(race_id)
+        if race is None:
+            raise ExportError(f"{race_id}: in HOUSE_CAUCUS but not a House race")
+        independents = [c for c in (race["rep"], race["opp"]) if c is not None and c["party"] == "I"]
+        if len(independents) != 1:
+            raise ExportError(f"{race_id}: in HOUSE_CAUCUS but has {len(independents)} independents")
+        independents[0]["caucus"] = party
 
 
 def read_house(values: Any, formulas: Any) -> tuple[list[dict[str, Any]], dict[str, list[float]]]:
@@ -467,6 +484,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         house, pres_votes = read_house(hv, hf)
+        apply_caucus(house, HOUSE_CAUCUS)
         senate = read_senate(sv, sf, pres_votes)
         errors = self_check(house, senate, hv, sv, sf, args.house_sheet)
         not_up = read_not_up(SENATE_NOT_UP_FILE)

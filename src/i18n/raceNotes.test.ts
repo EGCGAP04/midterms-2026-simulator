@@ -35,6 +35,13 @@ describe('raceNotes', () => {
     ])
   })
 
+  it('says when an independent caucuses with a party', () => {
+    const kiley = { ...candidate('I', 'Kevin Kiley'), caucus: 'R' as const }
+    const notes = raceNotes('es', makeRace({ rep: kiley }))
+    expect(notes).toHaveLength(2)
+    expect(notes[1]).toBe('Kevin Kiley forma parte de la bancada republicana: si gana, el escaño cuenta para la mayoría de los R.')
+  })
+
   it("names Montana's three candidates, without an independent note", () => {
     const race = makeRace({
       type: 'MT3',

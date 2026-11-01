@@ -121,6 +121,29 @@ describe('simulate', () => {
     expect(forecast.seats.I.median).toBe(2)
   })
 
+  it("counts an independent who caucuses with R in R's bloc, not in R's seats", () => {
+    const kiley = { ...candidate('I'), caucus: 'R' as const }
+    const races = [makeRace({ id: 'A', m0: 0.5 }), makeRace({ id: 'B', m0: 0.5, rep: kiley })]
+    const forecast = simulate(createSimulator(races), 'house', 0)
+    expect(forecast.seats.R.median).toBe(1)
+    expect(forecast.seats.I.median).toBe(1)
+    expect(forecast.blocs.R.median).toBe(2)
+    expect(forecast.blocs.D.median).toBe(0)
+  })
+
+  it('leaves an independent with no caucus out of both blocs', () => {
+    const forecast = simulate(createSimulator([makeRace({ m0: 0.5, rep: candidate('I') })]), 'house', 0)
+    expect(forecast.blocs.R.median).toBe(0)
+    expect(forecast.blocs.D.median).toBe(0)
+  })
+
+  it('counts the Senate independents not up with the D bloc', () => {
+    const races = [makeRace({ id: 'YY-SEN', chamber: 'senate', m0: 0.5 })]
+    const forecast = simulate(createSimulator(races), 'senate', 0, { D: 3, I: 2, R: 2 })
+    expect(forecast.blocs.D.median).toBe(5)
+    expect(forecast.blocs.R.median).toBe(3)
+  })
+
   it('counts fixed races for their winner in every simulation', () => {
     const race = makeRace({ type: 'RvR', m0: 1, fixedWinner: 'R', opp: candidate('R') })
     const forecast = simulate(createSimulator([race]), 'house', -0.3)

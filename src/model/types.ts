@@ -9,6 +9,8 @@ export interface Candidate {
   name: string
   label: Incumbency
   party: Party
+  /** Independents only: the party they caucus with (Kiley: R). */
+  caucus?: 'D' | 'R'
 }
 
 export interface Context {

@@ -73,6 +73,8 @@
   "note.MT3": "Elección de tres candidatos: el porcentaje de {a} se mueve la mitad de lo que cambia el entorno, y {b} y {c} se reparten el resto en proporción.",
   "note.independent.R": "No hay candidato republicano: el independiente ocupa el lado republicano, así que un giro hacia los R lo favorece.",
   "note.independent.D": "No hay candidato demócrata: el independiente ocupa el lado demócrata, así que un giro hacia los D lo favorece.",
+  "note.caucus.R": "{name} forma parte de la bancada republicana: si gana, el escaño cuenta para la mayoría de los R.",
+  "note.caucus.D": "{name} forma parte de la bancada demócrata: si gana, el escaño cuenta para la mayoría de los D.",
   "hist.title": "Distribución de escaños",
   "hist.desc": "Cómo se reparten los escaños en cada una de las {sims} simulaciones con este entorno: más demócrata a la izquierda, más republicano a la derecha.",
   "hist.aria": "Histograma del reparto de escaños en las simulaciones; los números están en la tabla “{table}”.",

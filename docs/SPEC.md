@@ -90,6 +90,8 @@ Detect the type from the formula in `AA{r}`:
 
 **Independents** are not a race type: they are marked by `party: "I"` on the side they run on, and can appear in a `normal` or a `blend` race. An independent takes that side of the slider (the REP slot moves toward R, the opposition toward D), and is coloured violet. On the opposition side: AK-AL (Bill Hill, `blend`). In the REP slot: AZ-03 (Alan Aversa), CA-06 (Kevin Kiley, no party preference), MA-01 (Nadia Milleron) and PA-03 (Dennis Mahoney).
 
+**Caucus.** An independent may caucus with a party, as Sanders and King do with D in the Senate. The workbook does not say so: the exporter keeps the list in `HOUSE_CAUCUS` (race id → party), currently only CA-06 (Kevin Kiley) with R, as Enzo decided, writes it as the independent's `caucus`, and fails if the race has no independent. A caucusing independent is still an independent (violet, the I total), but their seat counts toward that party's control (§3.3).
+
 ### 2.4 Senate sheet layout
 
 There are 35 races in rows 7–41, one row per race and one race per state.
@@ -130,6 +132,13 @@ type Party = "R" | "D" | "I";
 type RaceType = "normal" | "blend" | "uncontested" | "DvD" | "RvR" | "MT3";
 type Incumbency = "incumbent" | "gainedIncumbency" | "lostIncumbent" | "nonIncumbent";
 
+interface Candidate {
+  name: string;
+  label: Incumbency;
+  party: Party;
+  caucus?: "D" | "R"; // independents only: the party they caucus with (§2.3)
+}
+
 interface Race {
   id: string;            // "CA-22", "MT-SEN"
   chamber: "house" | "senate";
@@ -137,8 +146,8 @@ interface Race {
   name: string;          // display name
   type: RaceType;
   holder: Party;         // current/2024 party
-  rep: { name: string; label: Incumbency; party: Party } | null; // party: R, or I in the REP slot (D in DvD)
-  opp: { name: string; label: Incumbency; party: Party } | null; // party: D, or I (R in RvR)
+  rep: Candidate | null; // party: R, or I in the REP slot (D in DvD)
+  opp: Candidate | null; // party: D, or I (R in RvR)
   m0: number;            // baseline margin, R − opp, fraction
   slope: number;         // 1, or the blend weight
   shares?: { A: number; B: number; C: number; names: [string, string, string] }; // MT3 only
@@ -184,6 +193,7 @@ The exporter must fail loudly if any check fails:
 - Recomputed ratings equal `AF` for every race (the workbook writes the Tilt ratings as `Tossup (Tilt R)` / `Tossup (Tilt D)`).
 - Each race's flip (`AH` / `AG`) matches its holder and its baseline winner.
 - Every label maps to a known incumbency status.
+- Every race in `HOUSE_CAUCUS` exists and has exactly one independent (§2.3).
 - House seat totals equal `R7` / `S7`.
 - House rating counts equal `R8:S11`.
 - Senate totals equal `J44` / `L44` / `N44`.
@@ -237,7 +247,7 @@ Errors are correlated across races: if the polls miss the national environment, 
   - 80% interval: the same rule at 10% and 90%.
   - Seat histogram.
   - The medians are taken party by party, so they need not add up to the chamber size. Nor do they match the seat totals of §3.4, which count the side ahead in each race.
-  - P(majority): House needs 218 (with independent winners, neither party may reach it). In the Senate, R controls at 50 or more seats (the VP breaks ties); the complement is shown as **D + I**, not as D control, because this year's independents have not committed to caucus with the Democrats. D and I seats are reported separately.
+  - P(majority): House needs 218: a party's seats plus those of the independents who caucus with it (Kiley with R, §2.3). With other independent winners, neither side may reach it. In the Senate, R controls at 50 or more seats (the VP breaks ties); the complement is shown as **D + I**, not as D control, because this year's independents have not committed to caucus with the Democrats. D and I seats are reported separately.
 - **Config (`src/model/config.ts`).** The sigmas were calibrated in October 2026 (they replace initial guesses of 0.030, 0.050 and 0.045):
 
 | Constant | Value |
@@ -257,7 +267,7 @@ Errors are correlated across races: if the polls miss the national environment, 
 
 ### 3.4 Seat totals
 
-- **House:** sum of winners (fixed races included). An independent winner counts as I, reported separately; there are none at the baseline.
+- **House:** sum of winners (fixed races included). An independent winner counts as I, reported separately, even one who caucuses with a party; there are none at the baseline.
 - **Senate:** winners plus seats not up (D 32, I 2, R 31). Independents are counted separately.
 
 ### 3.5 Local adjustments
@@ -367,8 +377,9 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
      - `DvD` / `RvR`: two candidates of the same party, so the seat stays with that party whatever the environment.
      - `MT3`: a three-way race; Alme's share moves by half the environment's shift and Bodnar and Bankhead split the rest in proportion.
      - **Independent** (not in `MT3`, where all three parties run): there is no candidate of the party whose slot the independent takes, and they move with that side of the environment.
+     - **Caucus:** an independent who caucuses with a party (Kiley with R): their seat counts toward that party's majority.
 6. **Seat histogram** ("Seat distribution"), from the simulations at the slider's environment (§3.3), in the map's column between the map and the lists (on narrow screens after the race panel). Its heading folds it away, like "Seats by rating" (open by default).
-   - Neutral between the parties: one bar per split of the chamber, more Democratic to the left and more Republican to the right, as in the summary bar. Each is as tall as the share of simulations that end there. Each round tick gives both sides' seats, the other side's (in blue) over R's (in red), and the axis says "← D seats" and "R seats →", "D" for short even when some simulation elects an independent (the Senate legend says "D + I control"). The splits no simulation reaches at either end are left out. Internally the bars are R seat counts (in the Senate including the seats not up).
+   - Neutral between the parties: one bar per split of the chamber, more Democratic to the left and more Republican to the right, as in the summary bar. Each is as tall as the share of simulations that end there. Each round tick gives both sides' seats, the other side's (in blue) over R's (in red), and the axis says "← D seats" and "R seats →", "D" for short even when some simulation elects an independent (the Senate legend says "D + I control"). The splits no simulation reaches at either end are left out. Internally the bars are R seat counts (in the Senate including the seats not up, in the House including the independents who caucus with R).
    - The bars are red where R has control (House 218+, Senate 50+) and blue elsewhere: a D majority or D + I control, as the legend says (in the House, "No R majority": independents may keep D short too). A vertical line marks where control starts, labelled "218 for a majority" or "50: R control (VP breaks ties)".
    - Hovering a bar, or tapping it (anywhere in its column, so thin bars are easy to hit), shows the split and its share of the simulations ("D 223 – R 212: 3.1%", or "<0.1%" for a split only a few simulations reach). The table below carries the summary, so nothing essential depends on hover.
    - To its right and centred on its bars when there is room (from 52rem), under it otherwise, a table with each party's median and 80% interval (the 10th to 90th percentile) in the simulations: D and R, and I when some simulation gives an independent a seat. Unlike the summary bar's totals (the deterministic count, §4.3), these come from the simulations, and a note says how many.
