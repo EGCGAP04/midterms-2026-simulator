@@ -336,9 +336,9 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
      - Picking a race selects it (the race panel shows it) and empties the field. On the House maps it also zooms the map to it: on the district map until the district fills about 40% of the frame (between 1× and 40×), on the hex map to 4×, centred on it as far as the map's edges allow. On the Senate map it only selects it.
 5. **Race panel:** the selected race (§4.4) in full. Hovering keeps the short tooltip; the panel is what a click, a tap or Enter opens.
    - Beside the map, the histogram and the lists (§4.6, §4.7) on wide screens (from 64rem, the map then a little narrower), and it stays in view while the page scrolls past them; under the map, before the lists, on narrower ones. Without a selection it says how to pick a race. Screen readers hear it change (`aria-live="polite"`).
-   - **Heading:** the race's name, its rating at the slider in the map's colour, and the margin (none for a fixed race, as in the tooltip).
-   - **Flip flag:** when the side ahead is not the party that holds the seat (`holder`), "Flip: R → D" (an independent too: "R → I"); otherwise "Hold: R".
-   - **Candidates**, the REP slot first, each with the party letter (I included), the incumbency status (§2.2) and the chance of winning (§3.3):
+   - **Heading:** a flip flag, then the race's name. Under it, its rating at the slider in the map's colour and, to its right, the margin in the leading party's colour (none for a fixed race, as in the tooltip).
+   - **Flip flag:** a pill in the style of the rating, in the colour of the side ahead. When that side is not the party that holds the seat (`holder`), "Flip R → D" / "Cambio R → D" (an independent too: "R → I") on the party's dark colour; otherwise "Hold R" / "Retiene R" on its light colour.
+   - **Candidates** ("Candidates" heads the column), the winner at the slider first, whatever their chance (in MT3, DvD and RvR, the largest share first), each with the party letter (I included), the incumbency status (§2.2) and the chance of winning (§3.3):
      - **MT3:** the three candidates with their shares at the slider (§3.1) as well. The workbook gives no status for Bankhead, so none is shown.
      - **DvD / RvR:** both candidates with their within-party shares (`intraShares`) instead of a chance: the seat is decided, and the model does not say which of the two wins.
      - **Uncontested:** the only candidate.

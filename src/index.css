@@ -998,9 +998,22 @@ button {
   color: var(--color-muted);
 }
 
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .panel-race {
   margin: 0;
   font-size: 1.125rem;
+}
+
+/* An independent's hold: violet's light tint, as Tilt is to Safe. */
+.panel-status-i-hold {
+  --fill: color-mix(in oklch, var(--color-i) 45%, white);
+  --ink: #111;
 }
 
 .panel-rating {
@@ -1021,15 +1034,6 @@ button {
 .panel-margin {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-}
-
-.panel-flip {
-  color: var(--color-muted);
-}
-
-.panel-flip-yes {
-  color: var(--color-text);
-  font-weight: 600;
 }
 
 .panel-candidates {
