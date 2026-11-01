@@ -108,7 +108,7 @@ There are 35 races in rows 7–41, one row per race and one race per state.
 
 The Senate's 2024 presidential margin is the statewide one, from the House votes (§2.2).
 
-Seats not up: `N3` = 34 D, `P3` = 31 R. Checks: `J44` (D), `L44` (I), `N44` (R) = 52 / 0 / 48 currently.
+Seats not up: `N3` = 34 D, `P3` = 31 R. The workbook counts the two independents not up, Bernie Sanders (VT) and Angus King (ME), who caucus with the Democrats, as D: the exporter takes them out of `N3` (`senateNotUp` = D 32, I 2, R 31), so the page can show them. Checks: `J44` (D), `L44` (I), `N44` (R) = 53 / 0 / 47 currently, with Sanders and King in D.
 
 **Montana (row 25, type `MT3`).** It is a three-way race: Kurt Alme (R), Seth Bodnar (I), Alani Bankhead (D). Bankhead's name is not in any cell (only the note in `AH25` mentions "Bankhead"), so the exporter holds it as a constant and fails if `AH25` stops mentioning her.
 - `m3 = AVERAGE(AC25, AD25)` is Alme − (Bodnar + Bankhead).
@@ -162,7 +162,7 @@ interface Dataset {
   asOf: string;          // the forecast's date, "2026-10-31" (`--as-of`)
   sourceFile: string;
   g0: number;
-  senateNotUp: { D: number; R: number };
+  senateNotUp: { D: number; I: number; R: number }; // I: Sanders and King, who caucus with D
   workbook: WorkbookTotals; // the workbook's own totals, for the acceptance tests (§5)
   races: Race[];
 }
@@ -287,15 +287,15 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
      - Left to right: Safe D, Likely D, Lean D, Tilt D, then the violet blocks for races an independent leads, then Tilt R, Lean R, Likely R, Safe R.
      - Independents sit on the side of the party they run against: one in the opposition slot (against R, e.g. Osborn in Nebraska) next to D, as in the Senate's "D + I"; one in the REP slot (against D, e.g. Kiley in CA-06) next to R.
-     - **Senate:** the seats not up for election (D 34, R 31) sit at the two ends, in the same solid colour as Safe (not a lighter one, which would read as competitive), with diagonal stripes in the block's text colour (45° for D, 135° for R). A vertical line like the majority line marks where they end, and a bracket under each one says "Not up for grabs in 2026".
+     - **Senate:** the seats not up for election (D 32, R 31) sit at the two ends, in the same solid colour as Safe (not a lighter one, which would read as competitive), with diagonal stripes in the block's text colour (45° for D, 135° for R). The two independents not up (Sanders and King, who caucus with D) follow the D ones, in violet with the D stripes. A vertical line like the majority line marks where they end, and a bracket under each side's seats not up says "Not up for grabs in 2026".
      - One continuous bar, without gaps between blocks; only its two ends are rounded.
      - Blocks are sized by seats and placed exactly, so the majority line sits in the middle: 218 in the House, where a party crossing it has a majority. In the Senate R controls with 50 (the Vice President breaks ties) and D + I need 51.
    - Above the bar, each side's seat total and P(control) (§3.3):
      - Seat totals are the deterministic count at the slider (§3.4), not a simulation median. A note says so: the medians and the 80% interval come with the histogram (§4.6).
      - **House:** D and R with their chance of a majority. I is shown only when an independent leads a race, next to the party whose side of the bar its races are on (both sides if there are some on each).
-     - **Senate:** D and I with the chance of D + I control, and R with its chance of control.
+     - **Senate:** D and I with the chance of D + I control, and R with its chance of control. The I total counts Sanders and King, and any independent who leads a race on that side.
      - Each total's number is centred under its party name; the counts inside the blocks are centred too.
-   - Hovering a block, or tapping it, shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
+   - Hovering a block, or tapping it, shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover. The swatch of independents who caucus with a party (Sanders and King) has its bottom-right triangle in that party's Tilt colour.
    - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
    - **Senate:** US states map (`us-atlas`, the pre-projected `states-albers-10m.json`, fetched on its own so the main bundle stays small). States without a race are drawn in neutral grey.

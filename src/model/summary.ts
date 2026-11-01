@@ -1,6 +1,7 @@
 // The summary bar's blocks (docs/SPEC.md §4.3): a chamber's seats by rating,
 // from Safe D to Safe R, with independents in the middle on the side of the
-// party they run against, and the Senate seats not up at the two ends.
+// party they run against, and the Senate seats not up at the two ends (the
+// independents not up, who caucus with D, after the D ones).
 
 import type { Outcome } from './margin.ts'
 import { BUCKETS, countRatings, ratingOf, type Bucket } from './ratings.ts'
@@ -46,6 +47,7 @@ export function summaryBlocks(
   const safeFirst = [...BUCKETS].reverse()
   const parts: Omit<Block, 'start' | 'share'>[] = [
     ...(notUp.D ? [{ party: 'D', side: 'D', kind: 'notUp', seats: notUp.D } as const] : []),
+    ...(notUp.I ? [{ party: 'I', side: 'D', kind: 'notUp', seats: notUp.I } as const] : []),
     ...safeFirst.map((bucket) => ({ party: 'D', side: 'D', kind: bucket, seats: counts.D[bucket] }) as const),
     { party: 'I', side: 'D', kind: 'independent', seats: independents.D },
     { party: 'I', side: 'R', kind: 'independent', seats: independents.R },

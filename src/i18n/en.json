@@ -30,6 +30,7 @@
   "rating.tilt": "Tilt {party}",
   "summary.independent": "Independent ahead (vs {party})",
   "summary.notUp": "Not up for grabs in 2026",
+  "summary.notUpIndependent": "Not up for grabs in 2026 (I, caucus with {party})",
   "summary.notUpParty": "Not up for grabs in 2026 ({party})",
   "summary.bar": "{chamber} seats by rating",
   "summary.majority": "Chance of a majority",

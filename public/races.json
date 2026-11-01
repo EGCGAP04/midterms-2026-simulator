@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-11-01T04:16:39+00:00",
+  "generatedAt": "2026-11-01T05:09:34+00:00",
   "asOf": "2026-10-31",
   "sourceFile": "2026_US_Elections.xlsx",
   "g0": -0.09,
-  "senateNotUp": {"D": 34, "R": 31},
+  "senateNotUp": {"D": 32, "I": 2, "R": 31},
   "workbook": {"house": {"seats": {"D": 236, "R": 199}, "ratings": {"Tossup": {"D": 5, "R": 12}, "Lean": {"D": 12, "R": 16}, "Likely": {"D": 14, "R": 49}, "Safe": {"D": 205, "R": 122}}}, "senate": {"seats": {"D": 53, "I": 0, "R": 47}}},
   "races": [
     {"id": "AL-01", "chamber": "house", "state": "AL", "name": "Alabama 01", "type": "normal", "holder": "R", "rep": {"name": "Jerry Lee Carl Jr.", "label": "incumbent", "party": "R"}, "opp": {"name": "Clyde Jones Jr.", "label": "nonIncumbent", "party": "D"}, "m0": 0.24792430055275, "slope": 1, "workbookRating": "Safe R", "context": {"pres2024": 0.35703743597036103, "last": {"margin": 0.569537669777999, "year": 2024}, "redrawn": true}},

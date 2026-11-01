@@ -30,6 +30,7 @@
   "rating.tilt": "{party} ajustado",
   "summary.independent": "Independiente adelante (contra {party})",
   "summary.notUp": "Sin elección en 2026",
+  "summary.notUpIndependent": "Sin elección en 2026 (I, en el bloque {party})",
   "summary.notUpParty": "Sin elección en 2026 ({party})",
   "summary.bar": "Escaños de {chamber} por categoría",
   "summary.majority": "Probabilidad de mayoría",

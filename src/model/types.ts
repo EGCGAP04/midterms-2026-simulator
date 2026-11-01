@@ -57,7 +57,8 @@ export interface Dataset {
   asOf: string
   sourceFile: string
   g0: number
-  senateNotUp: { D: number; R: number }
+  /** I: Sanders and King, who caucus with D. */
+  senateNotUp: { D: number; I: number; R: number }
   workbook: WorkbookTotals
   races: Race[]
 }
