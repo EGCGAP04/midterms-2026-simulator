@@ -2,6 +2,7 @@
   "name": "midterms-2026-simulator",
   "private": true,
   "version": "0.0.0",
+  "license": "Apache-2.0 AND CC-BY-4.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

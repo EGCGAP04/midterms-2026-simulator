@@ -1,7 +1,8 @@
 // The page: header, slider, summary bar, race search, map, race panel, seat
-// histogram and lists.
+// histogram, lists and footer.
 
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Footer } from './components/Footer.tsx'
 import { Header } from './components/Header.tsx'
 import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
@@ -159,6 +160,7 @@ export default function App() {
           </p>
         )}
       </main>
+      <Footer />
     </LangContext>
   )
 }
