@@ -100,7 +100,7 @@ python3 -m unittest discover -s scripts   # exporter unit tests (also in CI)
 - [x] M2: Forecast model: margins, ratings and the correlated Monte Carlo, with the acceptance tests in SPEC §5.
 - [x] M3: Core UI: header, slider, summary bar, i18n (EN/ES) and URL state.
 - [x] M4: Maps: Senate state map, House district map and hex cartogram, zoom and pan.
-- [ ] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
+- [x] M5: Race details and lists: tooltip/side panel, seat histogram, flips, closest races and the tipping point.
 - [ ] M6: Polish and launch: responsive layout, the < 50 ms performance budget, first release.
 
 When a stage is done, tick it here (in the stage's last PR) and update the README if usage changed.

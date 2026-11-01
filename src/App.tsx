@@ -1,5 +1,5 @@
-// The page: header, slider, summary bar, map, race panel, seat histogram and
-// lists.
+// The page: header, slider, summary bar, race search, map, race panel, seat
+// histogram and lists.
 
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Header } from './components/Header.tsx'
@@ -7,11 +7,13 @@ import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
 import { HouseHexMap } from './components/HouseHexMap.tsx'
 import { RaceLists } from './components/RaceLists.tsx'
 import { RacePanel } from './components/RacePanel.tsx'
+import { RaceSearch } from './components/RaceSearch.tsx'
 import { SeatHistogram } from './components/SeatHistogram.tsx'
 import { SenateMap } from './components/SenateMap.tsx'
 import { Slider } from './components/Slider.tsx'
 import { SummaryBar } from './components/SummaryBar.tsx'
 import { Toggle } from './components/Toggle.tsx'
+import type { ZoomRequest } from './components/useMapZoom.ts'
 import { LangContext, useI18n } from './i18n/context.ts'
 import { translate } from './i18n/i18n.ts'
 import type { Simulator } from './model/simulate.ts'
@@ -66,30 +68,38 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
   useLayoutEffect(() => {
     if (picks > 0) revealPanel(panel.current)
   }, [picks])
+  // A race picked in the search: select it, and zoom the House maps to it.
+  const [zoomRequest, setZoomRequest] = useState<ZoomRequest>()
+  const onSearchPick = (id: string) => {
+    onSelect(id)
+    if (chamber === 'house') setZoomRequest((last) => ({ id, key: (last?.key ?? 0) + 1 }))
+  }
   return (
     <>
       <SummaryBar view={view} />
       <div className="forecast-body">
         <div className="forecast-map">
+          <div className="map-bar">
+            {/* A new field per chamber, so a House query does not carry over. */}
+            <RaceSearch key={chamber} view={view} onPick={onSearchPick} />
+            {chamber === 'house' && (
+              <Toggle
+                label={t('map.view.label')}
+                options={[
+                  { value: 'districts', label: t('map.view.districts') },
+                  { value: 'hex', label: t('map.view.hex') },
+                ]}
+                value={houseMap}
+                onChange={onHouseMapChange}
+              />
+            )}
+          </div>
           {chamber === 'house' ? (
-            <>
-              <div className="map-switch">
-                <Toggle
-                  label={t('map.view.label')}
-                  options={[
-                    { value: 'districts', label: t('map.view.districts') },
-                    { value: 'hex', label: t('map.view.hex') },
-                  ]}
-                  value={houseMap}
-                  onChange={onHouseMapChange}
-                />
-              </div>
-              {houseMap === 'districts' ? (
-                <HouseDistrictMap view={view} selected={selected} onSelect={onSelect} />
-              ) : (
-                <HouseHexMap view={view} selected={selected} onSelect={onSelect} />
-              )}
-            </>
+            houseMap === 'districts' ? (
+              <HouseDistrictMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} />
+            ) : (
+              <HouseHexMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} />
+            )
           ) : (
             <SenateMap view={view} selected={selected} onSelect={onSelect} />
           )}

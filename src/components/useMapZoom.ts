@@ -4,7 +4,7 @@
 
 import { select } from 'd3-selection'
 import { zoom, zoomIdentity, zoomTransform, type D3ZoomEvent, type ZoomTransform } from 'd3-zoom'
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 
 /** Each zoom button's step. */
 const BUTTON_STEP = 2
@@ -27,10 +27,33 @@ function inView(transform: ZoomTransform, at: readonly [number, number], width: 
   return x >= 0 && x <= width && y >= 0 && y <= height
 }
 
+/** A race picked in the search, for a map to zoom to: `key` changes with
+ * every pick, even of the same race. */
+export interface ZoomRequest {
+  id: string
+  key: number
+}
+
+/** A request to zoom to a point: `key` changes with every request. */
+export interface ZoomTarget {
+  key: number
+  /** In map units; undefined while the map has not loaded its shapes. */
+  at: readonly [number, number] | undefined
+  /** The zoom level. */
+  k: number
+}
+
 /** `maxZoom`: how far in the map zooms. `selectedAt`: where the selected race
  * is, in map units; when it changes to a point out of view (a race picked in
- * the lists while zoomed in), the map moves to it. */
-export function useMapZoom(width: number, height: number, maxZoom: number, selectedAt?: readonly [number, number]) {
+ * the lists while zoomed in), the map moves to it. `target`: a race picked in
+ * the search, to zoom to (§4.4). */
+export function useMapZoom(
+  width: number,
+  height: number,
+  maxZoom: number,
+  selectedAt?: readonly [number, number],
+  target?: ZoomTarget,
+) {
   // A callback ref: the district map's <svg> appears only once it has loaded.
   const [svg, ref] = useState<SVGSVGElement | null>(null)
   const [transform, setTransform] = useState<ZoomTransform>(zoomIdentity)
@@ -76,6 +99,21 @@ export function useMapZoom(width: number, height: number, maxZoom: number, selec
       select(svg).call(behaviour.translateTo, selectedX, selectedY)
     }
   }, [svg, behaviour, selectedX, selectedY, width, height])
+
+  // Each request once: not again when the map is switched and mounts anew,
+  // which starts it at the whole map (§4.4).
+  const handled = useRef(target?.key)
+  const targetKey = target?.key
+  const [targetX, targetY] = target?.at ?? []
+  const targetK = target?.k
+  useEffect(() => {
+    if (!svg || targetKey === undefined || targetKey === handled.current) return
+    if (targetX === undefined || targetY === undefined || targetK === undefined) return
+    handled.current = targetKey
+    // translateTo after scaleTo, so the point ends up centred, as far as the
+    // map's edges allow.
+    select(svg).call(behaviour.scaleTo, targetK).call(behaviour.translateTo, targetX, targetY)
+  }, [svg, behaviour, targetKey, targetX, targetY, targetK])
 
   const zoomBy = (factor: number) => {
     if (svg) select(svg).call(behaviour.scaleBy, factor)

@@ -20,6 +20,8 @@ export interface DistrictShape {
   d: string
   /** Where the tooltip points, in map units. */
   centroid: [number, number]
+  /** Its bounding box, `[[x0, y0], [x1, y1]]`, in map units. */
+  bounds: [[number, number], [number, number]]
 }
 
 export interface DistrictMap {
@@ -42,7 +44,7 @@ export function districtMap(topology: DistrictsTopology): DistrictMap {
     const { id } = district.properties
     const d = path(district)
     if (!d) throw new Error(`District ${id} has no shape on the map`)
-    return { id, d, centroid: path.centroid(district) }
+    return { id, d, centroid: path.centroid(district), bounds: path.bounds(district) }
   })
   const borders = path(mesh(topology, topology.objects.states, (a, b) => a !== b)) ?? ''
   return { districts, borders }
