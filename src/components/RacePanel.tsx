@@ -8,6 +8,7 @@ import type { Lang } from '../i18n/i18n.ts'
 import { raceNotes } from '../i18n/raceNotes.ts'
 import type { Incumbency, Party, Race } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import { WithRedrawnMark } from './RedrawnMark.tsx'
 import { outcomeClass, raceDetails, ratingClass, type RaceDetails } from './useRaceMap.ts'
 
 interface RacePanelProps {
@@ -64,14 +65,15 @@ function slotRows({ race, outcome }: RaceDetails, chances: Record<Party, number>
   })
 }
 
-/** The 2024 presidential margin and the last race for the seat. */
+/** The 2024 presidential margin and the last race for the seat, with an
+ * asterisk after a redrawn district's year. */
 function contextLine(lang: Lang, t: ReturnType<typeof useI18n>['t'], race: Race): string {
   const { pres2024, last, redrawn } = race.context
   const parts = [t('panel.pres', { margin: formatMargin(lang, pres2024, { decimals: 1 }) })]
   if (last) {
     const values = { year: last.year, margin: formatMargin(lang, last.margin, { decimals: 1 }) }
     if (race.chamber === 'senate') parts.push(t('panel.lastSenate', values))
-    else parts.push(t(redrawn ? 'panel.lastHouseOld' : 'panel.lastHouse', values))
+    else parts.push(t(redrawn ? 'panel.lastHouseRedrawn' : 'panel.lastHouse', values))
   }
   return parts.join(' · ')
 }
@@ -165,7 +167,10 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
       </table>
 
       <h4 className="panel-heading">{t('panel.context')}</h4>
-      <p className="panel-context">{contextLine(lang, t, race)}</p>
+      <p className="panel-context">
+        <WithRedrawnMark text={contextLine(lang, t, race)} />
+      </p>
+      {race.context.redrawn && race.context.last && <p className="panel-redrawn">{t('panel.redrawn.note')}</p>}
       {notes.map((note) => (
         <p key={note} className="panel-note">
           {note}
