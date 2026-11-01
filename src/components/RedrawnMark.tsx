@@ -13,15 +13,3 @@ export function RedrawnMark() {
   )
 }
 
-/** A text with one asterisk, which becomes the mark. */
-export function WithRedrawnMark({ text }: { text: string }) {
-  const at = text.indexOf('*')
-  if (at === -1) return text
-  return (
-    <>
-      {text.slice(0, at)}
-      <RedrawnMark />
-      {text.slice(at + 1)}
-    </>
-  )
-}

@@ -203,7 +203,6 @@ def candidate(name_raw: Any, label_raw: Any, default_party: str) -> dict[str, An
 
 def read_house(values: Any, formulas: Any) -> tuple[list[dict[str, Any]], dict[str, list[float]]]:
     """House races, plus the 2024 presidential votes by state (Trump, Harris)."""
-    factor = number(values, "AD2")  # PVI → margin factor of redrawn districts
     races = []
     votes: dict[str, list[float]] = {}
     for r in range(HOUSE_FIRST_ROW, HOUSE_LAST_ROW + 1, 2):
@@ -257,10 +256,11 @@ def read_house(values: Any, formulas: Any) -> tuple[list[dict[str, Any]], dict[s
         # in Q when there was no R-vs-D House race, so Q = S means "none".
         last_house, pres = number(values, f"Q{r}"), number(values, f"S{r}")
         new_pvi, old_pvi = values[f"U{r}"].value, values[f"V{r}"].value
+        # Both results stay on the lines they were run on; `redrawn` flags them.
         redrawn = is_number(old_pvi)
         year = 2022 if str(values[f"AU{r}"].value or "").strip() == "*2022" else 2024
         race["context"] = {
-            "pres2024": pres + factor * (new_pvi - old_pvi) if redrawn else pres,
+            "pres2024": pres,
             "last": None if last_house == pres else {"margin": last_house, "year": year},
             "redrawn": redrawn and new_pvi != old_pvi,
         }

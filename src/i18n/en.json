@@ -59,7 +59,6 @@
   "panel.pres": "Pres. 2024: {margin}",
   "panel.lastHouse": "House {year}: {margin}",
   "panel.shift": "Local shift: {shift}",
-  "panel.lastHouseRedrawn": "House {year}*: {margin}",
   "panel.redrawn.note": "* Redrawn for 2026: result on the previous lines.",
   "panel.lastSenate": "Senate {year}: {margin}",
   "incumbency.incumbent": "Incumbent",
