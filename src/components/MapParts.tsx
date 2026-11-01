@@ -8,15 +8,33 @@ import type { MapColours } from '../state/url.ts'
 import type { MapZoom } from './useMapZoom.ts'
 import type { RaceDetails } from './useRaceMap.ts'
 
+/** The stripes' period and width, in map units at zoom 1. */
+const HATCH_PERIOD = 4.5
+const HATCH_WIDTH = 1.5
+
+interface HatchPatternsProps {
+  id: string
+  /** The map's zoom level: the stripes shrink by it, so they keep their width
+   * on screen and a zoomed-in district shows more of them. */
+  zoom?: number
+}
+
 /** The stripes over a flip, in the winner's colour: `${id}-d`, `${id}-r` and
  * `${id}-i`. A pattern takes its colours from where it is defined, not from
  * the shape that uses it, hence one per party. */
-export function HatchPatterns({ id }: { id: string }) {
+export function HatchPatterns({ id, zoom = 1 }: HatchPatternsProps) {
   return (
     <>
       {(['d', 'r', 'i'] as const).map((party) => (
-        <pattern key={party} id={`${id}-${party}`} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-          <rect className={`map-hatch-stripe map-hatch-stripe-${party}`} width="2" height="6" />
+        <pattern
+          key={party}
+          id={`${id}-${party}`}
+          patternUnits="userSpaceOnUse"
+          width={HATCH_PERIOD}
+          height={HATCH_PERIOD}
+          patternTransform={`scale(${1 / zoom}) rotate(45)`}
+        >
+          <rect className={`map-hatch-stripe map-hatch-stripe-${party}`} width={HATCH_WIDTH} height={HATCH_PERIOD} />
         </pattern>
       ))}
     </>

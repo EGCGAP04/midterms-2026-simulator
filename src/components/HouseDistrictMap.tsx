@@ -98,7 +98,7 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest, colour
           {...mapProps}
         >
           <defs>
-            <HatchPatterns id={hatch} />
+            <HatchPatterns id={hatch} zoom={zoom.transform.k} />
           </defs>
 
           <g transform={zoom.transform.toString()}>
