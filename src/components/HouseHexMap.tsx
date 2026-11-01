@@ -35,7 +35,7 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
   const { describe, raceProps, mapProps, tip, ringed } = useRaceMap(view, selected, onSelect)
   const { width, height, hexes, borders, labels } = LAYOUT
   const hexOf = (id: string) => hexes.find((hex) => hex.id === id)
-  const zoom = useMapZoom(
+  const { svgRef, ...zoom } = useMapZoom(
     width,
     height,
     MAX_ZOOM,
@@ -53,7 +53,7 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
     <section className="map">
       <div className="map-frame" style={{ aspectRatio: `${width} / ${height}` }}>
         <svg
-          ref={zoom.ref}
+          ref={svgRef}
           className={`map-svg map-zoomable${zoom.zoomed ? ' map-zoomed' : ''}`}
           viewBox={`0 0 ${width} ${height}`}
           role="group"

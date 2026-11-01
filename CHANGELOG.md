@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Issue forms list the new milestone, M7 (post-release changes), instead of M6, and the roadmap adds it.
 
+### Fixed
+
+- `npm run lint` reported two `react(refs)` warnings in the House maps: the zoom hook returned the map's ref inside the object the maps read during render. The maps now take the ref out of it, and the lint runs clean.
+
 ## [1.0.0] - 2026-10-31
 
 First release: the 2026 House and Senate forecast, explored with a national-environment slider, in English and Spanish.
