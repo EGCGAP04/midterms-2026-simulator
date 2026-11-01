@@ -756,16 +756,17 @@ button {
 }
 
 /* Narrow screens: map, race panel, local adjustments, histogram, lists.
- * Medium ones: the race panel beside the rest, in view while the page scrolls
- * past them. Wide ones: the race panel in the empty space right of the page's
+ * Medium ones: the race panel and the adjustments in one column beside the
+ * rest, in view while the page scrolls past them. Wide ones: the race panel in the empty space right of the page's
  * column and the adjustments in the one left of it, level with the slider,
  * and the map the column's full width (docs/SPEC.md §4.5, §4.10). */
 main {
   position: relative;
 }
 
-/* Only a box of its own on wide screens; elsewhere the panels are grid items
- * of .forecast-body. */
+/* Boxes of their own only on medium (.sides) and wide (.side) screens;
+ * elsewhere the panels are grid items of .forecast-body. */
+.sides,
 .side {
   display: contents;
 }
@@ -803,18 +804,24 @@ main {
 @media (min-width: 64rem) {
   .forecast-body {
     grid-template-columns: minmax(0, 1fr) 18rem;
-    grid-template-rows: auto auto auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
-      'map panel'
-      'adjust panel'
-      'histogram panel'
-      'lists panel';
+      'map sides'
+      'histogram sides'
+      'lists sides';
     align-items: start;
   }
 
-  .panel {
+  /* Its own scroll when the two panels are taller than the screen. */
+  .sides {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    grid-area: sides;
     position: sticky;
     top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
   }
 }
 
@@ -824,6 +831,12 @@ main {
   .forecast-body {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'map' 'histogram' 'lists';
+  }
+
+  /* The .side boxes are placed against main, not this one. */
+  .sides {
+    display: contents;
+    position: static;
   }
 
   .side {
@@ -842,6 +855,7 @@ main {
     right: calc(100% + 1.25rem);
   }
 
+  .panel,
   .adjust {
     position: sticky;
     top: 1rem;
