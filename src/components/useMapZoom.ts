@@ -121,8 +121,11 @@ export function useMapZoom(
 
   const zoomed = transform.k > 1
   return {
-    /** For the map's `<svg>`. */
-    ref,
+    /** The map's `<svg>`, as a callback ref. Callers take it out of the
+     * object (`const { svgRef, ...zoom } = useMapZoom(…)`): the React
+     * Compiler's lint takes an object holding a ref for a ref, and reading
+     * the rest of it during render for a mistake. */
+    svgRef: ref,
     transform,
     zoomed,
     /** For the map's `<svg>`: its zoom level, to keep labels at their size. */
@@ -144,4 +147,4 @@ export function useMapZoom(
   }
 }
 
-export type MapZoom = ReturnType<typeof useMapZoom>
+export type MapZoom = Omit<ReturnType<typeof useMapZoom>, 'svgRef'>

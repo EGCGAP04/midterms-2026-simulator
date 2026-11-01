@@ -55,7 +55,7 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
     at: picked && [(picked.bounds[0][0] + picked.bounds[1][0]) / 2, (picked.bounds[0][1] + picked.bounds[1][1]) / 2],
     k: picked ? fitZoom(picked.bounds) : 1,
   }
-  const zoom = useMapZoom(
+  const { svgRef, ...zoom } = useMapZoom(
     ATLAS_WIDTH,
     ATLAS_HEIGHT,
     MAX_ZOOM,
@@ -83,7 +83,7 @@ export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: Hous
     <section className="map">
       <div className="map-frame">
         <svg
-          ref={zoom.ref}
+          ref={svgRef}
           className={`map-svg map-districts map-zoomable${zoom.zoomed ? ' map-zoomed' : ''}`}
           viewBox={`0 0 ${ATLAS_WIDTH} ${ATLAS_HEIGHT}`}
           role="group"
