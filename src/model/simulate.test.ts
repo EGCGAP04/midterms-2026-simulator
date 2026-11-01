@@ -64,10 +64,13 @@ describe('raceSigma', () => {
     expect(raceSigma(senate('Other'))).toBe(SIGMA_RACE_SENATE_NOPOLL)
   })
 
-  it('splits the real Senate races 19 polled, 16 not', () => {
+  it('knows the poll source of every real Senate race', () => {
+    // A new label in the workbook would get the wider sigma without a word:
+    // only the values in docs/SPEC.md §2.4 may appear.
     const senate = (raw as unknown as Dataset).races.filter((race) => race.chamber === 'senate')
-    const polled = senate.filter((race) => raceSigma(race) === SIGMA_RACE_SENATE)
-    expect([polled.length, senate.length - polled.length]).toEqual([19, 16])
+    const known = ['Avg', 'CtM', 'Few']
+    const unknown = senate.filter(({ pollSource }) => pollSource !== undefined && !known.includes(pollSource))
+    expect(unknown.map(({ id, pollSource }) => `${id}: ${pollSource}`)).toEqual([])
   })
 })
 

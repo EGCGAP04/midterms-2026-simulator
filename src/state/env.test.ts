@@ -66,9 +66,9 @@ describe('pageArrowStep', () => {
 
 describe('stepEnv', () => {
   it('moves from the current value without snapping, and back', () => {
-    expect(stepEnv(DEFAULT_ENV, 0.001)).toBe(-0.0865)
+    expect(stepEnv(DEFAULT_ENV, 0.001)).toBe(-0.086)
     expect(stepEnv(stepEnv(DEFAULT_ENV, 0.001), -0.001)).toBe(DEFAULT_ENV)
-    expect(stepEnv(DEFAULT_ENV, -0.01)).toBe(-0.0975)
+    expect(stepEnv(DEFAULT_ENV, -0.01)).toBe(-0.097)
   })
 
   it('stays exact over many steps', () => {

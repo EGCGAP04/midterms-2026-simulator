@@ -14,10 +14,10 @@ export const POLLED_SOURCES: readonly string[] = ['Avg', 'CtM']
 export const N_SIMS = 10_000
 export const SEED = 2026
 
-/** The page's default and recommended environment, D+8.75 (R − D). Not the
+/** The page's default and recommended environment, D+8.70 (R − D). Not the
  * model baseline: the model always measures the slider against the
  * workbook's g0. */
-export const DEFAULT_ENV = -0.0875
+export const DEFAULT_ENV = -0.087
 
 /** Slider range and step (§4.2). */
 export const ENV_MIN = -0.29
