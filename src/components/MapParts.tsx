@@ -8,15 +8,15 @@ import type { MapColours } from '../state/url.ts'
 import type { MapZoom } from './useMapZoom.ts'
 import type { RaceDetails } from './useRaceMap.ts'
 
-/** The stripes over a flip: `${id}-light` (white, for dark fills) and
- * `${id}-dark` (for light fills). A pattern takes its colours from where it
- * is defined, not from the shape that uses it, hence two. */
+/** The stripes over a flip, in the winner's colour: `${id}-d`, `${id}-r` and
+ * `${id}-i`. A pattern takes its colours from where it is defined, not from
+ * the shape that uses it, hence one per party. */
 export function HatchPatterns({ id }: { id: string }) {
   return (
     <>
-      {(['light', 'dark'] as const).map((tone) => (
-        <pattern key={tone} id={`${id}-${tone}`} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-          <rect className={`map-hatch-stripe map-hatch-stripe-${tone}`} width="2" height="6" />
+      {(['d', 'r', 'i'] as const).map((party) => (
+        <pattern key={party} id={`${id}-${party}`} patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+          <rect className={`map-hatch-stripe map-hatch-stripe-${party}`} width="2" height="6" />
         </pattern>
       ))}
     </>

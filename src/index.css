@@ -40,6 +40,12 @@
   --r-likely: #c94843;
   --r-safe: #b2182b;
 
+  /* A flip's stripes: each side's colour, a little darker than Safe, so they
+   * show over every fill of that side (§4.4). */
+  --d-flip: #0b3a6e;
+  --r-flip: #6e0c19;
+  --i-flip: #45307a;
+
   color: var(--color-text);
 }
 
@@ -950,12 +956,16 @@ main {
   pointer-events: none;
 }
 
-.map-hatch-stripe-light {
-  fill: rgb(255 255 255 / 45%);
+.map-hatch-stripe-d {
+  fill: var(--d-flip);
 }
 
-.map-hatch-stripe-dark {
-  fill: rgb(0 0 0 / 30%);
+.map-hatch-stripe-r {
+  fill: var(--r-flip);
+}
+
+.map-hatch-stripe-i {
+  fill: var(--i-flip);
 }
 
 .map-square text {
@@ -1145,22 +1155,24 @@ main {
   background: var(--color-no-race);
 }
 
-/* Both parties' colours, split: a hold (light) and a flip (striped; dark
- * on the flips map). */
+/* Both parties' colours, split: a hold (light) and a flip (striped in each
+ * side's flip colour; dark on the flips map). */
 .map-swatch-hold {
   background: linear-gradient(to right, var(--d-tilt) 50%, var(--r-tilt) 50%);
 }
 
 .map-swatch-flip {
+  --d-base: var(--d-lean);
+  --r-base: var(--r-lean);
+
   background:
-    repeating-linear-gradient(45deg, rgb(0 0 0 / 30%) 0 2px, transparent 2px 6px),
-    linear-gradient(to right, var(--d-lean) 50%, var(--r-lean) 50%);
+    repeating-linear-gradient(45deg, var(--d-flip) 0 2px, var(--d-base) 2px 6px) left / 50% 100% no-repeat,
+    repeating-linear-gradient(45deg, var(--r-flip) 0 2px, var(--r-base) 2px 6px) right / 50% 100% no-repeat;
 }
 
 .map-swatch-flip-dark {
-  background:
-    repeating-linear-gradient(45deg, rgb(255 255 255 / 45%) 0 2px, transparent 2px 6px),
-    linear-gradient(to right, var(--d-safe) 50%, var(--r-safe) 50%);
+  --d-base: var(--d-safe);
+  --r-base: var(--r-safe);
 }
 
 .map-hint {
@@ -1242,6 +1254,23 @@ main {
   font-size: 1.125rem;
 }
 
+.panel-dot {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+/* Before "Flip R → D": the seat changes hands. */
+.panel-flip-icon {
+  width: 0.875em;
+  height: 0.875em;
+  margin-right: 0.3em;
+  vertical-align: -0.0625em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .panel-rating {
   display: flex;

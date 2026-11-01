@@ -37,6 +37,11 @@ describe('translate', () => {
     expect(translate('en', 'slider.reset', { value: 'D+8.75' })).toBe('Reset to default (D+8.75)')
   })
 
+  it('capitalises the ratings in Spanish, after the party', () => {
+    expect(translate('es', 'rating.likely', { party: 'D' })).toBe('D Probable')
+    expect(translate('es', 'summary.independent', { party: 'D' })).toBe('Independiente Adelante (contra D)')
+  })
+
   it('falls back to English when a Spanish string is missing', () => {
     const saved = CATALOGS.es['chamber.house']
     delete CATALOGS.es['chamber.house']

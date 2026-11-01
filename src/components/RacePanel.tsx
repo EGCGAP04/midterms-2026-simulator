@@ -76,6 +76,20 @@ function contextLine(lang: Lang, t: ReturnType<typeof useI18n>['t'], race: Race)
   return parts.join(' · ')
 }
 
+/** The separator between two items of the heading. */
+const Dot = () => (
+  <span className="panel-dot" aria-hidden="true">
+    ·
+  </span>
+)
+
+/** Two opposed arrows: the seat changes hands. */
+const FlipIcon = () => (
+  <svg className="panel-flip-icon" viewBox="0 0 16 16" aria-hidden="true">
+    <path d="M2 5h11M10 2l3 3-3 3M14 11H3M6 8l-3 3 3 3" />
+  </svg>
+)
+
 export function RacePanel({ view, selected, ref }: RacePanelProps) {
   const { lang, t } = useI18n()
   const k = selected === undefined ? -1 : view.races.findIndex((race) => race.id === selected)
@@ -107,14 +121,21 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
   return (
     <>
       <div className="panel-head">
+        <h3 className="panel-race">{details.name}</h3>
+        <Dot />
         <span className={`panel-badge ${outcomeClass(outcome.winner, flip !== undefined)}`}>
+          {flip && <FlipIcon />}
           {flip ? t('panel.flip', { from: flip.from, to: flip.to }) : t('panel.hold', { party: race.holder })}
         </span>
-        <h3 className="panel-race">{details.name}</h3>
       </div>
       <p className="panel-rating">
         <span className={`panel-badge ${ratingClass(rating)}`}>{details.ratingText}</span>
-        {details.margin && <span className={`panel-margin panel-party-${rating.party.toLowerCase()}`}>{details.margin}</span>}
+        {details.margin && (
+          <>
+            <Dot />
+            <span className={`panel-margin panel-party-${rating.party.toLowerCase()}`}>{details.margin}</span>
+          </>
+        )}
       </p>
 
       <table className="panel-candidates">
