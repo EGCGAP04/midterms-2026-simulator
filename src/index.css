@@ -740,9 +740,22 @@ button {
   vertical-align: -0.0625rem;
 }
 
-/* An independent who caucuses with D: the bottom-right half in D's Tilt. */
-.summary-swatch-caucus-d {
-  background: linear-gradient(to bottom right, var(--fill) 50%, var(--d-tilt) 50%);
+/* Independents: the bottom-right half in their side's colour, Safe for those
+ * not up (who caucus with D), Tilt for those ahead in a race. */
+.summary-swatch-half {
+  background: linear-gradient(to bottom right, var(--fill) 50%, var(--half) 50%);
+}
+
+.summary-swatch-half-d-safe {
+  --half: var(--d-safe);
+}
+
+.summary-swatch-half-d-tilt {
+  --half: var(--d-tilt);
+}
+
+.summary-swatch-half-r-tilt {
+  --half: var(--r-tilt);
 }
 
 /* Collapsible sections (the histogram, the lists): the heading is the

@@ -52,11 +52,10 @@ export function SeatHistogram({ view }: SeatHistogramProps) {
   // I only when some simulation gives an independent a seat.
   const parties: Party[] = forecast.seats.I.histogram[0] < sims ? ['D', 'R', 'I'] : ['D', 'R']
   const lineInRange = control > lo && control <= hi
-  // The histogram counts R seats; the rest of the chamber is the other side's
-  // (with independents, when the simulations elect any).
+  // The histogram counts R seats; the rest of the chamber is the other side's,
+  // called D for short even when the simulations elect independents.
   const chamberSeats = forecast.seats.R.histogram.length - 1
-  const opposition = parties.includes('I') ? 'D + I' : 'D'
-  const splitText = (seats: number) => `${opposition} ${seatsText(chamberSeats - seats)} – R ${seatsText(seats)}`
+  const splitText = (seats: number) => `D ${seatsText(chamberSeats - seats)} – R ${seatsText(seats)}`
 
   return (
     <section className="histogram" aria-labelledby="histogram-title">
@@ -128,7 +127,7 @@ export function SeatHistogram({ view }: SeatHistogramProps) {
               ))}
             </div>
             <p className="histogram-axis-label">
-              <span>← {t('hist.axis.d', { party: opposition })}</span>
+              <span>← {t('hist.axis.d')}</span>
               <span>{t('hist.axis.r')} →</span>
             </p>
 

@@ -78,7 +78,7 @@
   "hist.aria": "Histograma del reparto de escaños en las simulaciones; los números están en la tabla “{table}”.",
   "hist.line.senate": "{seats}: control R (desempata el VP)",
   "hist.bar": "{split}: {share}",
-  "hist.axis.d": "Escaños {party}",
+  "hist.axis.d": "Escaños D",
   "hist.axis.r": "Escaños R",
   "hist.legend.house.R": "Mayoría R ({seats} o más)",
   "hist.legend.house.other": "Sin mayoría R",
