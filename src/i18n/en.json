@@ -78,7 +78,7 @@
   "hist.aria": "Histogram of the seat split in the simulations; the numbers are in the table “{table}”.",
   "hist.line.senate": "{seats}: R control (VP breaks ties)",
   "hist.bar": "{split}: {share}",
-  "hist.axis.d": "{party} seats",
+  "hist.axis.d": "D seats",
   "hist.axis.r": "R seats",
   "hist.legend.house.R": "R majority ({seats} or more)",
   "hist.legend.house.other": "No R majority",

@@ -28,11 +28,13 @@ function ratingClass(block: Block): string {
   return `rating-${block.party.toLowerCase()}-${bucket}`
 }
 
-/** The independents not up caucus with D: their swatch in the table gets a
- * triangle of the party's Tilt colour. */
+/** An independents' swatch in the table gets a triangle of its side's
+ * colour: Safe for those not up, who caucus with D; Tilt for those ahead in a
+ * race, by the party they run against. */
 function swatchClass(block: Block): string {
-  const caucus = block.party === 'I' && block.kind === 'notUp' ? ' summary-swatch-caucus-d' : ''
-  return `summary-swatch ${ratingClass(block)}${caucus}`
+  if (block.party !== 'I') return `summary-swatch ${ratingClass(block)}`
+  const shade = block.kind === 'notUp' ? 'safe' : 'tilt'
+  return `summary-swatch ${ratingClass(block)} summary-swatch-half summary-swatch-half-${block.side.toLowerCase()}-${shade}`
 }
 
 /** Where the seats not up end on each side, as a share of the chamber. */
