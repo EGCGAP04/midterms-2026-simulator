@@ -7,7 +7,7 @@ import { useI18n } from '../i18n/context.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import { HEX_SIZE, houseLayout } from '../state/houseLayout.ts'
 import { HatchPattern, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
-import { useMapZoom } from './useMapZoom.ts'
+import { useMapZoom, type ZoomRequest } from './useMapZoom.ts'
 import { ratingClass, useRaceMap } from './useRaceMap.ts'
 
 interface HouseHexMapProps {
@@ -15,23 +15,33 @@ interface HouseHexMapProps {
   /** The selected race's id. */
   selected: string | undefined
   onSelect: (id: string | undefined) => void
+  /** The race picked in the search, to zoom to. */
+  zoomRequest?: ZoomRequest
 }
 
 /** Every hexagon has the same size: at 360 px wide, they are about 8 px across
  * and 50 px at this zoom. */
 const MAX_ZOOM = 6
+/** The zoom for a district picked in the search (§4.4). */
+const SEARCH_ZOOM = 4
 
 // The layout is fixed: build it once.
 const LAYOUT = houseLayout()
 
-export function HouseHexMap({ view, selected, onSelect }: HouseHexMapProps) {
+export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexMapProps) {
   const { t } = useI18n()
   const hatch = `hatch-${useId()}`
   const { races } = view
   const { describe, raceProps, mapProps, tip, ringed } = useRaceMap(view, selected, onSelect)
   const { width, height, hexes, borders, labels } = LAYOUT
   const hexOf = (id: string) => hexes.find((hex) => hex.id === id)
-  const zoom = useMapZoom(width, height, MAX_ZOOM, selected === undefined ? undefined : hexOf(selected)?.centre)
+  const zoom = useMapZoom(
+    width,
+    height,
+    MAX_ZOOM,
+    selected === undefined ? undefined : hexOf(selected)?.centre,
+    zoomRequest && { key: zoomRequest.key, at: hexOf(zoomRequest.id)?.centre, k: SEARCH_ZOOM },
+  )
 
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.id, k])), [races])
   const hasFixed = races.some((race) => race.fixedWinner !== undefined)

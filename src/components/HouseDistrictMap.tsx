@@ -8,21 +8,32 @@ import { ATLAS_HEIGHT, ATLAS_WIDTH } from '../state/atlas.ts'
 import { useDistricts } from '../state/districts.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import { HatchPattern, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
-import { useMapZoom } from './useMapZoom.ts'
+import { useMapZoom, type ZoomRequest, type ZoomTarget } from './useMapZoom.ts'
 import { ratingClass, useRaceMap } from './useRaceMap.ts'
 
 /** Enough to tap New York City's districts on a phone: at 360 px wide, the
  * smallest are then about 15 × 25 px. */
 const MAX_ZOOM = 40
+/** How much of the frame a district picked in the search fills (§4.4). */
+const SEARCH_FIT = 0.4
+
+/** The zoom at which a box fills `SEARCH_FIT` of the frame, within the map's
+ * range. */
+function fitZoom([[x0, y0], [x1, y1]]: [[number, number], [number, number]]): number {
+  const k = SEARCH_FIT * Math.min(ATLAS_WIDTH / Math.max(x1 - x0, 1e-6), ATLAS_HEIGHT / Math.max(y1 - y0, 1e-6))
+  return Math.min(Math.max(k, 1), MAX_ZOOM)
+}
 
 interface HouseDistrictMapProps {
   view: ChamberView
   /** The selected race's id. */
   selected: string | undefined
   onSelect: (id: string | undefined) => void
+  /** The race picked in the search, to zoom to. */
+  zoomRequest?: ZoomRequest
 }
 
-export function HouseDistrictMap({ view, selected, onSelect }: HouseDistrictMapProps) {
+export function HouseDistrictMap({ view, selected, onSelect, zoomRequest }: HouseDistrictMapProps) {
   const { t } = useI18n()
   const loaded = useDistricts()
   const hatch = `hatch-${useId()}`
@@ -37,7 +48,20 @@ export function HouseDistrictMap({ view, selected, onSelect }: HouseDistrictMapP
     return loaded.map.districts.toSorted((a, b) => order(a.id) - order(b.id))
   }, [loaded, raceIndex])
   const shapeOf = (id: string) => districts.find((district) => district.id === id)
-  const zoom = useMapZoom(ATLAS_WIDTH, ATLAS_HEIGHT, MAX_ZOOM, selected === undefined ? undefined : shapeOf(selected)?.centroid)
+  const picked = zoomRequest && shapeOf(zoomRequest.id)
+  const target: ZoomTarget | undefined = zoomRequest && {
+    key: zoomRequest.key,
+    // The middle of its box, so the whole district is framed.
+    at: picked && [(picked.bounds[0][0] + picked.bounds[1][0]) / 2, (picked.bounds[0][1] + picked.bounds[1][1]) / 2],
+    k: picked ? fitZoom(picked.bounds) : 1,
+  }
+  const zoom = useMapZoom(
+    ATLAS_WIDTH,
+    ATLAS_HEIGHT,
+    MAX_ZOOM,
+    selected === undefined ? undefined : shapeOf(selected)?.centroid,
+    target,
+  )
   const hasFixed = races.some((race) => race.fixedWinner !== undefined)
 
   if (loaded.status !== 'ready') {

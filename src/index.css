@@ -586,14 +586,99 @@ button {
   }
 }
 
-/* The House's "Districts / Hexagons" switch, just above its map. */
-.map-switch {
+/* Above the map: the race search and, in the House, the "Districts /
+ * Hexagons" switch on the right. */
+.map-bar {
   display: flex;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
 }
 
-.map-switch + .map {
+/* On the right even when it wraps under the search. */
+.map-bar .toggle {
+  margin-left: auto;
+}
+
+.map-bar + .map {
   margin-top: 0.75rem;
+}
+
+/* Race search (§4.4) */
+
+.search {
+  position: relative;
+  flex: 1 1 16rem;
+  max-width: 24rem;
+}
+
+.search-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: Canvas;
+  color: inherit;
+  font: inherit;
+}
+
+.search-input:focus-visible {
+  outline: 2px solid var(--color-d);
+  outline-offset: -1px;
+}
+
+.search-list {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+  list-style: none;
+}
+
+.search-option {
+  display: flex;
+  flex-direction: column;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.search-option:hover,
+.search-option[aria-selected='true'] {
+  background: light-dark(#e2e2e2, #3a3a3a);
+}
+
+.search-code {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.search-candidates {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+}
+
+.search-none {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: 0;
+  left: 0;
+  z-index: 5;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+  color: var(--color-muted);
 }
 
 .map-frame {

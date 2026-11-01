@@ -26,6 +26,13 @@ describe('districtMap', () => {
     }
   })
 
+  it('boxes every district around its centroid', () => {
+    for (const { id, centroid, bounds } of map.districts) {
+      const [[x0, y0], [x1, y1]] = bounds
+      expect(x0 <= centroid[0] && centroid[0] <= x1 && y0 <= centroid[1] && centroid[1] <= y1, id).toBe(true)
+    }
+  })
+
   it('draws the state borders', () => {
     expect(map.borders).toMatch(/^M/)
   })
