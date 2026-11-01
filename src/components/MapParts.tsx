@@ -23,11 +23,6 @@ export function HatchPatterns({ id }: { id: string }) {
   )
 }
 
-/** The fill of a flip's hatch. */
-export function hatchFill(id: string, tone: 'light' | 'dark'): string {
-  return `url(#${id}-${tone})`
-}
-
 interface MapTooltipProps {
   tip: RaceDetails
   /** Where it points, in the map's units. */

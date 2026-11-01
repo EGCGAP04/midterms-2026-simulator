@@ -7,8 +7,8 @@ import { useI18n } from '../i18n/context.ts'
 import { ATLAS_HEIGHT, ATLAS_WIDTH, useAtlas } from '../state/atlas.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import type { MapColours } from '../state/url.ts'
-import { HatchPatterns, hatchFill, MapLegend, MapTooltip } from './MapParts.tsx'
-import { racePaint, useRaceMap } from './useRaceMap.ts'
+import { HatchPatterns, MapLegend, MapTooltip } from './MapParts.tsx'
+import { hatchFill, racePaint, useRaceMap } from './useRaceMap.ts'
 
 interface SenateMapProps {
   view: ChamberView

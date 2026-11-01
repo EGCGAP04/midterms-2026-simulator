@@ -7,9 +7,9 @@ import { useI18n } from '../i18n/context.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import type { MapColours } from '../state/url.ts'
 import { HEX_SIZE, houseLayout } from '../state/houseLayout.ts'
-import { HatchPatterns, hatchFill, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
+import { HatchPatterns, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
 import { useMapZoom, type ZoomRequest } from './useMapZoom.ts'
-import { racePaint, useRaceMap } from './useRaceMap.ts'
+import { hatchFill, racePaint, useRaceMap } from './useRaceMap.ts'
 
 interface HouseHexMapProps {
   view: ChamberView

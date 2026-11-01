@@ -8,9 +8,9 @@ import { ATLAS_HEIGHT, ATLAS_WIDTH } from '../state/atlas.ts'
 import { useDistricts } from '../state/districts.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import type { MapColours } from '../state/url.ts'
-import { HatchPatterns, hatchFill, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
+import { HatchPatterns, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
 import { useMapZoom, type ZoomRequest, type ZoomTarget } from './useMapZoom.ts'
-import { racePaint, useRaceMap } from './useRaceMap.ts'
+import { hatchFill, racePaint, useRaceMap } from './useRaceMap.ts'
 
 /** Enough to tap New York City's districts on a phone: at 360 px wide, the
  * smallest are then about 15 × 25 px. */

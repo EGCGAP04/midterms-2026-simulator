@@ -49,6 +49,11 @@ export function racePaint(details: RaceDetails, colours: MapColours): RacePaint 
   return { fill, hatch: flip ? (LIGHT_FILLS.has(fill) ? 'dark' : 'light') : undefined }
 }
 
+/** The fill of a flip's hatch: one of the patterns of `HatchPatterns`. */
+export function hatchFill(id: string, tone: 'light' | 'dark'): string {
+  return `url(#${id}-${tone})`
+}
+
 export interface RaceDetails {
   race: Race
   outcome: Outcome
