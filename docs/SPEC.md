@@ -220,10 +220,11 @@ The same thresholds apply to both chambers, using |m|:
 Errors are correlated across races: if the polls miss the national environment, they miss most races in the same direction. Independent per-race probabilities would give a seat distribution that is far too narrow, so the app simulates.
 
 - **Simulations:** `N = 10,000`. Each one draws a shared national error `ε_n ~ Normal(0, σ_nat)` and one race error per race `ε_r ~ Normal(0, σ_race)`.
+  - `σ_race` is `SIGMA_RACE_HOUSE` for every House race. In the Senate it depends on the polling (`pollSource`, §2.4): `SIGMA_RACE_SENATE` for a polled race ("Avg" or "CtM"), `SIGMA_RACE_SENATE_NOPOLL` for few polls or none ("Few", or empty). Any other value gets the wider one.
 - **Simulated margin:** apply §3.1 with `Δ + ε_n` (times slope) plus `ε_r`. Fixed races don't vary. For MT3, add `ε_n + ε_r` to Δ.
   - The ±0.90 cap never changes the sign of a margin, so a two-candidate race goes to the REP slot when `m0 + slope·(Δ + ε_n) + ε_r ≥ 0` (an exact 0 included, as in §3.1) and to the opposition otherwise.
 - **Common random numbers:** draw all errors **once** at startup from a seeded PRNG (mulberry32, Box–Muller normals) and store them in `Float32Array`s. Moving the slider only re-adds the offset, so results are smooth (no jitter) and fast.
-  - One stream from `SEED`: the `N` national errors first, then each race's `N` errors in `races.json` order, with the race's chamber sigma. Both chambers share the national errors.
+  - One stream from `SEED`: the `N` national errors first, then each race's `N` errors in `races.json` order, with that race's `σ_race`. Both chambers share the national errors.
   - Only the chamber on screen is simulated.
 - **Per-race win probability:** the share of simulations each side wins. Display `>99%` / `<1%` at the extremes.
 - **Chamber outputs, for each party (R, D, I):**
@@ -232,16 +233,22 @@ Errors are correlated across races: if the polls miss the national environment, 
   - Seat histogram.
   - The medians are taken party by party, so they need not add up to the chamber size. Nor do they match the seat totals of §3.4, which count the side ahead in each race.
   - P(majority): House needs 218 (with independent winners, neither party may reach it). In the Senate, R controls at 50 or more seats (the VP breaks ties); the complement is shown as **D + I**, not as D control, because this year's independents have not committed to caucus with the Democrats. D and I seats are reported separately.
-- **Config (`src/model/config.ts`), initial guesses to calibrate later:**
+- **Config (`src/model/config.ts`).** The sigmas were calibrated in October 2026 (they replace initial guesses of 0.030, 0.050 and 0.045):
 
 | Constant | Value |
 |---|---|
-| `SIGMA_NAT` | 0.030 |
-| `SIGMA_RACE_HOUSE` | 0.050 |
-| `SIGMA_RACE_SENATE` | 0.045 |
+| `SIGMA_NAT` | 0.025 |
+| `SIGMA_RACE_HOUSE` | 0.055 |
+| `SIGMA_RACE_SENATE` | 0.045 (polled: "Avg", "CtM") |
+| `SIGMA_RACE_SENATE_NOPOLL` | 0.065 (few polls or none: "Few", empty) |
 | `N_SIMS` | 10000 |
 | `SEED` | 2026 |
 | `DEFAULT_ENV` | −0.0875 (D+8.75): the page's default and recommended environment (§4.2) |
+
+- **Where the sigmas come from:**
+  - **National (2.5 points):** the error of RealClearPolitics' final generic-ballot average against the House popular vote in 2010, 2014, 2018, 2020 and 2022, plus 2024 from the workbook (`K6`). The root mean square over the six years is 2.4 points, 3.7 at worst (2020); rounded up to 2.5 for the small sample.
+  - **Senate (4.5 and 6.5 points):** the workbook's final formula (its `c`, `k` and `w`, averaging the two estimates) applied to the 177 races of 2016–2022. Each state's environment is the uniform swing with the actual national vote, so what remains is each race's own error. Polled races: 5.1 points in total, about 4.6 once each year's common error (the national one) is taken out. Few or no polls: 6.9 in total, about 6.5. Both are in-sample (the formula's parameters were fitted on the same races), so they may be slightly low.
+  - **House (5.5 points), the roughest:** how far each district moved from the national swing relative to its previous election, in 538's results for 2014–2024, R vs D races only and leaving out redistricted states and years. It was 4.1 in 2024 and 6.4 in 2020, but 7.9–8.3 in the 2014 and 2018 midterms. The model knows more than the previous result (the presidential margin, the candidates), so that is an upper bound; 2026 being a midterm, the value is in between.
 
 ### 3.4 Seat totals
 

@@ -1,9 +1,16 @@
-// Model constants (docs/SPEC.md §3.3). The sigmas are initial guesses, to be
-// calibrated later. Every value is a fraction: 0.01 = 1 point.
+// Model constants (docs/SPEC.md §3.3). Every value is a fraction: 0.01 = 1
+// point. The sigmas were calibrated in October 2026; §3.3 says how.
 
-export const SIGMA_NAT = 0.03
-export const SIGMA_RACE_HOUSE = 0.05
+/** The shared national error: the generic-ballot average's miss. */
+export const SIGMA_NAT = 0.025
+/** Each House district's own error. */
+export const SIGMA_RACE_HOUSE = 0.055
+/** Each Senate race's own error, with polls ("Avg" or "CtM")… */
 export const SIGMA_RACE_SENATE = 0.045
+/** …and with few polls or none ("Few", or no `pollSource`). */
+export const SIGMA_RACE_SENATE_NOPOLL = 0.065
+/** The `pollSource` values of a polled Senate race. */
+export const POLLED_SOURCES: readonly string[] = ['Avg', 'CtM']
 export const N_SIMS = 10_000
 export const SEED = 2026
 
