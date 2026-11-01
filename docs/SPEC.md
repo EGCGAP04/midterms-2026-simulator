@@ -102,7 +102,7 @@ There are 35 races in rows 7–41, one row per race and one race per state.
 | Baseline margin m0 | `AE` |
 | Rating | `AF` |
 | Flip | `AG` |
-| Last election for the same seat: margin / year | `C` / `D` (two-party, R − D) |
+| Last election for the same seat: margin / year | `C` / `D` (two-party, R − D). Nebraska is the exception: the 2024 regular election (Fischer vs. Osborn), the last race against the same independent, instead of the 2024 special for this seat. |
 
 The Senate's 2024 presidential margin is the statewide one, from the House votes (§2.2).
 
@@ -243,7 +243,7 @@ Errors are correlated across races: if the polls miss the national environment, 
 | `SIGMA_RACE_SENATE_NOPOLL` | 0.065 (few polls or none: "Few", empty) |
 | `N_SIMS` | 10000 |
 | `SEED` | 2026 |
-| `DEFAULT_ENV` | −0.0875 (D+8.75): the page's default and recommended environment (§4.2) |
+| `DEFAULT_ENV` | −0.087 (D+8.70): the page's default and recommended environment (§4.2) |
 
 - **Where the sigmas come from:**
   - **National (2.5 points):** the error of RealClearPolitics' final generic-ballot average against the House popular vote in 2010, 2014, 2018, 2020 and 2022, plus 2024 from the workbook (`K6`). The root mean square over the six years is 2.4 points, 3.7 at worst (2020); rounded up to 2.5 for the small sample.
@@ -274,10 +274,10 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
    - Touch: dragging the thumb moves it. A finger that lands on the track and then scrolls the page leaves the value as it was (the browser moves the value to the finger before it hands the gesture to the page; the slider puts it back).
    - Left and right also move it from anywhere on the page, without focusing it first, with the same steps. Not while the focus is in a text field or another form control (where the arrows already mean something), or when something else on the page has handled the key. Up and down keep scrolling the page: they move the slider only when it has the focus.
-   - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
+   - Starts at `DEFAULT_ENV` (D+8.70) unless the URL sets another value.
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in the track's colour at that point, darkened (light theme) or lightened (dark theme) just enough to read.
    - The track uses the rating colours (§4.3), the same in both themes: light grey (`#E4E4E4`) at EVEN, Tilt at 2 points, Lean at 4, Likely at 8 and Safe from 16 on, each side in its party's colours, mixed in OKLCH between stops.
-   - A marker at the default and a "Reset to default (D+8.75)" button. The workbook baseline `g0` is not shown.
+   - A marker at the default and a "Reset to default (D+8.70)" button. The workbook baseline `g0` is not shown.
 3. **Summary bar:**
    - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
      - Left to right: Safe D, Likely D, Lean D, Tilt D, then the violet blocks for races an independent leads, then Tilt R, Lean R, Likely R, Safe R.
@@ -383,14 +383,14 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
   - Every race's margin equals `m0`.
   - Every rating equals the Excel rating.
   - House D 236 / R 199.
-  - Senate D 52 / I 0 / R 48.
+  - Senate D 53 / I 0 / R 47.
   - House rating counts equal `R8:S11`.
 - Moving the slider 1 point toward R moves every `normal` House race exactly 1 point. A `blend` race moves by its slope. Fixed races do not move.
 - No D-vs-R race shows a loser share below 5%.
 - Montana at the baseline: Alme − Bodnar = `AE25`.
 - Probabilities are monotonic in the slider for every race.
 - The full simulation runs in < 50 ms on a laptop when the slider moves. `npm run bench` times it in Node. Measured on 2026-10-31 (AMD Ryzen 7 260): House median 9.9 ms, worst 15.3 ms over 100 moves; Senate 1.5 ms, worst 4.1 ms. In Chrome with the production build, from the slider's input to the updated page (simulation and render, not the paint), the House takes about 15 ms (worst 19 ms) and the Senate about 5 ms.
-- **The page opens at D+8.75, not at the baseline,** so its opening numbers differ slightly from the workbook: House D 235 / R 200 (AL-02 moves from Tilt D to Tilt R; MN-02, NY-19, NC-01, TX-02, TX-17 and WA-05 change rating), Senate unchanged at 52 / 48 (Louisiana becomes Safe R, Maine Tilt D). This is expected.
+- **The page opens at D+8.70, not at the baseline,** so its opening numbers differ slightly from the workbook: House D 235 / R 200 (AL-02 moves from Tilt D to Tilt R; FL-04, MN-02, NY-19, NC-01, TX-02, TX-17 and WA-05 change rating), Senate D 52 / R 48 (Kansas moves from Tilt D to Tilt R, Louisiana becomes Safe R). This is expected.
 
 ---
 
