@@ -125,7 +125,10 @@ function Forecast({
             <SenateMap view={view} selected={selected} onSelect={onSelect} colours={mapColours} />
           )}
         </div>
-        <RacePanel ref={panel} view={view} selected={selected} />
+        {/* Right of the page's column on wide screens (§4.5). */}
+        <div className="side side-right">
+          <RacePanel ref={panel} view={view} selected={selected} />
+        </div>
         <SeatHistogram view={view} />
         <RaceLists view={view} selected={selected} onSelect={onListSelect} />
       </div>
