@@ -2,7 +2,7 @@
 // dragged, 0.1 or 1 point with the arrow keys (left and right from anywhere on
 // the page).
 
-import { useEffect, useId, type CSSProperties } from 'react'
+import { useEffect, useId, useRef, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatMargin } from '../i18n/format.ts'
 import { DEFAULT_ENV, ENV_MAX, ENV_MIN, ENV_STEP } from '../model/config.ts'
@@ -53,6 +53,11 @@ export function Slider({ env, onChange, onStep }: SliderProps) {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onStep])
 
+  // A finger that lands on the track to scroll the page: Chrome moves the
+  // value to it first, then hands the gesture to the page (pointercancel).
+  // Put the value back, so scrolling past the slider does not change it.
+  const touchedAt = useRef<number>(undefined)
+
   return (
     <section className="slider">
       <div className="slider-heading">
@@ -71,6 +76,16 @@ export function Slider({ env, onChange, onStep }: SliderProps) {
           value={toPoints(env)}
           aria-valuetext={value}
           onChange={(event) => onChange(roundEnv(event.currentTarget.valueAsNumber / 100))}
+          onPointerDown={(event) => {
+            touchedAt.current = event.pointerType === 'mouse' ? undefined : env
+          }}
+          onPointerUp={() => {
+            touchedAt.current = undefined
+          }}
+          onPointerCancel={() => {
+            if (touchedAt.current !== undefined) onChange(touchedAt.current)
+            touchedAt.current = undefined
+          }}
           onKeyDown={(event) => {
             const step = arrowStep(event)
             if (step === undefined) return

@@ -259,7 +259,10 @@ Errors are correlated across races: if the polls miss the national environment, 
 
 ## 4. UI
 
-Use a responsive layout that also works on a phone.
+Use a responsive layout that also works on a phone, down to 320 px wide, without horizontal scrolling.
+
+- **Touch:** there is no hover, so what hover shows comes with a tap: on the maps a tap selects (§4.4); on the summary bar (§4.3) and the histogram (§4.6) it opens the tooltip, which stays until a touch anywhere else (a scroll included). Dragging across the histogram moves its tooltip from bar to bar.
+- **Contrast:** text reaches 4.5:1 against what is behind it (3:1 when large), in both themes. Party colours used as text are lightened in the dark theme (§4.2), a little more on the race panel's raised background.
 
 1. **Header:**
    - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle.
@@ -269,6 +272,7 @@ Use a responsive layout that also works on a phone.
 2. **Slider:**
    - "Estimated National Environment (Generic Congressional Ballot)", range D+29 … R+20 in 0.01-point steps.
    - Keyboard: the arrow keys move it by 0.1 points and Shift+arrow by 1 point (right and up toward R), from the current value and within the range. Dragging keeps the 0.01-point step; Page Up/Down, Home and End keep the browser's behaviour.
+   - Touch: dragging the thumb moves it. A finger that lands on the track and then scrolls the page leaves the value as it was (the browser moves the value to the finger before it hands the gesture to the page; the slider puts it back).
    - Left and right also move it from anywhere on the page, without focusing it first, with the same steps. Not while the focus is in a text field or another form control (where the arrows already mean something), or when something else on the page has handled the key. Up and down keep scrolling the page: they move the slider only when it has the focus.
    - Starts at `DEFAULT_ENV` (D+8.75) unless the URL sets another value.
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in the track's colour at that point, darkened (light theme) or lightened (dark theme) just enough to read.
@@ -286,7 +290,7 @@ Use a responsive layout that also works on a phone.
      - **House:** D and R with their chance of a majority. I is shown only when an independent leads a race, next to the party whose side of the bar its races are on (both sides if there are some on each).
      - **Senate:** D and I with the chance of D + I control, and R with its chance of control.
      - Each total's number is centred under its party name; the counts inside the blocks are centred too.
-   - Hovering a block shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
+   - Hovering a block, or tapping it, shows its rating and seats, and outlines it with the same ring on every block (the text colour, with a ring of the page background inside it). A "Seats by rating" table below the bar lists every block, so no value depends on colour or hover.
    - **Colours:** a diverging scale with four steps per party, from Tilt (lightest) to Safe (darkest), the same in both themes, and violet (`#775EB2`) for independents. The maps reuse it (§4.4). D `#94BBE0`, `#6A9FD0`, `#4382BF`, `#2166AC`; R `#EB9C8C`, `#DC7465`, `#C94843`, `#B2182B`. Text inside a block is white or near-black, whichever contrasts with its fill.
 4. **Map:**
    - **Senate:** US states map (`us-atlas`, the pre-projected `states-albers-10m.json`, fetched on its own so the main bundle stays small). States without a race are drawn in neutral grey.
@@ -345,7 +349,7 @@ Use a responsive layout that also works on a phone.
 6. **Seat histogram** ("Seat distribution"), from the simulations at the slider's environment (§3.3), in the map's column between the map and the lists (on narrow screens after the race panel).
    - One bar per R seat count (in the Senate including the 31 seats not up), as tall as the share of simulations that end there. The x axis is R seats, with round ticks; the counts no simulation reaches at either end are left out.
    - The bars are red where R has control (House 218+, Senate 50+) and blue elsewhere: a D majority or D + I control, as the legend says (in the House, "No R majority": independents may keep D short too). A vertical line marks where control starts, labelled "218 for a majority" or "50: R control (VP breaks ties)".
-   - Hovering a bar (anywhere in its column, so thin bars are easy to hit) shows its seats and its share of the simulations ("212 R seats: 3.1%", or "<0.1%" for a count only a few simulations reach). The table below carries the summary, so nothing essential depends on hover.
+   - Hovering a bar, or tapping it (anywhere in its column, so thin bars are easy to hit), shows its seats and its share of the simulations ("212 R seats: 3.1%", or "<0.1%" for a count only a few simulations reach). The table below carries the summary, so nothing essential depends on hover.
    - Under it, a table with each party's median and 80% interval (the 10th to 90th percentile) in the simulations: D and R, and I when some simulation gives an independent a seat. Unlike the summary bar's totals (the deterministic count, §4.3), these come from the simulations, and a note says how many.
    - Drawn as SVG, without `d3-scale` or another chart library: the scale is linear and the ticks fall every 1, 2, 5, 10, 20 or 50 seats, whichever gives at most 8. The bars stretch to the column's width; the text stays at the page's size.
 7. **Lists** ("Key races"), under the map, at the slider's environment. Every race in them is a button that selects it (§4.4), so the race panel shows it and the map outlines it; the selected one is marked in the lists too. Each shows its name and its margin (its rating for a fixed race), with a square in its rating's colour.
@@ -385,7 +389,7 @@ Use a responsive layout that also works on a phone.
 - No D-vs-R race shows a loser share below 5%.
 - Montana at the baseline: Alme − Bodnar = `AE25`.
 - Probabilities are monotonic in the slider for every race.
-- The full simulation runs in < 50 ms on a laptop when the slider moves.
+- The full simulation runs in < 50 ms on a laptop when the slider moves. `npm run bench` times it in Node. Measured on 2026-10-31 (AMD Ryzen 7 260): House median 9.9 ms, worst 15.3 ms over 100 moves; Senate 1.5 ms, worst 4.1 ms. In Chrome with the production build, from the slider's input to the updated page (simulation and render, not the paint), the House takes about 15 ms (worst 19 ms) and the Senate about 5 ms.
 - **The page opens at D+8.75, not at the baseline,** so its opening numbers differ slightly from the workbook: House D 235 / R 200 (AL-02 moves from Tilt D to Tilt R; MN-02, NY-19, NC-01, TX-02, TX-17 and WA-05 change rating), Senate unchanged at 52 / 48 (Louisiana becomes Safe R, Maine Tilt D). This is expected.
 
 ---

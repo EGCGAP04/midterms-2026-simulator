@@ -2,13 +2,14 @@
 // simulations at the slider's environment, with the line where control
 // starts, and each party's median and 80% interval.
 
-import { useState, type CSSProperties, type PointerEvent } from 'react'
+import { useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatCount, formatShare } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
 import { seatBars, seatTicks } from '../model/histogram.ts'
 import type { Party } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import { useTouchDismiss } from './useTouchDismiss.ts'
 
 interface SeatHistogramProps {
   view: ChamberView
@@ -22,6 +23,9 @@ const MIN_SHARE = 0.001
 export function SeatHistogram({ view }: SeatHistogramProps) {
   const { lang, t } = useI18n()
   const [hovered, setHovered] = useState<number>()
+  // A tap keeps its bar's tooltip until a touch elsewhere.
+  const chart = useRef<HTMLDivElement>(null)
+  useTouchDismiss(chart, hovered !== undefined, () => setHovered(undefined))
   const { chamber, forecast, sims } = view
   const senate = chamber === 'senate'
   const control = senate ? SENATE_R_CONTROL : HOUSE_MAJORITY
@@ -57,7 +61,15 @@ export function SeatHistogram({ view }: SeatHistogramProps) {
       </h2>
       <p className="histogram-desc">{t('hist.desc', { sims: seatsText(sims) })}</p>
 
-      <div className="histogram-chart" onPointerMove={point} onPointerDown={point} onPointerLeave={() => setHovered(undefined)}>
+      <div
+        ref={chart}
+        className="histogram-chart"
+        onPointerMove={point}
+        onPointerDown={point}
+        onPointerLeave={(event) => {
+          if (event.pointerType === 'mouse') setHovered(undefined)
+        }}
+      >
         <svg
           className="histogram-bars"
           viewBox={`0 0 ${count} ${HEIGHT}`}
