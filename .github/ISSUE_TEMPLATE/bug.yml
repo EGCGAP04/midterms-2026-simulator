@@ -32,7 +32,7 @@ body:
       # every form in this folder: add a milestone to all of them when it is
       # created, and drop it from all of them when it closes.
       options:
-        - "M6: Polish and launch"
+        - "M7: Post-release changes"
         - Not defined yet
     validations:
       required: true

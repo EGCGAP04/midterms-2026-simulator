@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Issue forms list the new milestone, M7 (post-release changes), instead of M6, and the roadmap adds it.
+
 ## [1.0.0] - 2026-10-31
 
 First release: the 2026 House and Senate forecast, explored with a national-environment slider, in English and Spanish.
