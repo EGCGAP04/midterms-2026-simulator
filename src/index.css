@@ -541,11 +541,11 @@ button {
 
 /* The map and the race panel: side by side on wide screens, the panel under
  * the map on narrower ones (docs/SPEC.md §4.5). */
-/* Narrow screens: map, race panel, lists. Wide ones: the panel beside the map
- * and the lists, in view while the page scrolls past them (§4.5). */
+/* Narrow screens: map, race panel, histogram, lists. Wide ones: the panel
+ * beside the rest, in view while the page scrolls past them (§4.5). */
 .forecast-body {
   display: grid;
-  grid-template-areas: 'map' 'panel' 'lists';
+  grid-template-areas: 'map' 'panel' 'histogram' 'lists';
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -559,6 +559,11 @@ button {
   grid-area: panel;
 }
 
+.histogram {
+  grid-area: histogram;
+  min-width: 0;
+}
+
 .lists {
   grid-area: lists;
   min-width: 0;
@@ -567,9 +572,10 @@ button {
 @media (min-width: 64rem) {
   .forecast-body {
     grid-template-columns: minmax(0, 1fr) 18rem;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     grid-template-areas:
       'map panel'
+      'histogram panel'
       'lists panel';
     align-items: start;
   }
@@ -1094,4 +1100,161 @@ button {
 .list-note {
   margin: 0.25rem 0 0;
   color: var(--color-muted);
+}
+
+/* Seat histogram (§4.6) */
+
+.histogram {
+  font-size: 0.875rem;
+}
+
+.histogram-title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.histogram-desc {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+}
+
+/* Room above the bars for the majority line's label. */
+.histogram-chart {
+  position: relative;
+  height: 9rem;
+  margin-top: 2rem;
+  border-bottom: 1px solid var(--color-border);
+  touch-action: pan-y;
+}
+
+.histogram-bars {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.histogram-bar {
+  stroke: Canvas;
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.histogram-bar-r {
+  fill: var(--color-r);
+  background: var(--color-r);
+}
+
+.histogram-bar-d {
+  fill: var(--color-d);
+  background: var(--color-d);
+}
+
+.histogram-bar-hover {
+  fill-opacity: 0.6;
+}
+
+.histogram-line {
+  position: absolute;
+  top: -0.5rem;
+  bottom: 0;
+  left: calc(var(--at) * 100%);
+  width: 0;
+  border-left: 2px dashed var(--color-text);
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+.histogram-line-label {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  /* Centred on the line, but kept inside the chart near its ends. */
+  translate: calc(var(--at) * -100%) 0;
+  white-space: nowrap;
+  font-size: 0.75rem;
+}
+
+.histogram-tooltip {
+  position: absolute;
+  top: 0;
+  left: calc(var(--at) * 100%);
+  translate: calc(var(--at) * -100%) 0;
+  z-index: 1;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.375rem;
+  background: var(--color-surface);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.histogram-axis {
+  position: relative;
+  height: 1.25rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-muted);
+}
+
+.histogram-axis span {
+  position: absolute;
+  left: calc(var(--at) * 100%);
+  translate: -50% 0;
+}
+
+.histogram-axis-label {
+  margin: 0;
+  text-align: center;
+  color: var(--color-muted);
+}
+
+.histogram-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.histogram-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.histogram-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 0.125rem;
+}
+
+.histogram-table {
+  margin-top: 0.75rem;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.histogram-table caption {
+  margin-bottom: 0.25rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.histogram-table th,
+.histogram-table td {
+  padding: 0.25rem 1.5rem 0.25rem 0;
+  border-top: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.histogram-table thead th {
+  border-top: 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--color-muted);
+}
+
+.histogram-table tbody th {
+  font-weight: 400;
 }
