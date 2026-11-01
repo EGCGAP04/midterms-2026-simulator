@@ -92,8 +92,14 @@ export function leaderName(race: Race, outcome: Outcome): string {
   return (rep?.party === outcome.winner ? rep : opp)?.name ?? rep?.name ?? ''
 }
 
-/** Who a block stands for, in the races' order (by state and district) or,
- * for the seats not up, the senators' order. */
+/** Closest first: by the margin's size, the races decided before the vote
+ * (no margin) last. The sort is stable, so ties keep the races' order. */
+function byMargin(a: Member, b: Member): number {
+  return (a.margin === undefined ? Infinity : Math.abs(a.margin)) - (b.margin === undefined ? Infinity : Math.abs(b.margin))
+}
+
+/** Who a block stands for, by result (the smallest margin first) or, for the
+ * seats not up, in the senators' order. */
 export function blockMembers(
   block: Block,
   races: readonly Race[],
@@ -105,7 +111,7 @@ export function blockMembers(
       .filter((senator) => senator.party === block.party)
       .map(({ name, state, party }) => ({ name, place: state, party }))
   }
-  return races.flatMap((race, k) => {
+  const members = races.flatMap((race, k) => {
     const outcome = outcomes[k]
     const rating = ratingOf(outcome)
     const inBlock =
@@ -116,4 +122,5 @@ export function blockMembers(
     const margin = race.fixedWinner === undefined ? outcome.margin : undefined
     return [{ name: leaderName(race, outcome), place: race.id, margin, party: outcome.winner }]
   })
+  return members.toSorted(byMargin)
 }

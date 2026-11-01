@@ -103,6 +103,19 @@ describe('blockMembers', () => {
     expect(tiltD && blockMembers(tiltD, races, outcomes)).toEqual([{ name: 'D candidate', place: 'XX-01', margin: -0.01, party: 'D' }])
   })
 
+  it('lists the races by result, the smallest margin first and the fixed races last', () => {
+    const block = summaryBlocks(races, outcomes).find((b) => b.kind === 'safe' && b.party === 'D')
+    const ordered = [
+      makeRace({ id: 'A' }),
+      makeRace({ id: 'B', type: 'DvD', fixedWinner: 'D', opp: candidate('D') }),
+      makeRace({ id: 'C' }),
+      makeRace({ id: 'D' }),
+    ]
+    const margins = [-0.4, -1, -0.2, -0.3]
+    const members = block && blockMembers(block, ordered, margins.map((margin) => ({ winner: 'D', margin })))
+    expect(members?.map(({ place }) => place)).toEqual(['C', 'D', 'A', 'B'])
+  })
+
   it('lists the independents on their side', () => {
     const blocks = summaryBlocks(races, outcomes)
     const left = blocks.find((block) => block.kind === 'independent' && block.side === 'D')
