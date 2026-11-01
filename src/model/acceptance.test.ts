@@ -233,10 +233,12 @@ describe('the Monte Carlo', () => {
   it('needs 218 House seats for a majority, and 50 Senate seats for R control', () => {
     const share = (histogram: Uint32Array, from: number): number =>
       histogram.slice(from).reduce((sum, count) => sum + count, 0) / simulator.n
-    // Near even, so every threshold is crossed in some simulations.
+    // Near even, so every threshold is crossed in some simulations. In the
+    // House, control goes by bloc: Kiley (I) counts with R (§2.3).
     const house = forecastAt('house', 0)
-    expect(house.control.R).toBe(share(house.seats.R.histogram, 218))
-    expect(house.control.opposition).toBe(share(house.seats.D.histogram, 218))
+    expect(house.control.R).toBe(share(house.blocs.R.histogram, 218))
+    expect(house.control.opposition).toBe(share(house.blocs.D.histogram, 218))
+    expect(house.control.R).toBeGreaterThanOrEqual(share(house.seats.R.histogram, 218))
     const senate = forecastAt('senate', 0.02)
     expect(senate.control.R).toBe(share(senate.seats.R.histogram, 50))
     expect(share(senate.seats.R.histogram, 50)).not.toBe(share(senate.seats.R.histogram, 51))

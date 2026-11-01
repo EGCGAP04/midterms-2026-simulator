@@ -33,5 +33,9 @@ export function raceNotes(lang: Lang, race: Race): string[] {
     if (race.rep?.party === 'I') notes.push(translate(lang, 'note.independent.R'))
     if (race.opp?.party === 'I') notes.push(translate(lang, 'note.independent.D'))
   }
+  // An independent who caucuses with a party counts toward its majority (§2.3).
+  for (const candidate of [race.rep, race.opp]) {
+    if (candidate?.caucus) notes.push(translate(lang, `note.caucus.${candidate.caucus}`, { name: candidate.name }))
+  }
   return notes
 }

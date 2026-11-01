@@ -73,6 +73,8 @@
   "note.MT3": "Three-way race: {a}'s share moves by half the environment's shift, and {b} and {c} split the rest in proportion.",
   "note.independent.R": "No Republican is running: the independent takes the Republican side, so a shift toward R helps them.",
   "note.independent.D": "No Democrat is running: the independent takes the Democratic side, so a shift toward D helps them.",
+  "note.caucus.R": "{name} caucuses with the Republicans: if elected, the seat counts toward their majority.",
+  "note.caucus.D": "{name} caucuses with the Democrats: if elected, the seat counts toward their majority.",
   "hist.title": "Seat distribution",
   "hist.desc": "How the seats split in each of the {sims} simulations at this environment: more Democratic to the left, more Republican to the right.",
   "hist.aria": "Histogram of the seat split in the simulations; the numbers are in the table “{table}”.",

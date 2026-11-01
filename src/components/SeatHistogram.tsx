@@ -29,7 +29,8 @@ export function SeatHistogram({ view }: SeatHistogramProps) {
   const { chamber, forecast, sims } = view
   const senate = chamber === 'senate'
   const control = senate ? SENATE_R_CONTROL : HOUSE_MAJORITY
-  const bars = seatBars(forecast.seats.R.histogram)
+  // R's bloc: in the House, with the independents who caucus with R (§3.3).
+  const bars = seatBars(forecast.blocs.R.histogram)
   if (!bars) return null
 
   const { lo, hi, shares } = bars
@@ -52,9 +53,9 @@ export function SeatHistogram({ view }: SeatHistogramProps) {
   // I only when some simulation gives an independent a seat.
   const parties: Party[] = forecast.seats.I.histogram[0] < sims ? ['D', 'R', 'I'] : ['D', 'R']
   const lineInRange = control > lo && control <= hi
-  // The histogram counts R seats; the rest of the chamber is the other side's,
+  // The histogram counts R's bloc; the rest of the chamber is the other side's,
   // called D for short even when the simulations elect independents.
-  const chamberSeats = forecast.seats.R.histogram.length - 1
+  const chamberSeats = forecast.blocs.R.histogram.length - 1
   const splitText = (seats: number) => `D ${seatsText(chamberSeats - seats)} – R ${seatsText(seats)}`
 
   return (

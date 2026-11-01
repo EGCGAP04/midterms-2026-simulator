@@ -85,14 +85,26 @@ export interface SeatDistribution {
 export interface ChamberForecast {
   /** Per race id: the share of simulations each party wins. */
   probabilities: Map<string, Record<Party, number>>
+  /** By party: an independent counts as I even when caucusing with one. */
   seats: Record<Party, SeatDistribution>
+  /** By bloc: a party's seats plus those of the independents who caucus with
+   * it (in the Senate, Sanders and King with D). Control goes by bloc. */
+  blocs: Record<Bloc, SeatDistribution>
   control: {
-    /** House: R ≥ 218. Senate: R ≥ 50 (the Vice President breaks ties). */
+    /** House: R bloc ≥ 218. Senate: R ≥ 50 (the Vice President breaks ties). */
     R: number
-    /** House: D ≥ 218 (with independent winners, neither party may reach
-     * it). Senate: the complement of R control, shown as "D + I". */
+    /** House: D bloc ≥ 218 (with other independent winners, neither side
+     * may reach it). Senate: the complement of R control, shown as "D + I". */
     opposition: number
   }
+}
+
+export type Bloc = 'D' | 'R'
+
+/** The bloc a party's winner in `race` joins: an independent's caucus, if any. */
+function blocOf(race: Race, party: Party): Bloc | undefined {
+  if (party !== 'I') return party
+  return [race.rep, race.opp].find((candidate) => candidate?.party === 'I')?.caucus
 }
 
 /** The smallest seat count reached by at least a share `q` of the simulations. */
@@ -135,6 +147,13 @@ export function simulate(
     D: new Uint16Array(n).fill(notUp.D ?? 0),
     I: new Uint16Array(n).fill(notUp.I ?? 0),
   }
+  // The independents not up (Sanders and King) caucus with D (§2.4).
+  const blocSeats: Record<Bloc, Uint16Array> = {
+    R: new Uint16Array(n).fill(notUp.R ?? 0),
+    D: new Uint16Array(n).fill((notUp.D ?? 0) + (notUp.I ?? 0)),
+  }
+  /** Where the wins of independents with no caucus are counted, unread. */
+  const scratch = new Uint16Array(n)
   const probabilities = new Map<string, Record<Party, number>>()
   let total = (notUp.R ?? 0) + (notUp.D ?? 0) + (notUp.I ?? 0)
 
@@ -143,17 +162,26 @@ export function simulate(
     total += 1
     const wins: Record<Party, number> = { R: 0, D: 0, I: 0 }
     const errors = raceErrors.subarray(k * n, (k + 1) * n)
+    // Where each party's win goes besides its own seats.
+    const blocOfParty = (party: Party): Uint16Array | undefined => {
+      const bloc = blocOf(race, party)
+      return bloc && blocSeats[bloc]
+    }
 
     if (race.fixedWinner !== undefined) {
       wins[race.fixedWinner] = n
       const winnerSeats = seats[race.fixedWinner]
       for (let i = 0; i < n; i++) winnerSeats[i] += 1
+      const winnerBloc = blocOfParty(race.fixedWinner)
+      if (winnerBloc) for (let i = 0; i < n; i++) winnerBloc[i] += 1
     } else if (race.type === 'MT3') {
       // One race: the full §3.1 rule, with ε_n + ε_r added to Δ.
       for (let i = 0; i < n; i++) {
         const { winner } = outcomeAt(race, delta + national[i] + errors[i])
         wins[winner] += 1
         seats[winner][i] += 1
+        const bloc = blocOfParty(winner)
+        if (bloc) bloc[i] += 1
       }
     } else {
       if (race.rep === null || race.opp === null) throw new Error(`${race.id}: a contested race needs two candidates`)
@@ -163,13 +191,18 @@ export function simulate(
       const { slope } = race
       const repSeats = seats[race.rep.party]
       const oppSeats = seats[race.opp.party]
+      // An independent with no caucus joins no bloc: a scratch array.
+      const repBloc = blocOfParty(race.rep.party) ?? scratch
+      const oppBloc = blocOfParty(race.opp.party) ?? scratch
       let repWins = 0
       for (let i = 0; i < n; i++) {
         if (base + slope * national[i] + errors[i] >= 0) {
           repWins += 1
           repSeats[i] += 1
+          repBloc[i] += 1
         } else {
           oppSeats[i] += 1
+          oppBloc[i] += 1
         }
       }
       wins[race.rep.party] += repWins
@@ -182,11 +215,12 @@ export function simulate(
   const distributions = Object.fromEntries(
     PARTIES.map((party) => [party, distribution(seats[party], total)]),
   ) as Record<Party, SeatDistribution>
+  const blocs = { R: distribution(blocSeats.R, total), D: distribution(blocSeats.D, total) }
   const R =
     chamber === 'house'
-      ? shareAtLeast(distributions.R.histogram, HOUSE_MAJORITY, n)
-      : shareAtLeast(distributions.R.histogram, SENATE_R_CONTROL, n)
-  const opposition = chamber === 'house' ? shareAtLeast(distributions.D.histogram, HOUSE_MAJORITY, n) : 1 - R
+      ? shareAtLeast(blocs.R.histogram, HOUSE_MAJORITY, n)
+      : shareAtLeast(blocs.R.histogram, SENATE_R_CONTROL, n)
+  const opposition = chamber === 'house' ? shareAtLeast(blocs.D.histogram, HOUSE_MAJORITY, n) : 1 - R
 
-  return { probabilities, seats: distributions, control: { R, opposition } }
+  return { probabilities, seats: distributions, blocs, control: { R, opposition } }
 }

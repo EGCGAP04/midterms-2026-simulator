@@ -11,6 +11,7 @@ import argparse
 
 from export_data import (
     ExportError,
+    apply_caucus,
     as_of_date,
     blend_slope,
     check_not_up,
@@ -171,6 +172,31 @@ class NotUpTest(unittest.TestCase):
 
     def test_unknown_party(self):
         self.assertIn("unknown parties ['G']", check_not_up(self.senators(["D", "G"]), [], 1, 98)[0])
+
+
+class CaucusTest(unittest.TestCase):
+    @staticmethod
+    def race(race_id, rep_party="I", opp_party="D"):
+        return {
+            "id": race_id,
+            "rep": {"name": "A", "label": "incumbent", "party": rep_party},
+            "opp": {"name": "B", "label": "nonIncumbent", "party": opp_party},
+        }
+
+    def test_marks_the_independent(self):
+        races = [self.race("CA-06"), self.race("CA-07", rep_party="R")]
+        apply_caucus(races, {"CA-06": "R"})
+        self.assertEqual(races[0]["rep"]["caucus"], "R")
+        self.assertNotIn("caucus", races[0]["opp"])
+        self.assertNotIn("caucus", races[1]["rep"])
+
+    def test_the_race_must_have_an_independent(self):
+        with self.assertRaises(ExportError):
+            apply_caucus([self.race("CA-06", rep_party="R")], {"CA-06": "R"})
+
+    def test_the_race_must_exist(self):
+        with self.assertRaises(ExportError):
+            apply_caucus([self.race("CA-07")], {"CA-06": "R"})
 
 
 class AsOfTest(unittest.TestCase):
