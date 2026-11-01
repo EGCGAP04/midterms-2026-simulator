@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-31
+
+First release: the 2026 House and Senate forecast, explored with a national-environment slider, in English and Spanish.
+
 ### Added
 
 - Repository setup: Vite + React + TypeScript (strict) app with Vitest and oxlint, CI and GitHub Pages workflows, Dependabot, Issue forms, PR template, security policy and the project specification (`docs/SPEC.md`).
@@ -52,4 +56,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - In the dark theme, the race panel's party letters ("R", "D") had a 3.8:1 and 4.1:1 contrast on the panel's background; they are now lighter there and reach 4.5:1.
 - On the deployed site, the light theme showed the dark theme's text colours when the system preferred dark (and the reverse). The production build replaced `light-dark()` with a fallback that follows only the system theme; the CSS build target now keeps `light-dark()` as written.
 
-[Unreleased]: https://github.com/EGCGAP04/midterms-2026-simulator/commits/main
+[Unreleased]: https://github.com/EGCGAP04/midterms-2026-simulator/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/EGCGAP04/midterms-2026-simulator/releases/tag/v1.0.0
