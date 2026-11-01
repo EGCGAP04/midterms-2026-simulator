@@ -131,19 +131,22 @@ function Forecast({
             <SenateMap view={view} selected={selected} onSelect={onSelect} colours={mapColours} />
           )}
         </div>
-        {/* Right of the page's column on wide screens (§4.5). */}
-        <div className="side side-right">
-          <RacePanel ref={panel} view={view} adjustments={adjustments} selected={selected} />
-        </div>
-        {/* Left of it (§4.10). */}
-        <div className="side side-left">
-          <AdjustPanel
-            chamber={chamber}
-            races={dataset.races}
-            selected={dataset.races.find((race) => race.chamber === chamber && race.id === selected)}
-            adjustments={adjustments}
-            onChange={onAdjustmentsChange}
-          />
+        {/* One column beside the map on medium screens; on wide ones, the
+            race panel right of the page's column (§4.5) and the adjustments
+            left of it (§4.10). */}
+        <div className="sides">
+          <div className="side side-right">
+            <RacePanel ref={panel} view={view} adjustments={adjustments} selected={selected} />
+          </div>
+          <div className="side side-left">
+            <AdjustPanel
+              chamber={chamber}
+              races={dataset.races}
+              selected={dataset.races.find((race) => race.chamber === chamber && race.id === selected)}
+              adjustments={adjustments}
+              onChange={onAdjustmentsChange}
+            />
+          </div>
         </div>
         <SeatHistogram view={view} />
         <RaceLists view={view} selected={selected} onSelect={onListSelect} />
