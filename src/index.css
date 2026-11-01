@@ -726,10 +726,30 @@ button {
   background: linear-gradient(to bottom right, var(--fill) 50%, var(--d-tilt) 50%);
 }
 
-/* The map and the race panel: side by side on wide screens, the panel under
- * the map on narrower ones (docs/SPEC.md §4.5). */
-/* Narrow screens: map, race panel, histogram, lists. Wide ones: the panel
- * beside the rest, in view while the page scrolls past them (§4.5). */
+/* Collapsible sections (the histogram, the lists): the heading is the
+ * summary, with the browser's marker before it. */
+.section-details > summary {
+  cursor: pointer;
+}
+
+.section-details > summary > h2 {
+  display: inline;
+}
+
+/* Narrow screens: map, race panel, histogram, lists. Medium ones: the panel
+ * beside the rest, in view while the page scrolls past them. Wide ones: the
+ * panel in the empty space right of the page's column, level with the slider,
+ * and the map the column's full width (docs/SPEC.md §4.5). */
+main {
+  position: relative;
+}
+
+/* Only a box of its own on wide screens; elsewhere the panel is a grid item
+ * of .forecast-body. */
+.side {
+  display: contents;
+}
+
 .forecast-body {
   display: grid;
   grid-template-areas: 'map' 'panel' 'histogram' 'lists';
@@ -770,6 +790,27 @@ button {
   .panel {
     position: sticky;
     top: 1rem;
+  }
+}
+
+/* Room for a 20rem column on each side of the page's 74rem (72rem and its
+ * padding), with 1.25rem gaps. */
+@media (min-width: 117rem) {
+  .forecast-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'map' 'histogram' 'lists';
+  }
+
+  .side {
+    display: block;
+    position: absolute;
+    top: 1rem;
+    bottom: 1rem;
+    width: 20rem;
+  }
+
+  .side-right {
+    left: calc(100% + 1.25rem);
   }
 }
 
@@ -1424,6 +1465,19 @@ button {
   font-size: 1.125rem;
 }
 
+/* The chart, and the table to its right when there is room. */
+.histogram-body {
+  display: grid;
+  gap: 0 2rem;
+}
+
+@media (min-width: 52rem) {
+  .histogram-body {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+}
+
 .histogram-desc {
   margin: 0.25rem 0 0;
   color: var(--color-muted);
@@ -1501,21 +1555,34 @@ button {
 
 .histogram-axis {
   position: relative;
-  height: 1.25rem;
+  height: 2.25rem;
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
   color: var(--color-muted);
 }
 
-.histogram-axis span {
+/* Each tick gives both sides' seats: the other side's over R's. */
+.histogram-axis > span {
   position: absolute;
   left: calc(var(--at) * 100%);
   translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  line-height: 1.1;
+}
+
+.histogram-tick-d {
+  color: var(--color-d-text);
+}
+
+.histogram-tick-r {
+  color: var(--color-r-text);
 }
 
 .histogram-axis-label {
+  display: flex;
+  justify-content: space-between;
   margin: 0;
-  text-align: center;
   color: var(--color-muted);
 }
 

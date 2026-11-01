@@ -70,59 +70,63 @@ export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
 
   return (
     <section className="lists" aria-labelledby="lists-title">
-      <h2 id="lists-title" className="lists-title">
-        {t('lists.title')}
-      </h2>
+      <details className="section-details" open>
+        <summary>
+          <h2 id="lists-title" className="lists-title">
+            {t('lists.title')}
+          </h2>
+        </summary>
 
-      <div className="lists-grid">
-        <section className="list-block list-flips">
-          <h3>{t('lists.flips')}</h3>
-          <div className="list-columns">
-            {LOSERS.filter((party) => party !== 'I' || lists.flips.I.length > 0).map((party) => {
-              const flips = lists.flips[party]
-              const open = expanded.has(party)
-              const id = `${listId}-${party}`
-              return (
-                <div key={party}>
-                  <h4>{t('lists.flips.loses', { party, count: formatCount(lang, flips.length) })}</h4>
-                  {flips.length > 0 ? (
-                    <ul id={id} className="list">
-                      {(open ? flips : flips.slice(0, FLIPS_SHOWN)).map(item)}
-                    </ul>
-                  ) : (
-                    none
-                  )}
-                  {flips.length > FLIPS_SHOWN && (
-                    <button
-                      type="button"
-                      className="list-more"
-                      aria-expanded={open}
-                      aria-controls={id}
-                      onClick={() => toggleColumn(party)}
-                    >
-                      {open ? t('lists.showFewer') : t('lists.showAll', { count: formatCount(lang, flips.length) })}
-                    </button>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </section>
+        <div className="lists-grid">
+          <section className="list-block list-flips">
+            <h3>{t('lists.flips')}</h3>
+            <div className="list-columns">
+              {LOSERS.filter((party) => party !== 'I' || lists.flips.I.length > 0).map((party) => {
+                const flips = lists.flips[party]
+                const open = expanded.has(party)
+                const id = `${listId}-${party}`
+                return (
+                  <div key={party}>
+                    <h4>{t('lists.flips.loses', { party, count: formatCount(lang, flips.length) })}</h4>
+                    {flips.length > 0 ? (
+                      <ul id={id} className="list">
+                        {(open ? flips : flips.slice(0, FLIPS_SHOWN)).map(item)}
+                      </ul>
+                    ) : (
+                      none
+                    )}
+                    {flips.length > FLIPS_SHOWN && (
+                      <button
+                        type="button"
+                        className="list-more"
+                        aria-expanded={open}
+                        aria-controls={id}
+                        onClick={() => toggleColumn(party)}
+                      >
+                        {open ? t('lists.showFewer') : t('lists.showAll', { count: formatCount(lang, flips.length) })}
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </section>
 
-        <section className="list-block">
-          <h3>{t('lists.closest')}</h3>
-          <ol className="list">{lists.closest.map(item)}</ol>
-          <p className="list-note">{t('lists.closest.note')}</p>
-        </section>
+          <section className="list-block">
+            <h3>{t('lists.closest')}</h3>
+            <ol className="list">{lists.closest.map(item)}</ol>
+            <p className="list-note">{t('lists.closest.note')}</p>
+          </section>
 
-        <section className="list-block">
-          <h3>{t('lists.tipping')}</h3>
-          {lists.tipping !== undefined && <ul className="list">{item(lists.tipping)}</ul>}
-          <p className="list-note">
-            {senate ? t('lists.tipping.senate') : t('lists.tipping.house', { seats: formatCount(lang, HOUSE_MAJORITY) })}
-          </p>
-        </section>
-      </div>
+          <section className="list-block">
+            <h3>{t('lists.tipping')}</h3>
+            {lists.tipping !== undefined && <ul className="list">{item(lists.tipping)}</ul>}
+            <p className="list-note">
+              {senate ? t('lists.tipping.senate') : t('lists.tipping.house', { seats: formatCount(lang, HOUSE_MAJORITY) })}
+            </p>
+          </section>
+        </div>
+      </details>
     </section>
   )
 }
