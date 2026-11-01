@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - A race decided before the vote (uncontested or same-party) shows its winner's chance as "100%" instead of ">99%", in the map's tooltip and the race panel.
+- The race panel shows the winner at the slider first (in same-party and three-way races, the largest share), whatever their chance, under a "Candidates" heading. The flip flag becomes a pill before the race's name ("Hold R" on the winner's light colour, "Flip R → D" on its dark one), and the margin, in the leading party's colour, follows the rating.
 - Issue forms list the new milestone, M7 (post-release changes), instead of M6, and the roadmap adds it.
 
 ### Fixed

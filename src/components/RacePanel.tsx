@@ -30,8 +30,20 @@ interface CandidateRow {
   chance?: number
 }
 
-/** The candidates, the REP slot first. */
-function candidateRows({ race, outcome }: RaceDetails, chances: Record<Party, number> | undefined): CandidateRow[] {
+/** The winner at the slider first: by share when there are shares (MT3,
+ * DvD, RvR), otherwise the winning party. Ties keep the REP slot first. */
+function winnerFirst(rows: CandidateRow[], winner: Party): CandidateRow[] {
+  const rank = (row: CandidateRow) => row.share ?? (row.party === winner ? 1 : 0)
+  return rows.toSorted((a, b) => rank(b) - rank(a))
+}
+
+/** The candidates, the winner first. */
+function candidateRows(details: RaceDetails, chances: Record<Party, number> | undefined): CandidateRow[] {
+  return winnerFirst(slotRows(details, chances), details.outcome.winner)
+}
+
+/** The candidates in slot order, the REP slot first. */
+function slotRows({ race, outcome }: RaceDetails, chances: Record<Party, number> | undefined): CandidateRow[] {
   const chanceOf = (party: Party) => chances?.[party] ?? 0
   if (race.type === 'MT3' && race.shares && outcome.shares) {
     const { names } = race.shares
@@ -65,6 +77,13 @@ function contextLine(lang: Lang, t: ReturnType<typeof useI18n>['t'], race: Race)
   return parts.join(' · ')
 }
 
+/** The flip flag's colours: the winner's dark colour for a flip, its light
+ * one for a hold (the rating classes' Safe and Tilt). */
+function statusClass(winner: Party, flip: boolean): string {
+  if (winner === 'I') return flip ? 'rating-i' : 'panel-status-i-hold'
+  return `rating-${winner.toLowerCase()}-${flip ? 'safe' : 'tilt'}`
+}
+
 export function RacePanel({ view, selected, ref }: RacePanelProps) {
   const { lang, t } = useI18n()
   const k = selected === undefined ? -1 : view.races.findIndex((race) => race.id === selected)
@@ -96,20 +115,22 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
 
   return (
     <>
-      <h3 className="panel-race">{details.name}</h3>
+      <div className="panel-head">
+        <span className={`panel-badge ${statusClass(outcome.winner, flip !== undefined)}`}>
+          {flip ? t('panel.flip', { from: flip.from, to: flip.to }) : t('panel.hold', { party: race.holder })}
+        </span>
+        <h3 className="panel-race">{details.name}</h3>
+      </div>
       <p className="panel-rating">
         <span className={`panel-badge ${ratingClass(rating)}`}>{details.ratingText}</span>
-        {details.margin && <span className="panel-margin">{details.margin}</span>}
-      </p>
-      <p className={`panel-flip${flip ? ' panel-flip-yes' : ''}`}>
-        {flip ? t('panel.flip', { from: flip.from, to: flip.to }) : t('panel.hold', { party: race.holder })}
+        {details.margin && <span className={`panel-margin panel-party-${rating.party.toLowerCase()}`}>{details.margin}</span>}
       </p>
 
       <table className="panel-candidates">
         <caption className="visually-hidden">{t('panel.candidates')}</caption>
         <thead>
           <tr>
-            <th scope="col">{t('panel.candidate')}</th>
+            <th scope="col">{t('panel.candidates')}</th>
             {hasShare && <th scope="col">{t('panel.share')}</th>}
             {hasChance && <th scope="col">{t('panel.chance')}</th>}
           </tr>
