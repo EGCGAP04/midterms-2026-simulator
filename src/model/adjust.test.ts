@@ -53,11 +53,12 @@ describe('shiftRace', () => {
   })
 
   it('moves Montana’s shares as a local environment', () => {
-    const shares = { A: 0.48, B: 0.35, C: 0.17, names: ['Alme', 'Bodnar', 'Bankhead'] as [string, string, string] }
+    const shares = { A: 0.48, B: 0.35, C: 0.17, names: ['Alme', 'Bodnar', 'Bankhead'] as [string, string, string], thirdLabel: 'nonIncumbent' as const }
     const race = makeRace({ id: 'MT-SEN', chamber: 'senate', type: 'MT3', m0: 0.13, opp: candidate('I'), shares })
     const shifted = shiftRace(race, -0.1)
     expect(shifted.shares?.A).toBeCloseTo(0.43, 12)
     expect(shifted.shares?.names).toEqual(shares.names)
+    expect(shifted.shares?.thirdLabel).toBe('nonIncumbent')
     expect(outcomeAt(shifted, 0).shares?.A).toBeCloseTo(outcomeAt(race, -0.1).shares?.A ?? NaN, 12)
   })
 })

@@ -158,7 +158,7 @@ describe('simulate', () => {
       type: 'MT3',
       m0: 0.13,
       opp: candidate('I'),
-      shares: { A: 0.48, B: 0.35, C: 0.17, names: ['Alme', 'Bodnar', 'Bankhead'] },
+      shares: { A: 0.48, B: 0.35, C: 0.17, names: ['Alme', 'Bodnar', 'Bankhead'], thirdLabel: 'nonIncumbent' },
     })
     const simulator = createSimulator([race])
     expect(simulate(simulator, 'senate', 0).probabilities.get('MT-SEN')?.R).toBeGreaterThan(0.9)

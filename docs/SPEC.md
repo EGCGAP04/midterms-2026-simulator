@@ -112,7 +112,7 @@ The Senate's 2024 presidential margin is the statewide one, from the House votes
 
 Seats not up: `N3` = 34 D, `P3` = 31 R. The workbook does not name the senators not up, so they are in `scripts/senate_not_up.csv` (state, name, party), from Wikipedia's list of current senators (Classes 1 and 3, minus the 2026 specials in Florida and Ohio), to be kept up to date by hand. The workbook counts the two independents not up, Bernie Sanders (VT) and Angus King (ME), who caucus with the Democrats, as D; the file gives them as I, so `senateNotUp` = D 32, I 2, R 31 and the page can show them. Every independent in the file is taken to caucus with D. Checks: `J44` (D), `L44` (I), `N44` (R) = 53 / 0 / 47 currently, with Sanders and King in D.
 
-**Montana (row 25, type `MT3`).** It is a three-way race: Kurt Alme (R), Seth Bodnar (I), Alani Bankhead (D). Bankhead's name is not in any cell (only the note in `AH25` mentions "Bankhead"), so the exporter holds it as a constant and fails if `AH25` stops mentioning her.
+**Montana (row 25, type `MT3`).** It is a three-way race: Kurt Alme (R), Seth Bodnar (I), Alani Bankhead (D). Bankhead's name is not in any cell (only the note in `AH25` mentions "Bankhead"), so the exporter holds it as a constant and fails if `AH25` stops mentioning her. Nor is her status: she is a non-incumbent (the seat is R's), also a constant, exported as `shares.thirdLabel`.
 - `m3 = AVERAGE(AC25, AD25)` is Alme − (Bodnar + Bankhead).
 - `c = AE25 − m3` is Bankhead's share.
 - Baseline shares:
@@ -150,7 +150,7 @@ interface Race {
   opp: Candidate | null; // party: D, or I (R in RvR)
   m0: number;            // baseline margin, R − opp, fraction
   slope: number;         // 1, or the blend weight
-  shares?: { A: number; B: number; C: number; names: [string, string, string] }; // MT3 only
+  shares?: { A: number; B: number; C: number; names: [string, string, string]; thirdLabel: Incumbency }; // MT3 only
   fixedWinner?: Party;   // uncontested / DvD / RvR
   intraShares?: [number, number]; // DvD / RvR display only
   pollSource?: string;   // Senate only
@@ -367,7 +367,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - **Heading:** the race's name, then a dot and the flip flag. Under it, its rating at the slider in the map's colour, then a dot and the margin in the leading party's colour (none for a fixed race, as in the tooltip, nor its dot).
    - **Flip flag:** a pill in the style of the rating, in the colour of the side ahead. When that side is not the party that holds the seat (`holder`), "Flip R → D" / "Cambio R → D" (an independent too: "R → I") on the party's dark colour, after an icon of two opposed arrows; otherwise "Hold R" / "Retiene R" on its light colour.
    - **Candidates** ("Candidates" heads the column), the winner at the slider first, whatever their chance (in MT3, DvD and RvR, the largest share first), each with the party letter (I included), the incumbency status (§2.2) and the chance of winning (§3.3):
-     - **MT3:** the three candidates with their shares at the slider (§3.1) as well. The workbook gives no status for Bankhead, so none is shown.
+     - **MT3:** the three candidates with their shares at the slider (§3.1) as well. Bankhead's status comes from the exporter's constant (`thirdLabel`), since the workbook gives none.
      - **DvD / RvR:** both candidates with their within-party shares (`intraShares`) instead of a chance: the seat is decided, and the model does not say which of the two wins.
      - **Uncontested:** the only candidate.
    - **Context**, as background only: the 2024 presidential margin and the last House race (with its year) or, in the Senate, the last election for that seat. One decimal, e.g. "Pres. 2024: R+11.4 · House 2024: R+13.9". Both are results on the lines they were run on: when `redrawn`, an asterisk follows each margin ("Pres. 2024: D+8.3* · House 2024: D+9.2*") and a note goes just below: "* Redrawn for 2026: result on the previous lines." / "* Redibujado para 2026: resultado con los límites anteriores." Screen readers hear "(redrawn for 2026)" instead of the asterisk. A House race whose last election was not R vs D (`last` is null) shows only the presidential margin.

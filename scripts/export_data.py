@@ -38,6 +38,7 @@ HOUSE_CAUCUS = {"CA-06": "R"}  # Kevin Kiley
 
 # Bankhead is only named in Montana's note, not in any candidate cell.
 MT3_THIRD_CANDIDATE = "Alani Bankhead"
+MT3_THIRD_LABEL = "nonIncumbent"  # nor her status: the seat is R's
 MT3_NOTE_MUST_MENTION = "Bankhead"
 
 STATES = {
@@ -319,6 +320,7 @@ def read_senate(values: Any, formulas: Any, pres_votes: dict[str, list[float]]) 
             race["shares"] = {
                 "A": a, "B": b, "C": c,
                 "names": [race["rep"]["name"], race["opp"]["name"], MT3_THIRD_CANDIDATE],
+                "thirdLabel": MT3_THIRD_LABEL,
             }
         poll_source = values[f"U{r}"].value
         if poll_source:

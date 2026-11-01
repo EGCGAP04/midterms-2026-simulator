@@ -35,7 +35,7 @@ export interface Race {
   m0: number
   slope: number
   /** MT3 only: Alme, Bodnar and Bankhead's baseline shares. */
-  shares?: { A: number; B: number; C: number; names: [string, string, string] }
+  shares?: { A: number; B: number; C: number; names: [string, string, string]; thirdLabel: Incumbency }
   fixedWinner?: Party
   intraShares?: [number, number]
   pollSource?: string

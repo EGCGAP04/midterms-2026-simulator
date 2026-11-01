@@ -24,7 +24,6 @@ interface RacePanelProps {
 interface CandidateRow {
   name: string
   party: Party
-  /** Unknown for Montana's third candidate. */
   label?: Incumbency
   /** Montana's shares at the slider, or the within-party shares of a DvD / RvR race. */
   share?: number
@@ -48,13 +47,13 @@ function candidateRows(details: RaceDetails, chances: Record<Party, number> | un
 function slotRows({ race, outcome }: RaceDetails, chances: Record<Party, number> | undefined): CandidateRow[] {
   const chanceOf = (party: Party) => chances?.[party] ?? 0
   if (race.type === 'MT3' && race.shares && outcome.shares) {
-    const { names } = race.shares
+    const { names, thirdLabel } = race.shares
     const { A, B, C } = outcome.shares
     const parties: [Party, Party, Party] = [race.rep?.party ?? 'R', race.opp?.party ?? 'I', 'D']
     return [
       { name: names[0], party: parties[0], label: race.rep?.label, share: A, chance: chanceOf(parties[0]) },
       { name: names[1], party: parties[1], label: race.opp?.label, share: B, chance: chanceOf(parties[1]) },
-      { name: names[2], party: parties[2], share: C, chance: chanceOf(parties[2]) },
+      { name: names[2], party: parties[2], label: thirdLabel, share: C, chance: chanceOf(parties[2]) },
     ]
   }
   const sameParty = race.type === 'DvD' || race.type === 'RvR'

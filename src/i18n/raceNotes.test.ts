@@ -46,7 +46,7 @@ describe('raceNotes', () => {
     const race = makeRace({
       type: 'MT3',
       opp: candidate('I'),
-      shares: { A: 0.48, B: 0.35, C: 0.17, names: ['Kurt Alme', 'Seth Bodnar', 'Alani Bankhead'] },
+      shares: { A: 0.48, B: 0.35, C: 0.17, names: ['Kurt Alme', 'Seth Bodnar', 'Alani Bankhead'], thirdLabel: 'nonIncumbent' },
     })
     expect(raceNotes('en', race)).toEqual([
       "Three-way race: Kurt Alme's share moves by half the environment's shift, and Seth Bodnar and Alani Bankhead split the rest in proportion.",
