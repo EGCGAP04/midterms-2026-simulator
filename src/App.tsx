@@ -23,7 +23,7 @@ import { useDataset } from './state/dataset.ts'
 import { stepEnv } from './state/env.ts'
 import { useChamberView } from './state/forecast.ts'
 import { useTheme } from './state/theme.ts'
-import { readUrlState, writeUrlState, type HouseMap, type PageState } from './state/url.ts'
+import { readUrlState, writeUrlState, type HouseMap, type MapColours, type PageState } from './state/url.ts'
 
 /** How long the state must stay still before the URL is updated. */
 const URL_DELAY_MS = 300
@@ -33,6 +33,8 @@ interface ForecastProps {
   env: number
   houseMap: HouseMap
   onHouseMapChange: (houseMap: HouseMap) => void
+  mapColours: MapColours
+  onMapColoursChange: (mapColours: MapColours) => void
   dataset: Dataset
   simulator: Simulator
 }
@@ -48,7 +50,16 @@ function revealPanel(panel: HTMLElement | null) {
 }
 
 /** Everything that depends on the forecast, once it has loaded. */
-function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator }: ForecastProps) {
+function Forecast({
+  chamber,
+  env,
+  houseMap,
+  onHouseMapChange,
+  mapColours,
+  onMapColoursChange,
+  dataset,
+  simulator,
+}: ForecastProps) {
   const { t } = useI18n()
   const view = useChamberView(dataset, simulator, chamber, env)
   // The selected race (§4.4), shown by the race panel (§4.5) and picked on
@@ -83,6 +94,15 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
           <div className="map-bar">
             {/* A new field per chamber, so a House query does not carry over. */}
             <RaceSearch key={chamber} view={view} onPick={onSearchPick} />
+            <Toggle
+              label={t('map.colours.label')}
+              options={[
+                { value: 'ratings', label: t('map.colours.ratings') },
+                { value: 'flips', label: t('map.colours.flips') },
+              ]}
+              value={mapColours}
+              onChange={onMapColoursChange}
+            />
             {chamber === 'house' && (
               <Toggle
                 label={t('map.view.label')}
@@ -97,12 +117,12 @@ function Forecast({ chamber, env, houseMap, onHouseMapChange, dataset, simulator
           </div>
           {chamber === 'house' ? (
             houseMap === 'districts' ? (
-              <HouseDistrictMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} />
+              <HouseDistrictMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} colours={mapColours} />
             ) : (
-              <HouseHexMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} />
+              <HouseHexMap view={view} selected={selected} onSelect={onSelect} zoomRequest={zoomRequest} colours={mapColours} />
             )
           ) : (
-            <SenateMap view={view} selected={selected} onSelect={onSelect} />
+            <SenateMap view={view} selected={selected} onSelect={onSelect} colours={mapColours} />
           )}
         </div>
         <RacePanel ref={panel} view={view} selected={selected} />
@@ -152,6 +172,8 @@ export default function App() {
             env={env}
             houseMap={state.houseMap}
             onHouseMapChange={(houseMap) => setState((s) => ({ ...s, houseMap }))}
+            mapColours={state.mapColours}
+            onMapColoursChange={(mapColours) => setState((s) => ({ ...s, mapColours }))}
             dataset={data.dataset}
             simulator={data.simulator}
           />

@@ -6,14 +6,16 @@ import { useId, useMemo } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { ATLAS_HEIGHT, ATLAS_WIDTH, useAtlas } from '../state/atlas.ts'
 import type { ChamberView } from '../state/forecast.ts'
-import { HatchPattern, MapLegend, MapTooltip } from './MapParts.tsx'
-import { ratingClass, useRaceMap } from './useRaceMap.ts'
+import type { MapColours } from '../state/url.ts'
+import { HatchPatterns, hatchFill, MapLegend, MapTooltip } from './MapParts.tsx'
+import { racePaint, useRaceMap } from './useRaceMap.ts'
 
 interface SenateMapProps {
   view: ChamberView
   /** The selected race's id. */
   selected: string | undefined
   onSelect: (id: string | undefined) => void
+  colours: MapColours
 }
 
 /** The small states that also get a square, top to bottom. */
@@ -27,7 +29,7 @@ function squareAt(index: number): { x: number; y: number } {
   return { x: SQUARE_X, y: SQUARE_TOP + index * (SQUARE + SQUARE_GAP) }
 }
 
-export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
+export function SenateMap({ view, selected, onSelect, colours }: SenateMapProps) {
   const { t } = useI18n()
   const atlas = useAtlas()
   const hatch = `hatch-${useId()}`
@@ -36,7 +38,6 @@ export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
 
   // Each state's race, by postal code (one per state in 2026).
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.state, k])), [races])
-  const hasFixed = races.some((race) => race.fixedWinner !== undefined)
 
   if (atlas.status !== 'ready') {
     return (
@@ -74,7 +75,7 @@ export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
           {...mapProps}
         >
           <defs>
-            <HatchPattern id={hatch} />
+            <HatchPatterns id={hatch} />
           </defs>
 
           {atlas.states.map((shape) => {
@@ -83,12 +84,11 @@ export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
               return <path key={shape.postal} className="map-state map-no-race" d={shape.d} aria-hidden="true" />
             }
             const details = describe(k)
+            const paint = racePaint(details, colours)
             return (
               <g key={shape.postal}>
-                <path className={`map-state map-race ${ratingClass(details.rating)}`} d={shape.d} {...raceProps(details)} />
-                {details.race.fixedWinner !== undefined && (
-                  <path className="map-hatch" d={shape.d} fill={`url(#${hatch})`} aria-hidden="true" />
-                )}
+                <path className={`map-state map-race ${paint.fill}`} d={shape.d} {...raceProps(details)} />
+                {paint.hatch && <path className="map-hatch" d={shape.d} fill={hatchFill(hatch, paint.hatch)} aria-hidden="true" />}
               </g>
             )
           })}
@@ -96,19 +96,17 @@ export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
           {SMALL_STATES.map((postal, index) => {
             const { x, y } = squareAt(index)
             const k = raceIndex.get(postal)
-            const rating = k === undefined ? undefined : describe(k).rating
+            const paint = k === undefined ? undefined : racePaint(describe(k), colours)
             const race = k === undefined ? undefined : races[k]
             return (
               <g
                 key={postal}
-                className={`map-square ${rating ? `map-race ${ratingClass(rating)}` : 'map-no-race'}`}
+                className={`map-square ${paint ? `map-race ${paint.fill}` : 'map-no-race'}`}
                 aria-hidden="true"
                 {...(race && pointer(race.id))}
               >
                 <rect className="map-state" x={x} y={y} width={SQUARE} height={SQUARE} />
-                {race?.fixedWinner !== undefined && (
-                  <rect x={x} y={y} width={SQUARE} height={SQUARE} fill={`url(#${hatch})`} />
-                )}
+                {paint?.hatch && <rect x={x} y={y} width={SQUARE} height={SQUARE} fill={hatchFill(hatch, paint.hatch)} />}
                 <text x={x + SQUARE / 2} y={y + SQUARE / 2}>
                   {postal}
                 </text>
@@ -132,7 +130,7 @@ export function SenateMap({ view, selected, onSelect }: SenateMapProps) {
         {tip && tipAt && <MapTooltip tip={tip} at={tipAt} width={ATLAS_WIDTH} height={ATLAS_HEIGHT} />}
       </div>
 
-      <MapLegend noRace={t('map.noRace.senate')} hasFixed={hasFixed}>
+      <MapLegend noRace={t('map.noRace.senate')} colours={colours}>
         <p className="map-hint">{t('map.hint.senate')}</p>
       </MapLegend>
     </section>

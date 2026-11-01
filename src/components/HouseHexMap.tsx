@@ -5,10 +5,11 @@
 import { useId, useMemo } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import type { MapColours } from '../state/url.ts'
 import { HEX_SIZE, houseLayout } from '../state/houseLayout.ts'
-import { HatchPattern, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
+import { HatchPatterns, hatchFill, MapLegend, MapTooltip, MapZoomControls } from './MapParts.tsx'
 import { useMapZoom, type ZoomRequest } from './useMapZoom.ts'
-import { ratingClass, useRaceMap } from './useRaceMap.ts'
+import { racePaint, useRaceMap } from './useRaceMap.ts'
 
 interface HouseHexMapProps {
   view: ChamberView
@@ -17,6 +18,7 @@ interface HouseHexMapProps {
   onSelect: (id: string | undefined) => void
   /** The race picked in the search, to zoom to. */
   zoomRequest?: ZoomRequest
+  colours: MapColours
 }
 
 /** Every hexagon has the same size: at 360 px wide, they are about 8 px across
@@ -28,7 +30,7 @@ const SEARCH_ZOOM = 4
 // The layout is fixed: build it once.
 const LAYOUT = houseLayout()
 
-export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexMapProps) {
+export function HouseHexMap({ view, selected, onSelect, zoomRequest, colours }: HouseHexMapProps) {
   const { t } = useI18n()
   const hatch = `hatch-${useId()}`
   const { races } = view
@@ -44,7 +46,6 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
   )
 
   const raceIndex = useMemo(() => new Map(races.map((race, k) => [race.id, k])), [races])
-  const hasFixed = races.some((race) => race.fixedWinner !== undefined)
   const tipHex = tip && hexOf(tip.race.id)
   // It points at the hexagon's top.
   const tipAt = tipHex && zoom.place([tipHex.centre[0], tipHex.centre[1] - HEX_SIZE / 2])
@@ -67,7 +68,7 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
           {...mapProps}
         >
           <defs>
-            <HatchPattern id={hatch} />
+            <HatchPatterns id={hatch} />
           </defs>
 
           <g transform={zoom.transform.toString()}>
@@ -76,12 +77,11 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
               // Every district has a race (checked in houseLayout.test.ts).
               if (k === undefined) return null
               const details = describe(k)
+              const paint = racePaint(details, colours)
               return (
                 <g key={hex.id}>
-                  <path className={`map-state map-race ${ratingClass(details.rating)}`} d={hex.d} {...raceProps(details)} />
-                  {details.race.fixedWinner !== undefined && (
-                    <path className="map-hatch" d={hex.d} fill={`url(#${hatch})`} aria-hidden="true" />
-                  )}
+                  <path className={`map-state map-race ${paint.fill}`} d={hex.d} {...raceProps(details)} />
+                  {paint.hatch && <path className="map-hatch" d={hex.d} fill={hatchFill(hatch, paint.hatch)} aria-hidden="true" />}
                 </g>
               )
             })}
@@ -106,7 +106,7 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest }: HouseHexM
         {tip && tipAt && <MapTooltip tip={tip} at={tipAt} width={width} height={height} />}
       </div>
 
-      <MapLegend hasFixed={hasFixed}>
+      <MapLegend colours={colours}>
         <p className="map-hint">{t('map.hint.house')}</p>
         <p className="map-hint">{t('map.zoom.hint')}</p>
         <p className="map-hint">{t('map.layout.house')}</p>
