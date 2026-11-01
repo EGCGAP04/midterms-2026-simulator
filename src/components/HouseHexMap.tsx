@@ -68,7 +68,7 @@ export function HouseHexMap({ view, selected, onSelect, zoomRequest, colours }: 
           {...mapProps}
         >
           <defs>
-            <HatchPatterns id={hatch} />
+            <HatchPatterns id={hatch} zoom={zoom.transform.k} />
           </defs>
 
           <g transform={zoom.transform.toString()}>
