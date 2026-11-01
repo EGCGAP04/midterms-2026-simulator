@@ -21,7 +21,7 @@ All code, comments, commit messages and docs are in **English**. The UI is bilin
 
 ## 2. Data source and exporter
 
-The forecast lives in an Excel workbook, `2026_US_Elections.xlsx`. The exporter reads **cached values** with `openpyxl.load_workbook(path, data_only=True)`. The file is always saved by Excel, so the caches are present. It also reads formulas in a second pass with `data_only=False`, but only to detect race types.
+The forecast lives in an Excel workbook, `2026_US_Elections.xlsx`. The exporter reads **cached values** with `openpyxl.load_workbook(path, data_only=True)`. The file is always saved by a spreadsheet app that stores them (Excel or LibreOffice), so the caches are present. It also reads formulas in a second pass with `data_only=False`, but only to detect race types.
 
 CLI:
 
@@ -33,7 +33,7 @@ Sheet names change with each update, so they are arguments.
 
 ### 2.1 Baseline
 
-- `g0 = 'Senate House'!G11` (currently −0.09, i.e. D+9.0). This is the **model baseline**: the environment at which every race equals the workbook. It is never shown on the page; the page opens at its own default, `DEFAULT_ENV` (§3.3, §4).
+- `g0 = 'Senate House'!G11`, the generic-ballot poll average with the undecided share adjusted (the workbook's "Fixated Average", `=D11+E11`; currently −0.0894, i.e. D+8.94). This is the **model baseline**: the environment at which every race equals the workbook. It is never shown on the page; the page opens at its own default, `DEFAULT_ENV` (§3.3, §4).
 - All margins are **R − D** (or R − opposition) as fractions: −0.09 = D+9.
 - The House sheet named in `--house-sheet` is the one the Senate sheet references, so both chambers share the same baseline.
 
