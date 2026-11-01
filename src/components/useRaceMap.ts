@@ -25,33 +25,23 @@ export function outcomeClass(winner: Party, flip: boolean): string {
   return `rating-${winner.toLowerCase()}-${flip ? 'safe' : 'tilt'}`
 }
 
-/** The classes whose fill is light, with dark text: a hatch over them is
- * drawn in dark stripes. */
-const LIGHT_FILLS = new Set([
-  'rating-d-tilt',
-  'rating-d-lean',
-  'rating-d-likely',
-  'rating-r-tilt',
-  'rating-r-lean',
-  'rating-i-light',
-])
-
 /** How a race is painted on a map: its fill class, and the hatch over a flip. */
 export interface RacePaint {
   fill: string
-  /** Undefined when the race holds; otherwise the stripes' tone. */
-  hatch: 'light' | 'dark' | undefined
+  /** Undefined when the race holds; otherwise the winner, whose colour the
+   * stripes take. */
+  hatch: Party | undefined
 }
 
 export function racePaint(details: RaceDetails, colours: MapColours): RacePaint {
   const flip = details.flip !== undefined
   const fill = colours === 'flips' ? outcomeClass(details.outcome.winner, flip) : ratingClass(details.rating)
-  return { fill, hatch: flip ? (LIGHT_FILLS.has(fill) ? 'dark' : 'light') : undefined }
+  return { fill, hatch: flip ? details.outcome.winner : undefined }
 }
 
 /** The fill of a flip's hatch: one of the patterns of `HatchPatterns`. */
-export function hatchFill(id: string, tone: 'light' | 'dark'): string {
-  return `url(#${id}-${tone})`
+export function hatchFill(id: string, party: Party): string {
+  return `url(#${id}-${party.toLowerCase()})`
 }
 
 export interface RaceDetails {
