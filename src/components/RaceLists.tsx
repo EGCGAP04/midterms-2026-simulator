@@ -8,6 +8,7 @@ import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
 import { closestRaces, flipsByLoser, tippingPoint } from '../model/lists.ts'
 import type { Party } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import { RedrawnMark } from './RedrawnMark.tsx'
 import { raceDetails, ratingClass } from './useRaceMap.ts'
 
 interface RaceListsProps {
@@ -45,6 +46,14 @@ export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
     [races, outcomes, senate, notUp],
   )
 
+  // The note under the lists, when one of the races showing was redrawn.
+  const showing = [
+    ...LOSERS.flatMap((party) => (expanded.has(party) ? lists.flips[party] : lists.flips[party].slice(0, FLIPS_SHOWN))),
+    ...lists.closest,
+    ...(lists.tipping === undefined ? [] : [lists.tipping]),
+  ]
+  const anyRedrawn = showing.some((k) => races[k].context.redrawn)
+
   /** A race as a button: a click selects it, or clears it if selected. */
   const item = (k: number) => {
     const details = raceDetails(lang, view, k)
@@ -58,7 +67,10 @@ export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
           onClick={() => onSelect(selected === id ? undefined : id)}
         >
           <span className={`list-swatch ${ratingClass(details.rating)}`} aria-hidden="true" />
-          <span className="list-name">{details.name}</span>
+          <span className="list-name">
+            {details.name}
+            {details.race.context.redrawn && <RedrawnMark />}
+          </span>
           {/* A fixed race has no real margin: its rating instead. */}
           <span className="list-margin">{details.margin ?? details.ratingText}</span>
         </button>
@@ -126,6 +138,7 @@ export function RaceLists({ view, selected, onSelect }: RaceListsProps) {
             </p>
           </section>
         </div>
+        {anyRedrawn && <p className="list-note lists-redrawn">{t('lists.redrawn.note')}</p>}
       </details>
     </section>
   )

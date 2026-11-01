@@ -77,6 +77,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── RaceLists.tsx        # Flips, closest races and the tipping point
 │   │   ├── RacePanel.tsx        # The selected race: candidates, chances, context and notes
 │   │   ├── RaceSearch.tsx       # Find a race by district, state or candidate
+│   │   ├── RedrawnMark.tsx      # The asterisk after a district redrawn for 2026
 │   │   ├── SeatHistogram.tsx    # Simulated R seats, majority line, medians and 80% intervals
 │   │   ├── SenateMap.tsx        # States by rating, with a tooltip and selection
 │   │   ├── Slider.tsx           # National environment, D+29 … R+20

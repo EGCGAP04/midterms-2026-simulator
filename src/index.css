@@ -1370,6 +1370,12 @@ main {
   color: var(--color-muted);
 }
 
+.panel p.panel-redrawn {
+  margin-top: 0.125rem;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
 /* Lists (§4.7) */
 
 .lists-title {
@@ -1481,6 +1487,11 @@ main {
 .list-note {
   margin: 0.25rem 0 0;
   color: var(--color-muted);
+}
+
+.lists-redrawn {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
 }
 
 /* Seat histogram (§4.6) */
