@@ -150,11 +150,11 @@ interface Race {
 }
 
 interface Context {
-  pres2024: number;      // two-party, Trump − Harris. House: on the 2026 lines, S + 2·(U − V) when redrawn
-                         // (the workbook's own projection, factor in AD2); Senate: statewide
+  pres2024: number;      // two-party, Trump − Harris. House: `S`, on the 2024 lines even when
+                         // redrawn (an actual result, not a projection); Senate: statewide
   last: { margin: number; year: number } | null; // House: last House race (null when Q = S);
                          // Senate: last election for the same seat
-  redrawn?: boolean;     // House only: lines changed since `last`, so it was run on other lines
+  redrawn?: boolean;     // House only: lines changed for 2026, so `pres2024` and `last` are on other lines
 }
 
 interface Dataset {
@@ -360,7 +360,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
      - **MT3:** the three candidates with their shares at the slider (§3.1) as well. The workbook gives no status for Bankhead, so none is shown.
      - **DvD / RvR:** both candidates with their within-party shares (`intraShares`) instead of a chance: the seat is decided, and the model does not say which of the two wins.
      - **Uncontested:** the only candidate.
-   - **Context**, as background only: the 2024 presidential margin and the last House race (with its year, and an asterisk when `redrawn`) or, in the Senate, the last election for that seat. One decimal, e.g. "Pres. 2024: R+11.4 · House 2024*: R+13.9". With the asterisk, a note just below: "* Redrawn for 2026: result on the previous lines." / "* Redibujado para 2026: resultado con los límites anteriores." Screen readers hear "(redrawn for 2026)" instead of the asterisk. A House race whose last election was not R vs D (`last` is null) shows only the presidential margin.
+   - **Context**, as background only: the 2024 presidential margin and the last House race (with its year) or, in the Senate, the last election for that seat. One decimal, e.g. "Pres. 2024: R+11.4 · House 2024: R+13.9". Both are results on the lines they were run on: when `redrawn`, an asterisk follows each margin ("Pres. 2024: D+8.3* · House 2024: D+9.2*") and a note goes just below: "* Redrawn for 2026: result on the previous lines." / "* Redibujado para 2026: resultado con los límites anteriores." Screen readers hear "(redrawn for 2026)" instead of the asterisk. A House race whose last election was not R vs D (`last` is null) shows only the presidential margin.
    - **Type notes**, one line each (a race can have two, e.g. a blend with an independent):
      - `blend`: "Top-two primary blend" ("top-four" in Alaska), and how much it moves with the environment (the slope, as a percentage).
      - `uncontested`: only one candidate is running.

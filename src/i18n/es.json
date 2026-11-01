@@ -59,7 +59,6 @@
   "panel.pres": "Pres. 2024: {margin}",
   "panel.lastHouse": "Cámara {year}: {margin}",
   "panel.shift": "Ajuste local: {shift}",
-  "panel.lastHouseRedrawn": "Cámara {year}*: {margin}",
   "panel.redrawn.note": "* Redibujado para 2026: resultado con los límites anteriores.",
   "panel.lastSenate": "Senado {year}: {margin}",
   "incumbency.incumbent": "Titular",
