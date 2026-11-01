@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/context.ts'
 import { formatMargin, formatProbability, formatShare } from '../i18n/format.ts'
 import type { Lang } from '../i18n/i18n.ts'
 import { raceNotes } from '../i18n/raceNotes.ts'
+import { raceShift, type Adjustments } from '../model/adjust.ts'
 import type { Incumbency, Party, Race } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
 import { WithRedrawnMark } from './RedrawnMark.tsx'
@@ -13,6 +14,8 @@ import { outcomeClass, raceDetails, ratingClass, type RaceDetails } from './useR
 
 interface RacePanelProps {
   view: ChamberView
+  /** The local shifts (§3.5), to show a race's own. */
+  adjustments: Adjustments
   /** The selected race's id. */
   selected: string | undefined
   /** The panel's element, to bring it into view. */
@@ -92,7 +95,7 @@ const FlipIcon = () => (
   </svg>
 )
 
-export function RacePanel({ view, selected, ref }: RacePanelProps) {
+export function RacePanel({ view, adjustments, selected, ref }: RacePanelProps) {
   const { lang, t } = useI18n()
   const k = selected === undefined ? -1 : view.races.findIndex((race) => race.id === selected)
   const details = k === -1 ? undefined : raceDetails(lang, view, k)
@@ -106,12 +109,19 @@ export function RacePanel({ view, selected, ref }: RacePanelProps) {
       <p className="visually-hidden" aria-live="polite">
         {details && t('panel.showing', { name: details.name })}
       </p>
-      {details ? <RaceDetailsView details={details} view={view} /> : <p className="panel-empty">{t('panel.empty')}</p>}
+      {details ? <RaceDetailsView details={details} view={view} shift={raceShift(details.race, adjustments)} /> : <p className="panel-empty">{t('panel.empty')}</p>}
     </aside>
   )
 }
 
-function RaceDetailsView({ details, view }: { details: RaceDetails; view: ChamberView }) {
+interface RaceDetailsViewProps {
+  details: RaceDetails
+  view: ChamberView
+  /** The race's local shift, R − opposition. */
+  shift: number
+}
+
+function RaceDetailsView({ details, view, shift }: RaceDetailsViewProps) {
   const { lang, t } = useI18n()
   const { race, outcome, rating, flip } = details
   const rows = candidateRows(details, view.forecast.probabilities.get(race.id))
@@ -139,6 +149,7 @@ function RaceDetailsView({ details, view }: { details: RaceDetails; view: Chambe
           </>
         )}
       </p>
+      {shift !== 0 && <p className="panel-shift">{t('panel.shift', { shift: formatMargin(lang, shift, { decimals: 1 }) })}</p>}
 
       <table className="panel-candidates">
         <caption className="visually-hidden">{t('panel.candidates')}</caption>

@@ -2,6 +2,7 @@
 // histogram, lists and footer.
 
 import { useCallback, useDeferredValue, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { AdjustPanel } from './components/AdjustPanel.tsx'
 import { Footer } from './components/Footer.tsx'
 import { Header } from './components/Header.tsx'
 import { HouseDistrictMap } from './components/HouseDistrictMap.tsx'
@@ -17,6 +18,7 @@ import { Toggle } from './components/Toggle.tsx'
 import type { ZoomRequest } from './components/useMapZoom.ts'
 import { LangContext, useI18n } from './i18n/context.ts'
 import { translate } from './i18n/i18n.ts'
+import type { Adjustments } from './model/adjust.ts'
 import type { Simulator } from './model/simulate.ts'
 import type { Chamber, Dataset } from './model/types.ts'
 import { useDataset } from './state/dataset.ts'
@@ -35,6 +37,8 @@ interface ForecastProps {
   onHouseMapChange: (houseMap: HouseMap) => void
   mapColours: MapColours
   onMapColoursChange: (mapColours: MapColours) => void
+  adjustments: Adjustments
+  onAdjustmentsChange: (adjustments: Adjustments) => void
   dataset: Dataset
   simulator: Simulator
 }
@@ -57,11 +61,13 @@ function Forecast({
   onHouseMapChange,
   mapColours,
   onMapColoursChange,
+  adjustments,
+  onAdjustmentsChange,
   dataset,
   simulator,
 }: ForecastProps) {
   const { t } = useI18n()
-  const view = useChamberView(dataset, simulator, chamber, env)
+  const view = useChamberView(dataset, simulator, chamber, env, adjustments)
   // The selected race (§4.4), shown by the race panel (§4.5) and picked on
   // the map or in the lists (§4.7). It belongs to its chamber: switching
   // chambers clears it.
@@ -127,7 +133,17 @@ function Forecast({
         </div>
         {/* Right of the page's column on wide screens (§4.5). */}
         <div className="side side-right">
-          <RacePanel ref={panel} view={view} selected={selected} />
+          <RacePanel ref={panel} view={view} adjustments={adjustments} selected={selected} />
+        </div>
+        {/* Left of it (§4.10). */}
+        <div className="side side-left">
+          <AdjustPanel
+            chamber={chamber}
+            races={dataset.races}
+            selected={dataset.races.find((race) => race.chamber === chamber && race.id === selected)}
+            adjustments={adjustments}
+            onChange={onAdjustmentsChange}
+          />
         </div>
         <SeatHistogram view={view} />
         <RaceLists view={view} selected={selected} onSelect={onListSelect} />
@@ -177,6 +193,8 @@ export default function App() {
             onHouseMapChange={(houseMap) => setState((s) => ({ ...s, houseMap }))}
             mapColours={state.mapColours}
             onMapColoursChange={(mapColours) => setState((s) => ({ ...s, mapColours }))}
+            adjustments={state.adjustments}
+            onAdjustmentsChange={(adjustments) => setState((s) => ({ ...s, adjustments }))}
             dataset={data.dataset}
             simulator={data.simulator}
           />

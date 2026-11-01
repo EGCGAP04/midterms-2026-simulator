@@ -39,6 +39,12 @@ export const ENV_SHIFT_STEP = 0.01
 
 /** A two-candidate race never shows the loser below 5% (§3.1). */
 export const MARGIN_CAP = 0.9
+
+/** Local shifts (§3.5): their range either way, the controls' step, and the
+ * rounding of their values (0.1 points). */
+export const ADJ_MAX = 0.2
+export const ADJ_STEP = 0.005
+export const ADJ_ROUND = 0.001
 /** Montana: the leading share stays within [5%, 95%] (§3.1). */
 export const MT3_SHARE_MIN = 0.05
 export const MT3_SHARE_MAX = 0.95

@@ -755,15 +755,16 @@ button {
   display: inline;
 }
 
-/* Narrow screens: map, race panel, histogram, lists. Medium ones: the panel
- * beside the rest, in view while the page scrolls past them. Wide ones: the
- * panel in the empty space right of the page's column, level with the slider,
- * and the map the column's full width (docs/SPEC.md §4.5). */
+/* Narrow screens: map, race panel, local adjustments, histogram, lists.
+ * Medium ones: the race panel beside the rest, in view while the page scrolls
+ * past them. Wide ones: the race panel in the empty space right of the page's
+ * column and the adjustments in the one left of it, level with the slider,
+ * and the map the column's full width (docs/SPEC.md §4.5, §4.10). */
 main {
   position: relative;
 }
 
-/* Only a box of its own on wide screens; elsewhere the panel is a grid item
+/* Only a box of its own on wide screens; elsewhere the panels are grid items
  * of .forecast-body. */
 .side {
   display: contents;
@@ -771,7 +772,7 @@ main {
 
 .forecast-body {
   display: grid;
-  grid-template-areas: 'map' 'panel' 'histogram' 'lists';
+  grid-template-areas: 'map' 'panel' 'adjust' 'histogram' 'lists';
   gap: 1.5rem;
   margin-top: 2rem;
 }
@@ -783,6 +784,10 @@ main {
 
 .panel {
   grid-area: panel;
+}
+
+.adjust {
+  grid-area: adjust;
 }
 
 .histogram {
@@ -798,9 +803,10 @@ main {
 @media (min-width: 64rem) {
   .forecast-body {
     grid-template-columns: minmax(0, 1fr) 18rem;
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
     grid-template-areas:
       'map panel'
+      'adjust panel'
       'histogram panel'
       'lists panel';
     align-items: start;
@@ -830,6 +836,15 @@ main {
 
   .side-right {
     left: calc(100% + 1.25rem);
+  }
+
+  .side-left {
+    right: calc(100% + 1.25rem);
+  }
+
+  .adjust {
+    position: sticky;
+    top: 1rem;
   }
 }
 
@@ -1228,9 +1243,10 @@ main {
   white-space: nowrap;
 }
 
-/* Race panel */
+/* Race panel, and the local adjustments' box (§4.10) */
 
-.panel {
+.panel,
+.adjust {
   padding: 1rem;
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;
@@ -1387,6 +1403,107 @@ main {
   margin-top: 0.125rem;
   font-size: 0.8125rem;
   color: var(--color-muted);
+}
+
+.panel p.panel-shift {
+  font-weight: 600;
+}
+
+/* Local adjustments (§4.10) */
+
+.adjust p {
+  margin: 0 0 0.5rem;
+}
+
+.adjust-hint,
+.adjust-empty {
+  color: var(--color-muted);
+}
+
+.adjust .search {
+  max-width: none;
+}
+
+.adjust p.adjust-offers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0.5rem 0 0;
+}
+
+.adjust-offer {
+  padding: 0.25rem 0.625rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.adjust-offer:hover {
+  border-style: solid;
+}
+
+.adjust-list {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Name, value and remove button on one line; the slider under them. */
+.adjust-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.125rem 0.5rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.adjust-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.adjust-value-d {
+  color: var(--color-d-text-raised);
+}
+
+.adjust-value-r {
+  color: var(--color-r-text-raised);
+}
+
+.adjust-value-even {
+  color: var(--color-muted);
+}
+
+.adjust-remove {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background: none;
+  color: var(--color-muted);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.adjust-remove:hover {
+  border-color: var(--color-border);
+  color: inherit;
+}
+
+.adjust-range {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin: 0;
+  accent-color: light-dark(#555, #bbb);
+}
+
+.adjust-reset {
+  margin-top: 0.75rem;
 }
 
 /* Lists (§4.7) */
