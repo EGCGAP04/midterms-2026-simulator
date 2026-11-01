@@ -53,6 +53,12 @@ describe('summaryBlocks', () => {
     expect(blocks[blocks.length - 1]).toMatchObject({ party: 'R', kind: 'notUp', seats: 4 })
   })
 
+  it('puts the independents not up right after the D seats not up', () => {
+    const blocks = summaryBlocks(races, outcomes, { D: 3, I: 2, R: 4 })
+    expect(blocks[1]).toMatchObject({ party: 'I', side: 'D', kind: 'notUp', seats: 2 })
+    expect(blocks[1].start).toBeCloseTo(3 / 20, 12)
+  })
+
   it('places each block right after the one before, filling the bar', () => {
     const blocks = summaryBlocks(races, outcomes, { D: 3, R: 4 })
     expect(blocks.reduce((sum, block) => sum + block.seats, 0)).toBe(18)

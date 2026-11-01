@@ -19,9 +19,25 @@ const blockKey = (block: Block): string => `${block.side}-${block.party}-${block
 
 /** The CSS class that colours a block (shared with the maps). */
 function ratingClass(block: Block): string {
-  if (block.kind === 'independent') return 'rating-i'
+  if (block.party === 'I') return 'rating-i'
   const bucket = block.kind === 'notUp' ? 'safe' : block.kind
   return `rating-${block.party.toLowerCase()}-${bucket}`
+}
+
+/** The independents not up caucus with D: their swatch in the table gets a
+ * triangle of the party's Tilt colour. */
+function swatchClass(block: Block): string {
+  const caucus = block.party === 'I' && block.kind === 'notUp' ? ' summary-swatch-caucus-d' : ''
+  return `summary-swatch ${ratingClass(block)}${caucus}`
+}
+
+/** Where the seats not up end on each side, as a share of the chamber. */
+function notUpSpans(blocks: readonly Block[]): { side: Block['side']; start: number; end: number }[] {
+  return (['D', 'R'] as const).flatMap((side) => {
+    const own = blocks.filter((block) => block.kind === 'notUp' && block.side === side && block.seats > 0)
+    if (own.length === 0) return []
+    return [{ side, start: Math.min(...own.map((b) => b.start)), end: Math.max(...own.map((b) => b.start + b.share)) }]
+  })
 }
 
 interface TotalProps {
@@ -50,6 +66,7 @@ export function SummaryBar({ view }: SummaryBarProps) {
   useTouchDismiss(bar, hovered !== undefined, () => setHovered(undefined))
 
   const blockName = (block: Block): string => {
+    if (block.kind === 'notUp' && block.party === 'I') return t('summary.notUpIndependent', { party: block.side })
     if (block.kind === 'notUp') return t('summary.notUpParty', { party: block.party })
     // An independent is named by the party it runs against.
     if (block.kind === 'independent') return t('summary.independent', { party: block.side === 'D' ? 'R' : 'D' })
@@ -71,12 +88,8 @@ export function SummaryBar({ view }: SummaryBarProps) {
   // Keep the tooltip inside the bar at either end.
   const tipAt = tip && Math.min(0.9, Math.max(0.1, tip.start + tip.share / 2))
   // The majority line, and in the Senate where the seats not up end.
-  const lines = [
-    0.5,
-    ...blocks
-      .filter((block) => block.kind === 'notUp')
-      .map((block) => (block.side === 'D' ? block.share : block.start)),
-  ]
+  const spans = notUpSpans(blocks)
+  const lines = [0.5, ...spans.map(({ side, start, end }) => (side === 'D' ? end : start))]
 
   return (
     <section className="summary">
@@ -147,17 +160,15 @@ export function SummaryBar({ view }: SummaryBarProps) {
         )}
         {senate && (
           <div className="summary-not-up" aria-hidden="true">
-            {blocks
-              .filter((block) => block.kind === 'notUp')
-              .map((block) => (
-                <span
-                  key={block.party}
-                  className={`summary-not-up-${block.party.toLowerCase()}`}
-                  style={{ '--share': block.share } as CSSProperties}
-                >
-                  {t('summary.notUp')}
-                </span>
-              ))}
+            {spans.map(({ side, start, end }) => (
+              <span
+                key={side}
+                className={`summary-not-up-${side.toLowerCase()}`}
+                style={{ '--share': end - start } as CSSProperties}
+              >
+                {t('summary.notUp')}
+              </span>
+            ))}
           </div>
         )}
       </div>
@@ -177,7 +188,7 @@ export function SummaryBar({ view }: SummaryBarProps) {
             {blocks.map((block) => (
               <tr key={blockKey(block)}>
                 <th scope="row">
-                  <span className={`summary-swatch ${ratingClass(block)}`} />
+                  <span className={swatchClass(block)} />
                   {blockName(block)}
                 </th>
                 <td>{formatCount(lang, block.seats)}</td>

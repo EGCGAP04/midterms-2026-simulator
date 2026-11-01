@@ -72,11 +72,18 @@ describe('at the baseline (slider = g0)', () => {
   })
 
   it('matches the workbook Senate totals, seats not up included', () => {
+    const notUp = dataset.senateNotUp
     const totals = seatTotals(
       senate.map((race) => outcomeAt(race, 0)),
-      dataset.senateNotUp,
+      notUp,
     )
-    expect(totals).toEqual(dataset.workbook.senate.seats)
+    // The workbook counts the independents not up (Sanders, King) as D.
+    expect({ D: totals.D + notUp.I, I: totals.I - notUp.I, R: totals.R }).toEqual(dataset.workbook.senate.seats)
+  })
+
+  it('fills the Senate with the seats not up', () => {
+    const { D, I, R } = dataset.senateNotUp
+    expect(D + I + R + senate.length).toBe(100)
   })
 
   it('gives Montana Alme − Bodnar = AE25', () => {

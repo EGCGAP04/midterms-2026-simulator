@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- The Senate's seats not up show the two independents who caucus with the Democrats, Bernie Sanders and Angus King, apart from the D ones: 32 D and 2 I (was 34 D), in a striped violet block next to the D seats not up and in the I total on the D + I side. In "Seats by rating" their swatch has a triangle in D's Tilt colour. The exporter takes them out of the workbook's D seats not up (`senateNotUp.I`). Independents running in 2026, Kevin Kiley included, still count with no party.
 - A race decided before the vote (uncontested or same-party) shows its winner's chance as "100%" instead of ">99%", in the map's tooltip and the race panel.
 - The maps' diagonal stripes mark the races that flip at the slider, not the fixed races (whose plain colour is their rating's). They are dark over light fills, so a flip that is only Tilt shows too. The legend explains them.
 - The race panel shows the winner at the slider first (in same-party and three-way races, the largest share), whatever their chance, under a "Candidates" heading. The flip flag becomes a pill before the race's name ("Hold R" on the winner's light colour, "Flip R → D" on its dark one), and the margin, in the leading party's colour, follows the rating.

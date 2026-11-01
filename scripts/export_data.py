@@ -29,6 +29,9 @@ HOUSE_RACES = 435
 SENATE_FIRST_ROW = 7
 SENATE_LAST_ROW = 41
 SENATE_RACES = 35
+# The independents not up in 2026, who caucus with the Democrats: the
+# workbook counts them in N3, the D seats not up (docs/SPEC.md §2.4).
+SENATE_NOT_UP_INDEPENDENTS = ("Bernie Sanders (VT)", "Angus King (ME)")
 
 # Bankhead is only named in Montana's note, not in any candidate cell.
 MT3_THIRD_CANDIDATE = "Alani Bankhead"
@@ -459,7 +462,11 @@ def main(argv: list[str] | None = None) -> int:
         "asOf": args.as_of,
         "sourceFile": args.xlsx.name,
         "g0": number(hv, "G11"),
-        "senateNotUp": {"D": int(number(sv, "N3")), "R": int(number(sv, "P3"))},
+        "senateNotUp": {
+            "D": int(number(sv, "N3")) - len(SENATE_NOT_UP_INDEPENDENTS),
+            "I": len(SENATE_NOT_UP_INDEPENDENTS),
+            "R": int(number(sv, "P3")),
+        },
         # The workbook's own totals, so the app's acceptance tests compare the
         # TypeScript model against the workbook (docs/SPEC.md §5).
         "workbook": {

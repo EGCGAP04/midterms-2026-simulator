@@ -631,6 +631,11 @@ button {
   vertical-align: -0.0625rem;
 }
 
+/* An independent who caucuses with D: the bottom-right half in D's Tilt. */
+.summary-swatch-caucus-d {
+  background: linear-gradient(to bottom right, var(--fill) 50%, var(--d-tilt) 50%);
+}
+
 /* The map and the race panel: side by side on wide screens, the panel under
  * the map on narrower ones (docs/SPEC.md §4.5). */
 /* Narrow screens: map, race panel, histogram, lists. Wide ones: the panel
