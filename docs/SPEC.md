@@ -270,7 +270,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 - **Contrast:** text reaches 4.5:1 against what is behind it (3:1 when large), in both themes. Party colours used as text are lightened in the dark theme (§4.2), a little more on the race panel's raised background.
 
 1. **Header:**
-   - Title: "Midterms 2026 Simulator" in both languages, as the app's name. Below it, a translated subtitle and the forecast's date (`asOf`): "Forecast as of 10/31" / "Pronóstico al 31/10" (month and day, in the language's order).
+   - Title: "Midterms 2026 Simulator" in both languages, as the app's name, after the logo: the favicon's hexagon, half blue and half red (`public/favicon.svg`), as tall as the title and the subtitle. Below it, a translated subtitle and the forecast's date (`asOf`): "Forecast as of 10/31" / "Pronóstico al 31/10" (month and day, in the language's order).
    - EN/ES toggle.
    - House/Senate switch.
    - Light/dark theme toggle. The page follows the browser's theme until the reader picks one; the choice is remembered in that browser (`localStorage`), not put in the URL.
