@@ -31,7 +31,6 @@ body:
       # every form in this folder: add a milestone to all of them when it is
       # created, and drop it from all of them when it closes.
       options:
-        - "M5: Race details and lists"
         - "M6: Polish and launch"
         - Not defined yet
     validations:

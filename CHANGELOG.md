@@ -32,7 +32,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - The simulation's error sigmas are calibrated (SPEC §3.3): national 2.5 points (was 3.0), House races 5.5 (was 5.0), Senate races 4.5 with polls and 6.5 with few polls or none (was 4.5 for all). At D+8.75 the chance of an R House majority drops from about 2% to under 1%, and of R Senate control from 34% to 31%.
-- Issue forms list only the open milestones (M5 and M6), and the roadmap marks M2, M3, M4 and M5 as done.
+- Issue forms list only the open milestone (M6), and the roadmap marks M2, M3, M4 and M5 as done.
+- On a touch screen, a tap on the summary bar or the histogram keeps its tooltip open until a touch anywhere else (the histogram's used to vanish when the finger lifted). Dragging across the histogram still moves it from bar to bar.
+- The spec records the measured simulation times: in Node, the House takes about 10 ms per slider move (worst 15 ms) and the Senate under 2 ms; in Chrome with the production build, about 15 ms from the slider to the updated page.
 - Specification: the page opens at D+8.75 (`DEFAULT_ENV`), separate from the workbook baseline; the slider runs from D+29 to R+20 in 0.01-point steps; candidate labels keep only the incumbency status; independents can run in the REP slot; Montana's third candidate is named; each race carries its 2024 presidential margin and its last election as context. Also documents workbook details the exporter must handle.
 - The Senate map's description, hover, selection, tooltip and legend moved to `useRaceMap` and `MapParts`, shared with the House maps.
 - Real district shapes are in scope: the spec and `CLAUDE.md` describe the district map, its source and how to rebuild it.
@@ -41,6 +43,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- On a phone, a finger that landed on the slider's track to scroll the page also moved the national environment to it. The slider now puts the value back when the gesture turns into a scroll.
+- On a 320 px screen the Senate's three seat totals (in Spanish) were 4 px wider than the page; they now fit.
+- In the dark theme, the race panel's party letters ("R", "D") had a 3.8:1 and 4.1:1 contrast on the panel's background; they are now lighter there and reach 4.5:1.
 - On the deployed site, the light theme showed the dark theme's text colours when the system preferred dark (and the reverse). The production build replaced `light-dark()` with a fallback that follows only the system theme; the CSS build target now keeps `light-dark()` as written.
 
 [Unreleased]: https://github.com/EGCGAP04/midterms-2026-simulator/commits/main

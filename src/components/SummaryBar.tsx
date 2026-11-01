@@ -1,7 +1,7 @@
 // The summary bar (docs/SPEC.md §4.3): the chamber's seats by rating at the
 // slider's environment, each side's seat total and its chance of control.
 
-import { useState, type CSSProperties } from 'react'
+import { useRef, useState, type CSSProperties } from 'react'
 import { useI18n } from '../i18n/context.ts'
 import { formatCount, formatProbability } from '../i18n/format.ts'
 import { HOUSE_MAJORITY, SENATE_R_CONTROL } from '../model/config.ts'
@@ -9,6 +9,7 @@ import { seatTotals } from '../model/seats.ts'
 import { summaryBlocks, type Block } from '../model/summary.ts'
 import type { Party } from '../model/types.ts'
 import type { ChamberView } from '../state/forecast.ts'
+import { useTouchDismiss } from './useTouchDismiss.ts'
 
 interface SummaryBarProps {
   view: ChamberView
@@ -41,9 +42,12 @@ function Total({ party, seats }: TotalProps) {
 export function SummaryBar({ view }: SummaryBarProps) {
   const { lang, t } = useI18n()
   const [hovered, setHovered] = useState<string>()
+  const bar = useRef<HTMLDivElement>(null)
   const { chamber, races, outcomes, forecast, notUp } = view
   const seats = seatTotals(outcomes, notUp)
   const blocks = summaryBlocks(races, outcomes, notUp)
+
+  useTouchDismiss(bar, hovered !== undefined, () => setHovered(undefined))
 
   const blockName = (block: Block): string => {
     if (block.kind === 'notUp') return t('summary.notUpParty', { party: block.party })
@@ -102,6 +106,7 @@ export function SummaryBar({ view }: SummaryBarProps) {
       <p className="summary-line-label">{line}</p>
       <div className="summary-chart">
         <div
+          ref={bar}
           className="summary-bar"
           role="img"
           aria-label={`${label}: ${shown.map((block) => `${blockName(block)} ${block.seats}`).join(', ')}`}

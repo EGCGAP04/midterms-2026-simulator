@@ -80,7 +80,8 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   │   ├── SummaryBar.tsx       # Seats by rating, totals and chances of control
 │   │   ├── Toggle.tsx           # Segmented control
 │   │   ├── useMapZoom.ts        # Zoom and pan for the House maps (d3-zoom)
-│   │   └── useRaceMap.ts        # The maps' race descriptions, hover and selection
+│   │   ├── useRaceMap.ts        # The maps' race descriptions, hover and selection
+│   │   └── useTouchDismiss.ts   # Closes a tapped tooltip on a touch elsewhere
 │   ├── i18n/                    # UI strings and locale-aware formatting
 │   │   ├── context.ts           # Page language for components (useI18n)
 │   │   ├── en.json              # English, the reference catalog
