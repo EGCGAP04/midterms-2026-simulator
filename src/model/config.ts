@@ -19,6 +19,16 @@ export const SEED = 2026
  * workbook's g0. */
 export const DEFAULT_ENV = -0.087
 
+/** Past environments marked on the slider (§4.2): the House popular vote,
+ * R − D, from the Clerk of the House's totals (2018: 44.85% R – 53.41% D;
+ * 2020: 47.23 – 50.27; 2022: 50.01 – 47.29; 2024: 49.75 – 47.19). */
+export const PAST_ENVS: readonly { year: number; env: number }[] = [
+  { year: 2018, env: -0.0856 },
+  { year: 2020, env: -0.0304 },
+  { year: 2022, env: 0.0272 },
+  { year: 2024, env: 0.0256 },
+]
+
 /** Slider range and step (§4.2). */
 export const ENV_MIN = -0.29
 export const ENV_MAX = 0.2

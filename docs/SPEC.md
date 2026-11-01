@@ -281,6 +281,8 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - Shows the current value with two decimals (e.g. "D+8.75", or "D+8,75" in Spanish; "EVEN" at 0), in the track's colour at that point, darkened (light theme) or lightened (dark theme) just enough to read.
    - The track uses the rating colours (§4.3), the same in both themes: light grey (`#E4E4E4`) at EVEN, Tilt at 2 points, Lean at 4, Likely at 8 and Safe from 16 on, each side in its party's colours, mixed in OKLCH between stops.
    - A marker at the default and a "Reset to default (D+8.70)" button. The workbook baseline `g0` is not shown.
+   - Marks for reference, labelled above the track: "Even" ("Empate") and the House popular vote (R − D, the slider's own measure) of past elections, from the Clerk of the House's totals: 2018 D+8.56 (44.85% R – 53.41% D), 2020 D+3.04 (47.23 – 50.27), 2022 R+2.72 (50.01 – 47.29) and 2024 R+2.56 (49.75 – 47.19). 2022 and 2024 are 0.16 points apart, so they share one label ("2022 · 2024"). Each label's tooltip gives its value. On narrow screens the years are shortened ("’18", "’22/’24") and the labels take two rows, so they do not overlap.
+   - The marks' lines (the default's in the text colour, the others muted) are a little taller than the thumb and run under it: the thumb covers them as it passes. The track is drawn under the marks, and the thumb (1.25rem) over them.
 3. **Summary bar:**
    - Stacked horizontal bar of the chamber's seats by rating at the slider's environment (§3.2), one block per rating with its seat count inside when it fits:
      - Left to right: Safe D, Likely D, Lean D, Tilt D, then the violet blocks for races an independent leads, then Tilt R, Lean R, Likely R, Safe R.
