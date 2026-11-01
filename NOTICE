@@ -1,0 +1,17 @@
+Midterms 2026 Simulator
+Copyright 2026 Enzo Agustín Aguirre Polenta (EGCGAP04)
+
+Created by Enzo Agustín Aguirre Polenta (EGCGAP04), author of the code
+and of the 2026 US House and Senate forecast it shows.
+https://github.com/EGCGAP04/midterms-2026-simulator
+
+The code and documentation are licensed under the Apache License,
+Version 2.0 (see LICENSE). The forecast in public/races.json is licensed
+under the Creative Commons Attribution 4.0 International License
+(CC BY 4.0, see LICENSE-DATA).
+
+Third-party material keeps its own terms:
+- public/us-house-districts-2026.json is derived from the U.S. Census
+  Bureau's TIGER/Line Shapefiles (public domain).
+- The state and national shapes come from us-atlas (ISC License), derived
+  from the U.S. Census Bureau's cartographic boundary files.

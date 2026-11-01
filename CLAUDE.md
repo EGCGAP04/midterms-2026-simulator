@@ -26,7 +26,7 @@ Out of scope unless asked: a backend, other election years, editing the forecast
 
 ## Git and GitHub
 
-- Repo: `github.com/EGCGAP04/midterms-2026-simulator` (public, MIT). Use `gh` for everything GitHub, and check state with `gh` rather than trusting local branches. If `gh` has more than one account logged in, the active one must be `EGCGAP04` (`gh auth switch`).
+- Repo: `github.com/EGCGAP04/midterms-2026-simulator` (public; Apache 2.0 for the code, CC BY 4.0 for the forecast in `public/races.json`). Use `gh` for everything GitHub, and check state with `gh` rather than trusting local branches. If `gh` has more than one account logged in, the active one must be `EGCGAP04` (`gh auth switch`).
 - `main` is protected by a ruleset: **no direct pushes**, no force-push, no deletion. Everything goes in through a PR (no approvals required). The `Build and test` check must pass.
 - **Signed commits on every branch.** Signing is set up in Enzo's `~/.gitconfig` (SSH, `commit.gpgsign true`). Never use `--no-gpg-sign`.
 - **Attribution:** commits Claude Code prepares end with `Co-Authored-By: Claude <model> <noreply@anthropic.com>`, and PR bodies with the *Generated with Claude Code* line, as in Enzo's other repositories.

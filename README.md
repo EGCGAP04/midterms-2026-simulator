@@ -67,6 +67,7 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 │   └── test_export_data.py
 ├── src/
 │   ├── components/              # React components: render and translate events only
+│   │   ├── Footer.tsx           # Author and licenses
 │   │   ├── Header.tsx           # Title, chamber switch, language and theme toggles
 │   │   ├── HouseDistrictMap.tsx # Districts by rating, with their real 2026 shapes
 │   │   ├── HouseHexMap.tsx      # Districts by rating, a hexagon each, grouped by state
@@ -141,7 +142,9 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 ├── .oxlintrc.json
 ├── CHANGELOG.md
 ├── CLAUDE.md                    # Working guide and roadmap
-├── LICENSE
+├── LICENSE                      # Apache 2.0, for the code
+├── LICENSE-DATA                 # CC BY 4.0, for the forecast in public/races.json
+├── NOTICE                       # Author and third-party data
 ├── README.md
 ├── SECURITY.md
 ├── index.html
@@ -156,4 +159,8 @@ Every push to `main` builds the site and deploys it to GitHub Pages: <https://eg
 
 ## License
 
-[MIT](LICENSE)
+Created by Enzo Agustín Aguirre Polenta ([EGCGAP04](https://github.com/EGCGAP04)).
+
+- **Code and docs:** [Apache License 2.0](LICENSE). Redistributions and derivative works must keep the [NOTICE](NOTICE).
+- **The forecast** (`public/races.json`): [CC BY 4.0](LICENSE-DATA). You may reuse and adapt it, crediting the author and linking here, e.g. *"2026 forecast by Enzo Agustín Aguirre Polenta (EGCGAP04), https://github.com/EGCGAP04/midterms-2026-simulator, CC BY 4.0"*.
+- **Third-party data** keeps its own terms: the district shapes come from the U.S. Census Bureau's TIGER/Line files (public domain), and the state shapes from [us-atlas](https://github.com/topojson/us-atlas) (ISC).

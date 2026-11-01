@@ -365,6 +365,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
    - The page writes `lang` only when it differs from the browser language, so a shared link opens in the reader's language. A link from someone who switched away from their browser language still carries it.
    - An invalid or out-of-range value is ignored, as if it were missing.
    - The page keeps the URL in step with the state (`history.replaceState`, so it adds no history entries). It writes them once the slider stops for a moment, not on every step: browsers throttle frequent URL changes.
+9. **Footer:** a line under the page with the author and the licenses, so whoever reuses the forecast knows whom to credit: "© 2026 Enzo Agustín Aguirre Polenta · Code: Apache 2.0 · Forecast: CC BY 4.0 · GitHub", each license and "GitHub" a link (the license's official page, in Spanish where it has one, and the repository). The code is under the Apache License 2.0 (`LICENSE`, with the author in `NOTICE`); the forecast in `public/races.json` under CC BY 4.0 (`LICENSE-DATA`).
 
 ### i18n
 
@@ -407,7 +408,7 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 /public/races.json
 /public/us-house-districts-2026.json   (the House district map, TopoJSON)
 /src/model/{margin.ts, ratings.ts, seats.ts, simulate.ts, summary.ts, config.ts}
-/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseDistrictMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists}.tsx
+/src/components/{Header, Toggle, Slider, SummaryBar, SenateMap, HouseDistrictMap, HouseHexMap, MapParts, Tooltip, Histogram, RaceLists, Footer}.tsx
 /src/components/useRaceMap.ts  (what the maps share: race descriptions, hover, focus and selection)
 /src/components/useMapZoom.ts  (zoom and pan for the House maps, with d3-zoom)
 /src/i18n/{en.json, es.json, i18n.ts, format.ts}
@@ -415,4 +416,5 @@ Use a responsive layout that also works on a phone, down to 320 px wide, without
 /src/state/{env.ts, url.ts, dataset.ts, theme.ts, forecast.ts, atlas.ts, districts.ts}   (slider rounding and key steps; the URL state; loading races.json; the theme; a chamber's outcomes and chances; loading the states map; loading the district map)
 /src/state/{hexGrid.ts, houseHexes.json, houseLayout.ts}   (the hexagon grid; the generated House layout; its hexagons, borders and labels)
 /README.md   (how to regenerate the data and deploy)
+/LICENSE, /NOTICE, /LICENSE-DATA   (Apache 2.0 for the code, CC BY 4.0 for the forecast)
 ```

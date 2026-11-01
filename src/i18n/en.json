@@ -3,6 +3,8 @@
   "app.subtitle": "A simulator of the 2026 US House and Senate elections",
   "app.loading": "Loading the forecast…",
   "app.loadError": "The forecast could not be loaded.",
+  "footer.code": "Code",
+  "footer.forecast": "Forecast",
   "lang.label": "Language",
   "lang.en": "English",
   "lang.es": "Español",
