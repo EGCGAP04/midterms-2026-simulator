@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- The race panel's background marks a district redrawn for 2026 with an asterisk after the year of its last House race ("House 2024*: D+1.7") instead of "(old lines)", with a note just below: "* Redrawn for 2026: result on the previous lines." "Key races" puts the same asterisk after every redrawn district's name, with a note under the lists. Screen readers hear "(redrawn for 2026)" instead.
+- The race panel's background marks a district redrawn for 2026 with an asterisk after each margin ("Pres. 2024: D+8.3* · House 2024: D+9.2*") instead of "(old lines)", with a note just below: "* Redrawn for 2026: result on the previous lines." "Key races" puts the same asterisk after every redrawn district's name, with a note under the lists. Screen readers hear "(redrawn for 2026)" instead.
 - "Seats in the simulations" is centred on the bars of "Seat distribution". In "Key races", "Tipping point" starts where "D loses" does: the lists take at most two columns, the same as the flips'. The Senate map's squares for the small states sit a little further left (and lower, clear of Cape Cod).
 - The race search is now a generic search box (`SearchBox.tsx`), shared with the local adjustments.
 - The Senate's seats not up show the two independents who caucus with the Democrats, Bernie Sanders and Angus King, apart from the D ones: 32 D and 2 I (was 34 D), in a striped violet block next to the D seats not up and in the I total on the D + I side. In "Seats by rating" their swatch has a triangle in D's Tilt colour. The exporter takes them out of the workbook's D seats not up (`senateNotUp.I`). Independents running in 2026, Kevin Kiley included, still count with no party.
@@ -31,6 +31,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- A district redrawn for 2026 showed the workbook's projection of the 2024 presidential margin onto the new lines (Alabama 02: R+15.7). It now shows the 2024 result on the previous lines, like the House race next to it (D+8.3): `context.pres2024` is the workbook's `S` for every district.
 - `npm run lint` reported two `react(refs)` warnings in the House maps: the zoom hook returned the map's ref inside the object the maps read during render. The maps now take the ref out of it, and the lint runs clean.
 - In CA-11 and CA-14, two Democrats running for an open seat, one was labelled "Open seat" and the other "Challenger". The exporter now labels both "Open seat" when a same-party race has no incumbent running.
 
